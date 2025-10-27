@@ -1,11 +1,182 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Home Page</title>
-</head>
-<body>
-    <p>Page content</p>
-</body>
+{% load static %}
+<!doctype html>
+<html lang="ru" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Маркетплейс Запчастей (Product Clone)</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    >
+
+    <style>
+      /* Навигация (полупрозрачный фон и цвет ссылок) */
+      .site-header {
+        background-color: rgba(0, 0, 0, .85);
+        -webkit-backdrop-filter: saturate(180%) blur(10px);
+        backdrop-filter: saturate(180%) blur(10px);
+      }
+      .site-header a {
+        color: #999;
+        transition: color .15s ease-in-out;
+      }
+      .site-header a:hover {
+        color: #fff;
+        text-decoration: none;
+      }
+
+      /* Стилизация "телефонов" (визуальные элементы в первом блоке) */
+      .product-device {
+        position: absolute;
+        right: 10%;
+        width: 300px;
+        height: 540px;
+        background-color: #3e3e3e;
+        border-radius: 21px;
+        transform: rotate(30deg);
+      }
+      .product-device::before {
+        position: absolute;
+        top: 10%;
+        right: 10px;
+        bottom: 10%;
+        left: 10px;
+        content: "";
+        background-color: rgba(255, 255, 255, .1);
+        border-radius: 5px;
+      }
+      .product-device-2 {
+        top: -3rem;
+        right: auto;
+        bottom: -3rem;
+        left: 5%;
+        background-color: #e5e5e5;
+        transform: rotate(-30deg);
+      }
+      .product-device-2::before {
+        background-color: rgba(0, 0, 0, .1);
+      }
+
+      /* Медиа-запрос для скрытия "телефонов" на маленьких экранах */
+      @media (max-width: 767.98px) {
+        .product-device {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <nav class="site-header sticky-top py-1">
+      <div class="container d-flex flex-column flex-md-row justify-content-between">
+        <a class="py-2" href="#" aria-label="Product">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mx-auto" role="img" viewBox="0 0 24 24"><title>Car Part</title><circle cx="12" cy="12" r="10"/><path d="M12 18V6M9 15h6M9 9h6"/></svg>
+        </a>
+        <a class="py-2 d-none d-md-inline-block" href="#">Каталог</a>
+        <a class="py-2 d-none d-md-inline-block" href="#">Как продать</a>
+        <a class="py-2 d-none d-md-inline-block" href="#">Вход</a>
+        <a class="py-2 d-none d-md-inline-block" href="#">Регистрация</a>
+        <a class="py-2 d-none d-md-inline-block" href="#">Корзина</a>
+      </div>
+    </nav>
+
+    <main class="container">
+
+      <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-body-tertiary">
+        <div class="col-md-5 p-lg-5 mx-auto my-5">
+          <h1 class="display-4 fw-normal">Наш Маркет Запчастей</h1>
+          <p class="lead fw-normal">Тысячи проверенных БУ автозапчастей напрямую от продавцов и разборок.</p>
+          <a class="btn btn-outline-secondary" href="#">Начать поиск по VIN</a>
+        </div>
+        <div class="product-device shadow-sm d-none d-md-block"></div>
+        <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
+      </div>
+
+      <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
+        <div class="text-bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+          <div class="my-3 py-3">
+            <h2 class="display-5">Двигатели (Б/У)</h2>
+            <p class="lead">Все марки и модели. С гарантией на проверку.</p>
+          </div>
+          <div class="bg-body-tertiary shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+            [Изображение двигателя]
+          </div>
+        </div>
+
+        <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+          <div class="my-3 p-3">
+            <h2 class="display-5">Кузов</h2>
+            <p class="lead">Бамперы, крылья, двери. Быстрая доставка по РФ.</p>
+          </div>
+          <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+            [Изображение кузовных деталей]
+          </div>
+        </div>
+      </div>
+
+      <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
+        <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+          <div class="my-3 p-3">
+            <h2 class="display-5">Тормозная система</h2>
+            <p class="lead">Диски, суппорты, колодки. Новое и БУ.</p>
+          </div>
+          <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+            [Изображение тормозных дисков]
+          </div>
+        </div>
+
+        <div class="text-bg-primary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+          <div class="my-3 py-3">
+            <h2 class="display-5">Шины и диски</h2>
+            <p class="lead">Летние и зимние комплекты. Сезонные скидки.</p>
+          </div>
+          <div class="bg-body-tertiary shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+            [Изображение шин]
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <footer class="container py-5">
+      <div class="row">
+        <div class="col-12 col-md">
+          <small class="d-block mb-3 text-muted">&copy; 2024 НашМаркет</small>
+        </div>
+        <div class="col-6 col-md">
+          <h5>Категории</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="link-secondary text-decoration-none" href="#">Двигатель</a></li>
+            <li><a class="link-secondary text-decoration-none" href="#">Электрика</a></li>
+            <li><a class="link-secondary text-decoration-none" href="#">Ходовая</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md">
+          <h5>Продавцам</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="link-secondary text-decoration-none" href="#">Разместить объявление</a></li>
+            <li><a class="link-secondary text-decoration-none" href="#">Тарифы</a></li>
+            <li><a class="link-secondary text-decoration-none" href="#">Правила</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md">
+          <h5>О проекте</h5>
+          <ul class="list-unstyled text-small">
+            <li><a class="link-secondary text-decoration-none" href="#">Контакты</a></li>
+            <li><a class="link-secondary text-decoration-none" href="#">Политика</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous">
+    </script>
+  </body>
 </html>
