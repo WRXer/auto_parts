@@ -84,6 +84,8 @@ class Part(models.Model):
     title = models.CharField(max_length=255, verbose_name='Заголовок')
     description = models.TextField(verbose_name='Подробное описание')
     part_number = models.CharField(max_length=100, verbose_name='OEM/Артикул', **NULLABLE)
+    donor_generation = models.ForeignKey('CarGeneration',on_delete=models.SET_NULL,related_name='donor_parts',verbose_name='Автомобиль-донор (Поколение/Модификация)',**NULLABLE)
+    car_generations = models.ManyToManyField('CarGeneration',related_name='compatible_parts', verbose_name='Совместимые модификации/поколения')    #Связь с совместимыми машинами (куда подходит запчасть)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     condition = models.CharField(max_length=10, choices=CONDITION_CHOICES, default='used', verbose_name='Состояние')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
