@@ -1,5 +1,7 @@
-from django.contrib import admin
+import uuid
 
+from django import forms
+from django.contrib import admin
 from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category
 
 
@@ -16,25 +18,58 @@ class CarModelAdmin(admin.ModelAdmin):
 class CarGenerationAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'year_start', 'year_end')
 
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+class PartAdminForm(forms.ModelForm):
+    """
+    Кастомная форма, которая гарантирует, что
+    донор будет добавлен в M2M перед сохранением.
+    """
+    class Meta:
+        model = Part
+        fields = '__all__'
+
+    def clean_part_id(self):
+        """
+        Автозаполнение внутреннего артикула продавца
+        :return:
+        """
+        id = self.cleaned_data.get('part_id')
+        if not id:    #Если поле пустое (или None), генерируем новый ID
+            id = uuid.uuid4().hex[:8].upper()    #Гарантируем уникальность и краткость
+            if Part.objects.filter(part_id=id).exists():    #Проверяем уникальность, чтобы избежать конфликтов при ручной генерации
+                return self.clean_part_id()    #Если сгенерированный ID уже есть, генерируем заново
+        return id
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)    #Получаем экземпляр Part (еще не в БД)
+        donor = self.cleaned_data.get('donor_generation')    #Получаем донора из 'cleaned_data'
+        selected_gens = self.cleaned_data.get('car_generations', [])    #Получаем список выбранных пользователем авто из 'cleaned_data'
+        final_gens = list(selected_gens)    #Превращаем в Python-список
+        if donor and (donor not in final_gens):    #Добавляем донора в список, если его там нет
+            final_gens.append(donor)
+        self.cleaned_data['car_generations'] = final_gens    #Перезаписываем 'cleaned_data' нашим новым списком.
+        if commit:
+            instance.save()   #Теперь мы вызываем оригинальный метод save(), который сохранит и инстанс, и M2M-поля, но M2M он возьмет уже из нашего измененного cleaned_data.
+            self.save_m2m()  # Сохраняем M2M, используя обновленные cleaned_data
+        return instance
+
+
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
+    form = PartAdminForm
     list_display = (
-        'title', 'price', 'donor_generation', 'compatible_auto_list', 'condition', 'is_active', 'created_at'
+        'part_id', 'title', 'price', 'donor_generation', 'compatible_auto_list', 'condition', 'is_active', 'created_at'
     )
     filter_horizontal = ('car_generations',)
 
     def compatible_auto_list(self, obj):
-        """
-        Возвращает строку с названиями совместимых автомобилей.
-        """
         full_list = []
         for gen in obj.car_generations.all():
             full_list.append(str(gen))
         return ", ".join(full_list)
 
-    compatible_auto_list.short_description = 'Совместимые авто'  # Заголовок столбца
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    search_fields = ('name',)
+    compatible_auto_list.short_description = 'Совместимые авто'
