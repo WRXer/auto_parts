@@ -1,4 +1,5 @@
 {% load static %}
+
 <!doctype html>
 <html lang="ru" data-bs-theme="light">
   <head>
@@ -6,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Маркетплейс Запчастей (Product Clone)</title>
 
-    <link
+      <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
@@ -71,29 +72,105 @@
   </head>
 
   <body>
-    <nav class="site-header sticky-top py-1">
-      <div class="container d-flex flex-column flex-md-row justify-content-between">
-        <a class="py-2" href="#" aria-label="Product">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#" aria-label="Product">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mx-auto" role="img" viewBox="0 0 24 24"><title>Car Part</title><circle cx="12" cy="12" r="10"/><path d="M12 18V6M9 15h6M9 9h6"/></svg>
+            CheapAutoParts
         </a>
-        <a class="py-2 d-none d-md-inline-block" href="#">Каталог</a>
-        <a class="py-2 d-none d-md-inline-block" href="#">Как продать</a>
-        <a class="py-2 d-none d-md-inline-block" href="#">Вход</a>
-        <a class="py-2 d-none d-md-inline-block" href="#">Регистрация</a>
-        <a class="py-2 d-none d-md-inline-block" href="#">Корзина</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Каталог
+              </button>
+            <ul class="dropdown-menu dropdown-menu-dark">
+              <li><a class="dropdown-item" href="#">Двигатель</a></li>
+              <li><a class="dropdown-item" href="#">Система охлаждения</a></li>
+              <li><a class="dropdown-item" href="#">Трансмиссия</a></li>
+              <li><a class="dropdown-item" href="#">Кузовные запчасти</a></li>
+              <li><a class="dropdown-item" href="#">Салон</a></li>
+            </ul>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button class="btn btn-dark" type="button">
+                Корзина 🛒 (0)
+              </button>
+            </li>
+            <li class="nav-item dropdown">
+              <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Личный кабинет
+              </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-3" style="min-width: 200px;">
+              <form class="px-2 py-1">
+                <div class="mb-3">
+                    <label for="exampleDropdownFormEmail2" class="form-label">Email</label>
+                    <input type="text" class="form-control" placeholder="Логин" required/>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleDropdownFormPassword2" class="form-label">Пароль</label>
+                    <input type="password" class="form-control" placeholder="Пароль" required/>
+                </div>
+                <button type="submit" class="btn btn-secondary w-100" href="#">Войти</button>
+                <hr class="dropdown-divider bg-secondary">
+                <button type="submit" class="btn btn-secondary w-100" href="#">Регистрация</button>
+              </form>
+            </ul>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
 
     <main class="container">
-
       <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-body-tertiary">
-        <div class="col-md-5 p-lg-5 mx-auto my-5">
-          <h1 class="display-4 fw-normal">Наш Маркет Запчастей</h1>
-          <p class="lead fw-normal">Тысячи проверенных БУ автозапчастей напрямую от продавцов и разборок.</p>
-          <a class="btn btn-outline-secondary" href="#">Начать поиск по VIN</a>
+        <div class="col-md-8 p-lg-5 mx-auto my-5">
+          <p class="lead fw-normal fw-bold">Поиск новых и б/у запчастей с разбора</p>
+            <form id="car-filter-form" class="d-flex align-items-center gap-2 justify-content-center mb-5">
+                <div class="btn-group">
+                  <button id="brand-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="">
+                    Марка
+                  </button>
+                  <ul id="brand-menu" class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-value="kia">KIA</a></li>
+                    <li><a class="dropdown-item" href="#" data-value="renault">Renault</a></li>
+                    <li><a class="dropdown-item" href="#" data-value="bmw">BMW</a></li>
+                  </ul>
+                </div>
+
+                <div class="btn-group">
+                  <button id="model-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="" disabled>
+                    Модель
+                  </button>
+                  <ul id="model-menu" class="dropdown-menu">
+                    </ul>
+                </div>
+
+                <div class="btn-group">
+                  <button id="mod-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="" disabled>
+                    Модификация
+                  </button>
+                  <ul id="mod-menu" class="dropdown-menu">
+                    </ul>
+                </div>
+
+                <button class="btn btn-outline-success" type="submit">Перейти</button>
+            </form>
+
+            <form class="d-flex" role="search">
+              <div class="input-group me-2 flex-grow-1">
+                <span class="input-group-text">Поиск по номеру запчасти:</span>
+                <input class="form-control" type="search" placeholder="Пример: 25739AA100" aria-label="Search"/>
+              </div>
+                <button class="btn btn-outline-success" type="submit">Поиск</button>
+            </form>
         </div>
         <div class="product-device shadow-sm d-none d-md-block"></div>
-        <div class="product-device product-device-2 shadow-sm d-none d-md-block"></div>
       </div>
 
       <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
