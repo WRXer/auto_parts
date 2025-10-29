@@ -1,0 +1,37 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="bg-dark text-light">
+    <div class="container py-5">
+        <h1 class="mb-4">Все запчасти</h1>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for part in all_parts %}
+            <div class="col">
+                <div class="card h-100 shadow-lg bg-light text-dark">
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">{{ part.title }}</h5>
+                        <p class="card-text text-muted">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                        <p class="card-text">{{ part.description|truncatewords:25 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                        <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                        <a href="#" class="btn btn-outline-success">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    В данный момент запчастей в этой категории нет.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+<script>
+    // Вставьте сюда JavaScript-код для управления фильтрами
+    // (логика активации кнопок и обновления меню Модель/Модификация)
+</script>
+{% endblock content %}
