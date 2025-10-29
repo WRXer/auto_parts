@@ -12,10 +12,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-
 from main import views
+from spare_parts.apps import SparePartsConfig
+from spare_parts.views import PartListAPIView, PartRetieveAPIView
+
+app_name = SparePartsConfig.name
+
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('catalog/', views.about, name='catalog'),
+    path('catalog/all_parts/', PartListAPIView.as_view(), name='all_parts'),
+    path('catalog/part/<int:pk>/', PartRetieveAPIView.as_view(), name='part_get'),
 ]

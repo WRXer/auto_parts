@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from spare_parts.models import CarGeneration
+from spare_parts.models import CarGeneration, Part
 
 
 class CarGenerationSimpleSerializer(serializers.ModelSerializer):
@@ -13,4 +13,8 @@ class CarGenerationSimpleSerializer(serializers.ModelSerializer):
         model = CarGeneration
         fields = ('id', 'car_make_name', 'car_model_name', 'name', 'year_start', 'year_end')
 
+class PartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Part
+        fields = '__all__'
 
