@@ -1,0 +1,187 @@
+{% load static %}
+<!doctype html>
+<html lang="ru" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Маркетплейс Запчастей | Каталог</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"
+    >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5vU/P1D9T+K2Z0qg1gqA3I6YQzL8D0f8mN5R5W0qB+5V5O5N5S5R5V5O5V5S5Q5R5V5O5V5S5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Стилизация "телефонов" (визуальные элементы) */
+        .product-device {
+            position: absolute;
+            right: 10%;
+            width: 300px;
+            height: 540px;
+            background-color: #3e3e3e;
+            border-radius: 21px;
+            transform: rotate(30deg);
+            z-index: 1; /* Для заднего плана */
+        }
+        .product-device::before {
+            position: absolute;
+            top: 10%;
+            right: 10px;
+            bottom: 10%;
+            left: 10px;
+            content: "";
+            background-color: rgba(255, 255, 255, .1);
+            border-radius: 5px;
+        }
+        .product-device-2 {
+            top: -3rem;
+            right: auto;
+            bottom: -3rem;
+            left: 5%;
+            background-color: #e5e5e5;
+            transform: rotate(-30deg);
+            z-index: 1; /* Для заднего плана */
+        }
+        .product-device-2::before {
+            background-color: rgba(0, 0, 0, .1);
+        }
+
+        /* Медиа-запрос для скрытия "телефонов" на маленьких экранах */
+        @media (max-width: 767.98px) {
+            .product-device {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" aria-label="Product">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mx-auto" role="img" viewBox="0 0 24 24"><title>Car Part</title><circle cx="12" cy="12" r="10"/><path d="M12 18V6M9 15h6M9 9h6"/></svg>
+                CheapAutoParts
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Каталог
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#">Двигатель</a></li>
+                            <li><a class="dropdown-item" href="#">Система охлаждения</a></li>
+                            <li><a class="dropdown-item" href="#">Трансмиссия</a></li>
+                            <li><a class="dropdown-item" href="#">Кузовные запчасти</a></li>
+                            <li><a class="dropdown-item" href="#">Салон</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-dark" type="button">
+                            Корзина 🛒 (0)
+                        </button>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Личный кабинет
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-3" style="min-width: 200px;">
+                            <form class="px-2 py-1">
+                                <div class="mb-3">
+                                    <label for="loginInput" class="form-label">Логин</label>
+                                    <input type="text" class="form-control" id="loginInput" placeholder="Логин" required/>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="passwordInput" class="form-label">Пароль</label>
+                                    <input type="password" class="form-control" id="passwordInput" placeholder="Пароль" required/>
+                                </div>
+                                <button type="submit" class="btn btn-secondary w-100">Войти</button>
+                                <hr class="dropdown-divider bg-secondary">
+                                <a href="#" class="btn btn-secondary w-100">Регистрация</a>
+                            </form>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+<main>
+    {% block content %}
+    {% endblock content %}
+</main>
+
+
+    <footer class="container py-5 bg-dark text-light">
+
+    <div class="row pt-3 align-items-center mb-3">
+
+        <div class="col-12 col-md-6">
+             <ul class="list-unstyled d-flex gap-3 text-small">
+                 <li><a class="link-secondary text-decoration-none" href="about/">Контакты</a></li>
+                 <li><a class="link-secondary text-decoration-none" href="#">Политика</a></li>
+             </ul>
+        </div>
+
+        <div class="col-12 col-md-6 ms-auto text-end">
+            <div class="d-flex justify-content-end align-items-center">
+
+                <a href="https://t.me" target="_blank" aria-label="Telegram" class="ms-3 me-1">
+                    <img
+                        src="{% static 'deps/icons/social/telegram.svg' %}"
+                        alt="Telegram"
+                        width="32"
+                        height="32"
+                        style="filter: invert(100%); vertical-align: middle;"
+                        class="icon-invert"
+                    >
+                </a>
+
+                <a href="https://vk.com/" target="_blank" aria-label="VKontakte" class="ms-3 me-1">
+                    <img
+                        src="{% static 'deps/icons/social/vk.svg' %}"
+                        alt="VKontakte"
+                        width="32"
+                        height="32"
+                        style="filter: invert(100%); vertical-align: middle;"
+                        class="icon-invert"
+                    >
+                </a>
+
+                <a href="https://www.avito.ru" target="_blank" aria-label="Avito" class="ms-3 me-1">
+                    <img
+                        src="{% static 'deps/icons/social/avito.svg' %}"
+                        alt="Avito"
+                        width="32"
+                        height="32"
+                        style="filter: invert(100%); vertical-align: middle;"
+                        class="icon-invert"
+                    >
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <hr class="border-secondary mt-4">
+
+    <div class="row pt-2">
+        <div class="col-12">
+            <small class="d-block text-light">&copy; 2024 НашМаркет</small>
+        </div>
+    </div>
+</footer>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous">
+        </script>
+
+
+</body>
+</html>
