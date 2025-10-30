@@ -4,10 +4,10 @@
 
 <main class="bg-dark text-light">
     <div class="container py-5">
-        <h1 class="mb-4">Все запчасти</h1>
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-            {% for part in all_parts %}
-            <div class="col">
+        <h1 class="mb-4 text-center">Все запчасти</h1>
+        <div class="row g-4 justify-content-center">
+          {% for part in all_parts %}
+            <div class="col-12 col-md-8">
                 <div class="card h-100 shadow-lg bg-light text-dark">
                     <div class="card-body">
                         <h5 class="card-title text-dark">{{ part.title }}</h5>
@@ -16,7 +16,7 @@
                     </div>
                     <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
                         <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
-                        <a href="#" class="btn btn-outline-success">Подробнее</a>
+                        <a href="{% url 'spare_parts:part_get' part.pk %}" class="btn btn-outline-success">Подробнее</a>
                     </div>
                 </div>
             </div>
