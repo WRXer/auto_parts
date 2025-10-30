@@ -14,7 +14,7 @@ Including another URLconf
 from django.urls import path
 from main import views
 from spare_parts.apps import SparePartsConfig
-from spare_parts.views import PartRetieveAPIView, PartListView
+from spare_parts.views import PartListView, PartDetailView
 
 app_name = SparePartsConfig.name
 
@@ -23,5 +23,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('catalog/all_parts/', PartListView.as_view(), name='all_parts'),
     #path('catalog/all_parts/', PartListAPIView.as_view(), name='all_parts'),
-    path('catalog/part/<int:pk>/', PartRetieveAPIView.as_view(), name='part_get'),
+    path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_get'),
 ]

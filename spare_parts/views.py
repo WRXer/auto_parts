@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from rest_framework import generics
 from spare_parts.models import Part
 from spare_parts.serializers import PartSerializer
@@ -28,3 +28,11 @@ class PartListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)    #Опционально: добавляем категории в контекст для меню
         return context
+
+class PartDetailView(DetailView):
+    """
+    Вывод одной запчасти в веб
+    """
+    model = Part
+    template_name = 'main/part_detail.html'
+    context_object_name = 'part'
