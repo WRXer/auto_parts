@@ -4,18 +4,15 @@
 
 <main class="bg-body-tertiary text-dark">
     <div class="container py-5">
-
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-decoration-none">Главная</a></li>
                 <li class="breadcrumb-item"><a href="{% url 'spare_parts:all_parts' %}" class="text-decoration-none">Все запчасти</a></li>
-
+                <li class="breadcrumb-item"><a href="{% url 'spare_parts:category_detail' part.category.pk %}" class="text-decoration-none">{{part.category.name}}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">{{ part.title|truncatewords:5 }}</li>
             </ol>
         </nav>
-
         <div class="row g-4">
-
             <div class="col-12 col-lg-5">
                 <div class="card shadow-sm border-0 h-100">
                     {% if part.image %}
@@ -25,22 +22,16 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="col-12 col-lg-7">
                 <div class="card shadow-lg p-4 h-100">
-
                     <h1 class="display-6 fw-bold">{{ part.title }}</h1>
                     <p class="text-muted mb-4">Артикул: <span class="fw-semibold">{{ part.part_number|default:"Не указан" }}</span></p>
-
                     <div class="mb-4 p-3 bg-success-subtle rounded-3">
                         <span class="fs-4 text-success fw-bold">Цена: {{ part.price }} ₽</span>
                     </div>
-
                     <h4 class="mb-3 mt-3">Описание</h4>
                     <p class="text-secondary">{{ part.description|linebreaksbr }}</p>
-
                     <hr>
-
                     <h5 class="mb-3">Характеристики</h5>
                     <ul class="list-unstyled">
                         <li><strong>Марка:</strong> {{ part.car_model.brand.name|default:"Не указана" }}</li>
@@ -50,17 +41,14 @@
                         {% endif %}
                         <li><strong>Состояние:</strong> {{ part.get_condition_display }}</li>
                     </ul>
-
                     <div class="mt-auto pt-3">
-                        <a href="mailto:{{ part.seller.email|default:'info@nashmarket.ru' }}" class="btn btn-success btn-lg w-100">
+                        <a href="" class="btn btn-success btn-lg w-100">
                             Добавить в корзину
                         </a>
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
 </main>
 

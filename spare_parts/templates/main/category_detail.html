@@ -1,0 +1,56 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<main class="bg-dark text-light">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">Категория: {{ category.name }}</h1>
+        {% if category.description %}
+            <p class="lead text-center mb-5 text-secondary">{{ category.description }}</p>
+        {% endif %}
+        <div class="row g-4 justify-content-center">
+            {% for part in parts %}
+            <div class="col-12 col-md-8">
+                <div class="card h-100 shadow-lg bg-light text-dark">
+                    <div class="card-body d-flex align-items-center">
+
+                        {% if part.image %}
+                        <img src="{{ part.image.url }}"
+                             alt="{{ part.title }}"
+                             class="img-thumbnail me-4 d-none d-sm-block"
+                             style="width: 100px; height: 100px; object-fit: cover;">
+                        {% endif %}
+
+                        <div>
+                            <h5 class="card-title text-dark">{{ part.title }}</h5>
+                            <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                            <p class="card-text">{{ part.description|truncatewords:15 }}</p>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                        <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+
+                        <a href="{% url 'spare_parts:part_get' part.pk %}" class="btn btn-outline-success">Подробнее</a>
+
+                    </div>
+                </div>
+            </div>
+
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center" role="alert">
+                    В категории "{{ category.name }}" запчастей не найдено.
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</main>
+
+
+
+{% endblock content %}
+
