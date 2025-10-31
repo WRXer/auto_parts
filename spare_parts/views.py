@@ -44,7 +44,7 @@ class PartListView(ListView):
         context['car_makes'] = CarMake.objects.all().order_by('name')    #Загружаем все марки для формы поиска
         selected_make_id = self.request.GET.get('make')
         selected_model_id = self.request.GET.get('model')
-        selected_modification_id = self.request.GET.get('modification')
+        selected_generation_id = self.request.GET.get('generation')
         header_context = {}
         if selected_make_id:
             try:
@@ -52,16 +52,16 @@ class PartListView(ListView):
                 header_context['make'] = make.name
             except CarMake.DoesNotExist:
                 pass
-        if selected_model_id and not selected_modification_id:
+        if selected_model_id and not selected_generation_id:
             try:
                 model = CarModel.objects.get(pk=selected_model_id)
                 header_context['model'] = model.name
             except CarModel.DoesNotExist:
                 pass
-        if selected_modification_id:
+        if selected_generation_id:
             try:
-                generation = CarGeneration.objects.get(pk=selected_modification_id)
-                header_context['modification'] = generation.name
+                generation = CarGeneration.objects.get(pk=selected_generation_id)
+                header_context['generation'] = generation.name
                 header_context['model'] = generation.model.name
                 header_context['make'] = generation.model.make.name
             except CarGeneration.DoesNotExist:
