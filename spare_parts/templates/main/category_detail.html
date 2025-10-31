@@ -46,6 +46,33 @@
             </div>
             {% endfor %}
 
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                        </li>
+                    {% endif %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+            {% endif %}
         </div>
     </div>
 </main>
