@@ -14,15 +14,16 @@ Including another URLconf
 from django.urls import path
 from main import views
 from spare_parts.apps import SparePartsConfig
-from spare_parts.views import PartListView, PartDetailView, CategoryListView
+from spare_parts.views import PartListView, PartDetailView, CategoryListView, CarModelsAjaxView, CarGenerationAjaxView
 
 app_name = SparePartsConfig.name
 
 
 urlpatterns = [
-    path('', views.index, name='index'),
+
     path('catalog/all_parts/', PartListView.as_view(), name='all_parts'),
     path('catalog/category/<int:category_id>/', CategoryListView.as_view(), name='category_detail'),
     path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_get'),
-
+    path('ajax/load-models/', CarModelsAjaxView.as_view(), name='ajax_load_car_models'),
+    path('ajax/load-generations/', CarGenerationAjaxView.as_view(), name='ajax_load_car_generations'),
 ]

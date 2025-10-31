@@ -4,37 +4,37 @@
 
     <main class="container">
       <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-body-tertiary">
-        <div class="col-md-8 p-lg-5 mx-auto my-5">
-          <p class="lead fw-normal fw-bold">Поиск новых и б/у запчастей с разбора</p>
-            <form id="car-filter-form" class="d-flex align-items-center gap-2 justify-content-center mb-5">
-                <div class="btn-group">
-                  <button id="brand-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="">
-                    Марка
-                  </button>
-                  <ul id="brand-menu" class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" data-value="kia">KIA</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="renault">Renault</a></li>
-                    <li><a class="dropdown-item" href="#" data-value="bmw">BMW</a></li>
-                  </ul>
+        <div class="card p-4 shadow-lg mb-5">
+            <h2 class="card-title text-center mb-4">Найти запчасть по автомобилю</h2>
+            <form method="get" id="filter-form" action="{% url 'spare_parts:all_parts' %}" class="mb-5">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="id_make" class="form-label fw-bold">Марка:</label>
+                        <select name="make" id="id_make" class="form-select"
+                                data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
+                                data-load-modifications-url="{% url 'spare_parts:ajax_load_car_generations' %}">
+                            <option value="">-- Выберите марку --</option>
+                            {% for make in car_makes %}
+                                <option value="{{ make.id }}">{{ make.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_model" class="form-label fw-bold">Модель:</label>
+                        <select name="model" id="id_model" class="form-select" disabled>
+                            <option value="">-- Сначала выберите марку --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="id_modification" class="form-label fw-bold">Модификация:</label>
+                        <select name="modification" id="id_modification" class="form-select" disabled>
+                            <option value="">-- Сначала выберите модель --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 align-self-end">
+                        <button type="submit" class="btn btn-outline-success w-100">Перейти</button>
+                    </div>
                 </div>
-
-                <div class="btn-group">
-                  <button id="model-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="" disabled>
-                    Модель
-                  </button>
-                  <ul id="model-menu" class="dropdown-menu">
-                    </ul>
-                </div>
-
-                <div class="btn-group">
-                  <button id="mod-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-selected-value="" disabled>
-                    Модификация
-                  </button>
-                  <ul id="mod-menu" class="dropdown-menu">
-                    </ul>
-                </div>
-
-                <button class="btn btn-outline-success" type="submit">Перейти</button>
             </form>
 
             <form class="d-flex" role="search">
@@ -94,5 +94,7 @@
 
     </main>
 
+<script src="{% static 'deps/js/filter_logic.js' %}">
+</script>
 
 {% endblock content %}

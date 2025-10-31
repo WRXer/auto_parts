@@ -14,9 +14,10 @@ Including another URLconf
 from django.urls import path
 
 from main import views
+from main.views import IndexListView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', IndexListView.as_view(), name='index'),
     path('about/', views.about, name='about'),
     path('contacts/', views.contacts, name='contacts'),
     path('delivery/', views.contacts, name='delivery'),
