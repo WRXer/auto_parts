@@ -4,7 +4,17 @@
 
 <main class="bg-dark text-light">
     <div class="container py-5">
-        <h1 class="mb-4 text-center">Все запчасти</h1>
+        <h1 class="mb-4 text-center">
+            {% if header_info.modification %}
+                Запчасти для {{ header_info.make }} {{ header_info.model }} ({{ header_info.modification }})
+            {% elif header_info.model %}
+                Запчасти для {{ header_info.make }} {{ header_info.model }}
+            {% elif header_info.make %}
+                Запчасти для {{ header_info.make }}
+            {% else %}
+                Все запчасти
+            {% endif %}
+        </h1>
         <div class="row g-4 justify-content-center">
           {% for part in all_parts %}
             <div class="col-12 col-md-8">

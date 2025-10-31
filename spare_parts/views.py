@@ -24,11 +24,49 @@ class PartListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Part.objects.all().order_by('-created_at')    #Опционально: фильтруем запчасти
+        queryset = super().get_queryset().select_related('donor_generation')    #Получаем базовый QuerySet
+        selected_make = self.request.GET.get('make')
+        selected_model = self.request.GET.get('model')
+        selected_modification = self.request.GET.get('modification')    #ID CarGeneration
+        filters = {}
+        if selected_modification:
+            filters['donor_generation_id'] = selected_modification
+        elif selected_model:
+            filters['donor_generation__model__id'] = selected_model
+        elif selected_make:
+            filters['donor_generation__model__make__id'] = selected_make
+        if filters:
+            queryset = queryset.filter(**filters)
+        return queryset.order_by('title')
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)    #Опционально: добавляем категории в контекст для меню
-        context['car_makes'] = CarMake.objects.all().order_by('name')
+        context = super().get_context_data(**kwargs)
+        context['car_makes'] = CarMake.objects.all().order_by('name')    #Загружаем все марки для формы поиска
+        selected_make_id = self.request.GET.get('make')
+        selected_model_id = self.request.GET.get('model')
+        selected_modification_id = self.request.GET.get('modification')
+        header_context = {}
+        if selected_make_id:
+            try:
+                make = CarMake.objects.get(pk=selected_make_id)
+                header_context['make'] = make.name
+            except CarMake.DoesNotExist:
+                pass
+        if selected_model_id and not selected_modification_id:
+            try:
+                model = CarModel.objects.get(pk=selected_model_id)
+                header_context['model'] = model.name
+            except CarModel.DoesNotExist:
+                pass
+        if selected_modification_id:
+            try:
+                generation = CarGeneration.objects.get(pk=selected_modification_id)
+                header_context['modification'] = generation.name
+                header_context['model'] = generation.model.name
+                header_context['make'] = generation.model.make.name
+            except CarGeneration.DoesNotExist:
+                pass
+        context['header_info'] = header_context
         return context
 
 
