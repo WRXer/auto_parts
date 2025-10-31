@@ -19,6 +19,7 @@ class PartListView(ListView):
     model = Part
     template_name = 'main/all_parts.html'
     context_object_name = 'all_parts'    #Имя, по которому вы обращаться к списку в HTML
+    paginate_by = 10
 
     def get_queryset(self):
         return Part.objects.all().order_by('-created_at')    #Опционально: фильтруем запчасти
