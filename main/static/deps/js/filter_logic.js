@@ -1,29 +1,53 @@
+// static/js/filter_logic.js
+
 document.addEventListener('DOMContentLoaded', function() {
     const makeSelect = document.getElementById('id_make');
     const modelSelect = document.getElementById('id_model');
-    const modificationSelect = document.getElementById('id_modification');
+    const generationSelect = document.getElementById('id_generation'); // Предполагается, что id='id_generation'
+    const filterForm = document.getElementById('filter-form');         // 🌟 Получаем форму
 
-    // Получаем URL-адреса из HTML-элемента (Шаг 3)
-    const baseUrl = makeSelect.dataset.baseUrl;
+    // Получаем URL-адреса из HTML-элемента
     const loadModelsUrl = makeSelect.dataset.loadModelsUrl;
-    const loadModificationsUrl = makeSelect.dataset.loadModificationsUrl;
+    const loadGenerationsUrl = makeSelect.dataset.loadGenerationsUrl;
+
+    // 🌟 НОВЫЕ URL ДЛЯ ДИНАМИЧЕСКОГО ACTION 🌟
+    const carModelListUrl = makeSelect.dataset.carModelListUrl;
+    const defaultAction = makeSelect.dataset.defaultAction;
 
 
     // --- Функция очистки и блокировки ---
-    function resetModelAndModification(message) {
+    function resetModelAndGeneration(message) {
         modelSelect.innerHTML = `<option value="">${message}</option>`;
         modelSelect.disabled = true;
-        modificationSelect.innerHTML = `<option value="">Сначала выберите модель</option>`;
-        modificationSelect.disabled = true;
+        generationSelect.innerHTML = `<option value="">Сначала выберите модель</option>`;
+        generationSelect.disabled = true;
     }
 
-    // --- 1. Обработка выбора МАРКИ (Загрузка Моделей) ---
+    // --- Функция обновления ACTION формы ---
+    function updateFormAction(makeId, modelId, generationId) {
+        if (makeId && !modelId && !generationId) {
+            // Если выбрана только Марка, меняем action на список моделей
+            // Заменяем фиктивный '0' на реальный makeId в URL
+            const newAction = carModelListUrl.replace('/0/', `/${makeId}/`);
+            filterForm.setAttribute('action', newAction);
+        } else {
+            // Если выбрана Модель или Модификация, или ничего не выбрано,
+            // используем действие по умолчанию (all_parts)
+            filterForm.setAttribute('action', defaultAction);
+        }
+        filterForm.setAttribute('method', 'GET'); // Метод всегда GET
+    }
+
+    // --- 1. Обработка выбора МАРКИ (Загрузка Моделей и обновление action) ---
     makeSelect.addEventListener('change', function() {
         const makeId = this.value;
-        resetModelAndModification('Загрузка моделей...');
+        const modelId = modelSelect.value;
+        const generationId = generationSelect.value;
+
+        resetModelAndGeneration('Загрузка моделей...');
+        updateFormAction(makeId, modelId, generationId); // 🌟 Обновляем action при выборе марки
 
         if (makeId) {
-            // Используем переданный URL
             const url = loadModelsUrl + '?make_id=' + makeId;
 
             fetch(url)
@@ -45,47 +69,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error('Ошибка при загрузке моделей:', error);
-                    resetModelAndModification('Ошибка загрузки');
+                    resetModelAndGeneration('Ошибка загрузки');
                 });
         } else {
-            resetModelAndModification('-- Сначала выберите марку --');
+            resetModelAndGeneration('-- Сначала выберите марку --');
         }
     });
 
-    // --- 2. Обработка выбора МОДЕЛИ (Загрузка Модификаций) ---
+    // --- 2. Обработка выбора МОДЕЛИ (Загрузка Поколений и обновление action) ---
     modelSelect.addEventListener('change', function() {
         const modelId = this.value;
+        const makeId = makeSelect.value;
+        const generationId = generationSelect.value;
 
-        modificationSelect.innerHTML = '<option value="">Загрузка модификаций...</option>';
-        modificationSelect.disabled = true;
+        // 🌟 Обновляем action при выборе модели (снова на all_parts, если модель выбрана)
+        updateFormAction(makeId, modelId, generationId);
+
+        generationSelect.innerHTML = '<option value="">Загрузка модификаций...</option>';
+        generationSelect.disabled = true;
 
         if (modelId) {
-            // Используем переданный URL
-            const url = loadModificationsUrl + '?model_id=' + modelId;
+            const url = loadGenerationsUrl + '?model_id=' + modelId;
 
             fetch(url)
                 .then(response => response.json())
-                .then(modifications => {
-                    modificationSelect.innerHTML = '<option value="">-- Выберите модификацию --</option>';
-                    modificationSelect.disabled = (modifications.length === 0);
+                .then(generations => {
+                    generationSelect.innerHTML = '<option value="">-- Выберите модификацию --</option>';
+                    generationSelect.disabled = (generations.length === 0);
 
-                    if (modifications.length === 0) {
-                         modificationSelect.innerHTML = '<option value="">-- Модификации не найдены --</option>';
+                    if (generations.length === 0) {
+                         generationSelect.innerHTML = '<option value="">-- Модификации не найдены --</option>';
                     } else {
-                        modifications.forEach(mod => {
+                        generations.forEach(mod => {
                             const option = document.createElement('option');
                             option.value = mod.id;
                             option.textContent = mod.name;
-                            modificationSelect.appendChild(option);
+                            generationSelect.appendChild(option);
                         });
                     }
                 })
                 .catch(error => {
                     console.error('Ошибка при загрузке модификаций:', error);
-                    modificationSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                    generationSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
                 });
         } else {
-            modificationSelect.innerHTML = '<option value="">-- Сначала выберите модель --</option>';
+            generationSelect.innerHTML = '<option value="">-- Сначала выберите модель --</option>';
         }
+    });
+
+    // --- 3. Обработка выбора ПОКОЛЕНИЯ (обновление action) ---
+    generationSelect.addEventListener('change', function() {
+        const makeId = makeSelect.value;
+        const modelId = modelSelect.value;
+        const generationId = this.value;
+
+        // 🌟 Обновляем action при выборе поколения (снова на all_parts)
+        updateFormAction(makeId, modelId, generationId);
     });
 });

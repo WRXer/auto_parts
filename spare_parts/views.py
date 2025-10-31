@@ -27,10 +27,10 @@ class PartListView(ListView):
         queryset = super().get_queryset().select_related('donor_generation')    #Получаем базовый QuerySet
         selected_make = self.request.GET.get('make')
         selected_model = self.request.GET.get('model')
-        selected_modification = self.request.GET.get('modification')    #ID CarGeneration
+        selected_generation = self.request.GET.get('generation')    #ID CarGeneration
         filters = {}
-        if selected_modification:
-            filters['donor_generation_id'] = selected_modification
+        if selected_generation:
+            filters['donor_generation_id'] = selected_generation
         elif selected_model:
             filters['donor_generation__model__id'] = selected_model
         elif selected_make:
@@ -129,3 +129,22 @@ class CarGenerationAjaxView(View):
             return JsonResponse([], safe=False)
         generations = CarGeneration.objects.filter(model_id=model_id).values('id', 'name').order_by('name')    #Выполняем запрос к базе
         return JsonResponse(list(generations), safe=False)    #Возвращаем JSON-ответ
+
+
+class CarModelListView(ListView):
+    model = CarModel
+    template_name = 'main/models_list.html'
+    context_object_name = 'car_models'
+
+    def get_queryset(self):
+        make_pk = self.kwargs.get('pk')    #Получаем ID марки из URL (из path, не из GET)
+        return CarModel.objects.filter(make_id=make_pk).select_related('make').order_by('name')    #Фильтруем модели по выбранной марке
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        make_pk = self.kwargs.get('pk')
+        try:
+            context['current_make'] = CarMake.objects.get(pk=make_pk)    #Получаем объект Марки для заголовка
+        except CarMake.DoesNotExist:
+            context['current_make'] = None
+        return context

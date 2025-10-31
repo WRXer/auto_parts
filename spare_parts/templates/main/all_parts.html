@@ -5,8 +5,8 @@
 <main class="bg-dark text-light">
     <div class="container py-5">
         <h1 class="mb-4 text-center">
-            {% if header_info.modification %}
-                Запчасти для {{ header_info.make }} {{ header_info.model }} ({{ header_info.modification }})
+            {% if header_info.generation %}
+                Запчасти для {{ header_info.make }} {{ header_info.model }} ({{ header_info.generation }})
             {% elif header_info.model %}
                 Запчасти для {{ header_info.make }} {{ header_info.model }}
             {% elif header_info.make %}

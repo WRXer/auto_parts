@@ -12,7 +12,9 @@
                         <label for="id_make" class="form-label fw-bold">Марка:</label>
                         <select name="make" id="id_make" class="form-select"
                                 data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
-                                data-load-modifications-url="{% url 'spare_parts:ajax_load_car_generations' %}">
+                                data-load-generations-url="{% url 'spare_parts:ajax_load_car_generations' %}"
+                                data-car-model-list-url="{% url 'spare_parts:models_list' 0 %}"
+                                data-default-action="{% url 'spare_parts:all_parts' %}">
                             <option value="">-- Выберите марку --</option>
                             {% for make in car_makes %}
                                 <option value="{{ make.id }}">{{ make.name }}</option>
@@ -26,8 +28,8 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label for="id_modification" class="form-label fw-bold">Модификация:</label>
-                        <select name="modification" id="id_modification" class="form-select" disabled>
+                        <label for="id_generation" class="form-label fw-bold">Модификация:</label>
+                        <select name="generation" id="id_generation" class="form-select" disabled>
                             <option value="">-- Сначала выберите модель --</option>
                         </select>
                     </div>
