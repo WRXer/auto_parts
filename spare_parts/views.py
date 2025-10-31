@@ -99,6 +99,52 @@ class CategoryListView(ListView):
         context['category'] = Category.objects.get(id=category_id)    #Получаем объект Category
         return context
 
+class CarModelListView(ListView):
+    """
+    Отображает список моделей для конкретной марки.
+    """
+    model = CarModel
+    template_name = 'main/models_list.html'
+    context_object_name = 'car_models'
+
+    def get_queryset(self):
+        make_pk = self.kwargs.get('pk')    #Получаем ID марки из URL (из path, не из GET)
+        return CarModel.objects.filter(make_id=make_pk).select_related('make').order_by('name')    #Фильтруем модели по выбранной марке
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        make_pk = self.kwargs.get('pk')
+        try:
+            context['current_make'] = CarMake.objects.get(pk=make_pk)    #Получаем объект Марки для заголовка
+        except CarMake.DoesNotExist:
+            context['current_make'] = None
+        return context
+
+
+class CarGenerationListView(ListView):
+    """
+    Отображает список поколений для конкретной модели.
+    """
+    model = CarGeneration
+    template_name = 'main/generations_list.html'
+    context_object_name = 'generations_list'
+
+    def get_queryset(self):
+        model_pk = self.kwargs.get('pk')
+        return CarGeneration.objects.filter(model__pk=model_pk).order_by('name')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_pk = self.kwargs.get('pk')
+        try:
+            current_model = CarModel.objects.get(pk=model_pk)
+            context['current_model'] = current_model
+            context['current_make'] = current_model.make    #Также передаем марку
+        except CarModel.DoesNotExist:
+            context['current_model'] = None
+            context['current_make'] = None
+        return context
+
 
 class CarModelsAjaxView(View):
     """
@@ -130,21 +176,3 @@ class CarGenerationAjaxView(View):
         generations = CarGeneration.objects.filter(model_id=model_id).values('id', 'name').order_by('name')    #Выполняем запрос к базе
         return JsonResponse(list(generations), safe=False)    #Возвращаем JSON-ответ
 
-
-class CarModelListView(ListView):
-    model = CarModel
-    template_name = 'main/models_list.html'
-    context_object_name = 'car_models'
-
-    def get_queryset(self):
-        make_pk = self.kwargs.get('pk')    #Получаем ID марки из URL (из path, не из GET)
-        return CarModel.objects.filter(make_id=make_pk).select_related('make').order_by('name')    #Фильтруем модели по выбранной марке
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        make_pk = self.kwargs.get('pk')
-        try:
-            context['current_make'] = CarMake.objects.get(pk=make_pk)    #Получаем объект Марки для заголовка
-        except CarMake.DoesNotExist:
-            context['current_make'] = None
-        return context

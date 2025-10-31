@@ -1,0 +1,40 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="container py-5 text-light">
+    <h1 class="mb-4 text-center text-light">
+        Поколения для {{ current_make.name }} {{ current_model.name }}
+    </h1>
+
+    <div class="row g-4 justify-content-center">
+        {% for generation in generations_list %}
+            <div class="col-12 col-md-4">
+                    <div class="card h-100 shadow-sm transition-hover text-center">
+                        <div class="card-body">
+                            <h5 class="card-title ">{{ generation.name }}</h5>
+                            <p class="card-text text-muted">{{ generation.year_start }} - {{ generation.year_end|default:">" }}</p>
+                            <a href="{% url 'spare_parts:all_parts' %}?generation={{ generation.pk }}" class="btn btn-outline-success">Посмотреть запчасти</a>
+                        </div>
+                    </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    Поколения для этой модели не найдены.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+ <style>
+    .transition-hover {
+      transition: all 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+  </style>
+</main>
+
+{% endblock content %}

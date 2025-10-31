@@ -14,7 +14,7 @@ Including another URLconf
 from django.urls import path
 from spare_parts.apps import SparePartsConfig
 from spare_parts.views import PartListView, PartDetailView, CategoryListView, CarModelsAjaxView, CarGenerationAjaxView, \
-    CarModelListView
+    CarModelListView, CarGenerationListView
 
 app_name = SparePartsConfig.name
 
@@ -25,6 +25,7 @@ urlpatterns = [
     path('catalog/category/<int:category_id>/', CategoryListView.as_view(), name='category_detail'),
     path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_get'),
     path('cars/<int:pk>/models/', CarModelListView.as_view(), name='models_list'),
+    path('model/<int:pk>/generations/', CarGenerationListView.as_view(), name='generations_list'),
     path('ajax/load-models/', CarModelsAjaxView.as_view(), name='ajax_load_car_models'),
     path('ajax/load-generations/', CarGenerationAjaxView.as_view(), name='ajax_load_car_generations'),
 ]

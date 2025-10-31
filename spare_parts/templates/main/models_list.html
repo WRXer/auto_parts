@@ -2,40 +2,44 @@
 {% load static %}
 {% block content %}
 
+
 <main class="container py-5">
-        <h1 class="mb-4 text-center text-light">
-            {% if current_make %}
-                Модели автомобилей марки {{ current_make.name }}
-            {% else %}
-                Список моделей
-            {% endif %}
-        </h1>
+  <h1 class="mb-4 text-center text-light">
+    {% if current_make %}
+      Модели автомобилей марки {{ current_make.name }}
+    {% else %}
+      Список моделей
+    {% endif %}
+  </h1>
 
-    <div class="row g-4 justify-content-center">
-        {% for model in car_models %}
-            <div class="col-12 col-md-4">
-                <a href="{{ target_url }}" class="text-decoration-none text-dark d-block">
-                <div class="card h-100 shadow-sm transition-hover">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">{{ model.name }}</h5>
-                        <p class="card-text text-muted">Доступно {{ model.generations.count }} поколений</p>
-                        <a href="{% url 'spare_parts:all_parts' %}?model={{ model.pk }}" class="btn btn-success">
-                            Выбрать поколение
-                        </a>
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <div class="col-12">
-                <div class="alert alert-warning" role="alert">
-                    Модели для этой марки не найдены.
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+  <div class="row g-4">
+    {% for model in car_models %}
+      <div class="col-12 col-md-4">
+        <div class="card h-100 shadow-sm transition-hover text-center">
+          <div class="card-body">
+            <h5 class="card-title">{{ model.name }}</h5>
+            <p class="card-text text-muted">Доступно {{ model.generations.count }} поколений</p>
+            <a href="{% url 'spare_parts:generations_list' model.pk %}" class="btn btn-outline-success">Выбрать поколение</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+          Модели для этой марки не найдены.
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <style>
+    .transition-hover {
+      transition: all 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+  </style>
 </main>
-
-
-
-
 {% endblock content %}
