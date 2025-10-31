@@ -69,65 +69,70 @@
                 </svg>
                 CheapAutoParts64
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             Каталог
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="#">Двигатель</a></li>
-                            <li><a class="dropdown-item" href="#">Система охлаждения</a></li>
-                            <li><a class="dropdown-item" href="#">Трансмиссия</a></li>
-                            <li><a class="dropdown-item" href="#">Кузовные запчасти</a></li>
-                            <li><a class="dropdown-item" href="#">Салон</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <button class="btn btn-dark" type="button">
-                            Корзина 🛒 (0)
-                        </button>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                            Личный кабинет
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-3" style="min-width: 200px;">
-                            <form class="px-2 py-1">
-                                <div class="mb-3">
-                                    <label for="loginInput" class="form-label">Логин</label>
-                                    <input type="text" class="form-control" id="loginInput" placeholder="Логин" required/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="passwordInput" class="form-label">Пароль</label>
-                                    <input type="password" class="form-control" id="passwordInput" placeholder="Пароль" required/>
-                                </div>
-                                <button type="submit" class="btn btn-secondary w-100">Войти</button>
-                                <hr class="dropdown-divider bg-secondary">
-                                <a href="#" class="btn btn-secondary w-100">Регистрация</a>
-                            </form>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+                            </button>
+                                <ul class="dropdown-menu dropdown-menu-dark">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'spare_parts:all_parts' %}">
+                                        Все запчасти
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                        {% for category in categories %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.id %}">
+                                        {{ category.name }}
+                                        </a>
+                                    </li>
+                                        {% endfor %}
+                                </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <button class="btn btn-dark" type="button">
+                                Корзина 🛒 (0)
+                            </button>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Личный кабинет
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end p-3" style="min-width: 200px;">
+                                <form class="px-2 py-1">
+                                    <div class="mb-3">
+                                        <label for="loginInput" class="form-label">Логин</label>
+                                        <input type="text" class="form-control" id="loginInput" placeholder="Логин" required/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passwordInput" class="form-label">Пароль</label>
+                                        <input type="password" class="form-control" id="passwordInput" placeholder="Пароль" required/>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary w-100">Войти</button>
+                                    <hr class="dropdown-divider bg-secondary">
+                                    <a href="#" class="btn btn-secondary w-100">Регистрация</a>
+                                </form>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
         </div>
     </nav>
-
 <main>
     {% block content %}
     {% endblock content %}
 </main>
-
-
     <footer class="container py-5 bg-dark text-light">
-
     <div class="row pt-3 align-items-center mb-3">
-
         <div class="col-12 col-md-6">
              <ul class="list-unstyled d-flex gap-3 text-small">
                  <li><a class="link-secondary text-decoration-none" href="{% url 'contacts' %}">Контакты</a></li>
@@ -136,48 +141,21 @@
                  <li><a class="link-secondary text-decoration-none" href="{% url 'payment' %}">Оплата</a></li>
              </ul>
         </div>
-
         <div class="col-12 col-md-6 ms-auto text-end">
             <div class="d-flex justify-content-end align-items-center">
-
                 <a href="https://t.me" target="_blank" aria-label="Telegram" class="ms-3 me-1">
-                    <img
-                        src="{% static 'deps/icons/social/telegram.svg' %}"
-                        alt="Telegram"
-                        width="32"
-                        height="32"
-                        style="filter: invert(100%); vertical-align: middle;"
-                        class="icon-invert"
-                    >
+                    <img src="{% static 'deps/icons/social/telegram.svg' %}" alt="Telegram" width="32" height="32" style="filter: invert(100%); vertical-align: middle;" class="icon-invert">
                 </a>
-
                 <a href="https://vk.com/" target="_blank" aria-label="VKontakte" class="ms-3 me-1">
-                    <img
-                        src="{% static 'deps/icons/social/vk.svg' %}"
-                        alt="VKontakte"
-                        width="32"
-                        height="32"
-                        style="filter: invert(100%); vertical-align: middle;"
-                        class="icon-invert"
-                    >
+                    <img src="{% static 'deps/icons/social/vk.svg' %}" alt="VKontakte" width="32" height="32" style="filter: invert(100%); vertical-align: middle;" class="icon-invert">
                 </a>
-
                 <a href="https://www.avito.ru" target="_blank" aria-label="Avito" class="ms-3 me-1">
-                    <img
-                        src="{% static 'deps/icons/social/avito.svg' %}"
-                        alt="Avito"
-                        width="32"
-                        height="32"
-                        style="filter: invert(100%); vertical-align: middle;"
-                        class="icon-invert"
-                    >
+                    <img src="{% static 'deps/icons/social/avito.svg' %}" alt="Avito" width="32" height="32" style="filter: invert(100%); vertical-align: middle;" class="icon-invert">
                 </a>
             </div>
         </div>
     </div>
-
     <hr class="border-secondary mt-4">
-
     <div class="row pt-2">
         <div class="col-12">
             <small class="d-block text-light">&copy; 2024 НашМаркет</small>
@@ -189,7 +167,6 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous">
         </script>
-
 
 </body>
 </html>
