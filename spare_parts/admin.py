@@ -2,7 +2,22 @@ import uuid
 
 from django import forms
 from django.contrib import admin
-from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category
+from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage
+
+
+
+class PartImageInline(admin.TabularInline):
+    """Отображает форму добавления изображений в виде таблицы."""
+    model = PartImage
+    extra = 1  # Количество пустых форм для добавления новых изображений
+    # Позволяем показывать миниатюры в админке (требует написания метода)
+    # readonly_fields = ['get_image_preview']
+
+    # def get_image_preview(self, obj):
+    #     if obj.image:
+    #         return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
+    #     return 'Нет изображения'
+    # get_image_preview.short_description = 'Предпросмотр'
 
 
 @admin.register(CarMake)
@@ -60,6 +75,7 @@ class PartAdminForm(forms.ModelForm):
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
+    inlines = [PartImageInline]
     form = PartAdminForm
     list_display = (
         'part_id', 'title', 'price', 'donor_generation', 'compatible_auto_list', 'condition', 'is_active', 'created_at'
@@ -73,3 +89,5 @@ class PartAdmin(admin.ModelAdmin):
         return ", ".join(full_list)
 
     compatible_auto_list.short_description = 'Совместимые авто'
+
+

@@ -99,6 +99,17 @@ class Part(models.Model):
         verbose_name_plural = 'Запчасти (Объявления)'
         ordering = ('-created_at',)
 
+    def get_main_image(self):
+        """
+        Возвращает главное изображение (is_main=True) или первое
+        изображение, если главное не отмечено.
+        """
+        main_img = self.images.filter(is_main=True).first()    #Сначала ищем изображение, помеченное как главное
+        if main_img:
+            return main_img
+        return self.images.first()    #Если главное не найдено, возвращаем первое
+
+
 class PartImage(models.Model):
     """
     Изображения для объявления

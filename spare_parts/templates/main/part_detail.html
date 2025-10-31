@@ -14,13 +14,34 @@
         </nav>
         <div class="row g-4">
             <div class="col-12 col-lg-5">
-                <div class="card shadow-sm border-0 h-100">
-                    {% if part.image %}
-                        <img src="{{ part.image.url }}" class="card-img-top img-fluid rounded-3" alt="{{ part.title }}">
-                    {% else %}
-                        <img src="{% static 'img/default_part.png' %}" class="card-img-top img-fluid rounded-3" alt="Изображение отсутствует">
+               {% with all_images=part.images.all %}
+                    {% with main_image=part.get_main_image %}
+                        <div class="card shadow-sm border-0 mb-3">
+                            {% if main_image and main_image.image %}
+                                <img src="{{ main_image.image.url }}" class="img-fluid rounded-3" alt="{{ part.title }}" style="max-height: 400px; object-fit: cover; width: 100%;">
+                            {% else %}
+                                <img src="{% static 'img/default_part.png' %}"
+                                     class="img-fluid rounded-3"
+                                     alt="Изображение отсутствует">
+                            {% endif %}
+                        </div>
+                    {% endwith %}
+
+                    {% if all_images %}
+                        <h5 class="mb-2">Все фотографии:</h5>
+                        <div class="row g-2">
+                            {% for img_obj in all_images %}
+                                {% if img_obj != part.get_main_image %}
+                                <div class="col-3">
+                                    <a href="{{ img_obj.image.url }}" target="_blank">
+                                        <img src="{{ img_obj.image.url }}" alt="{{ part.title }}" class="img-thumbnail w-100" style="height: 80px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     {% endif %}
-                </div>
+                {% endwith %}
             </div>
             <div class="col-12 col-lg-7">
                 <div class="card shadow-lg p-4 h-100">
