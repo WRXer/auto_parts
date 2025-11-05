@@ -56,18 +56,18 @@
     </style>
 </head>
 
-<body style="background-color: #D3D3D3;">
+<body style="
+        background-image: url('{% static 'deps/icons/head/cap_head.jpg' %}');
+        background-size: contain;
+        background-position: center;
+        height: 750px; /* Настройте высоту баннера по вкусу */
+        border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
+        background-color: #D3D3D3;
+        ">
     <nav class="navbar navbar-expand-lg navbar-border bg-border">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'index' %}" aria-label="Product">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="d-block mx-auto" role="img" viewBox="0 0 24 24">
-                    <title>
-                        Car Part
-                    </title>
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 18V6M9 15h6M9 9h6"/>
-                </svg>
-                CheapAutoParts64
+                    <img src="{% static 'deps/icons/head/cap_main.svg' %}" alt="Car Part" width="150" height="150" class="me-2 align-text-bottom">
             </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
