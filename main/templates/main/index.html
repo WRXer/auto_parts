@@ -2,9 +2,9 @@
 {% load static %}
 {% block content %}
 
-    <main class="container">
-      <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-body-tertiary">
-        <div class="card p-4 shadow-lg mb-5">
+<main class="container text-dark py-5" style="background-color: #D3D3D3;">
+    <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center">
+        <div class="card p-4 shadow-lg mb-5 bg-light">
             <h2 class="card-title text-center mb-4">Найти запчасть по автомобилю</h2>
             <form method="get" id="filter-form" action="{% url 'spare_parts:all_parts' %}" class="mb-5">
                 <div class="row g-3 align-items-end">
@@ -48,52 +48,54 @@
             </form>
         </div>
         <div class="product-device shadow-sm d-none d-md-block"></div>
-      </div>
+    </div>
 
-      <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-        <div class="text-bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
-          <div class="my-3 py-3">
-            <h2 class="display-5">Двигатели (Б/У)</h2>
-            <p class="lead">Все марки и модели. С гарантией на проверку.</p>
-          </div>
-          <div class="bg-body-tertiary shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-            [Изображение двигателя]
-          </div>
+    <div class="mx-auto">
+        <div class="d-md-flex flex-md-equal w-100 my-md-3 justify-content-center">
+            <div class="text-bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between">
+                <div class="my-3 py-3">
+                    <h2 class="display-5">Двигатели (Б/У)</h2>
+                    <p class="lead">Все марки и модели. С гарантией на проверку.</p>
+                </div>
+                <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+                    [Изображение двигателя]
+                </div>
+            </div>
+
+            <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between">
+                <div class="my-3 p-3">
+                    <h2 class="display-5">Кузов</h2>
+                    <p class="lead">Бамперы, крылья, двери. Быстрая доставка по РФ.</p>
+                </div>
+                <div class="bg-dark shadow-sm mx-auto mt-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+                    [Изображение кузовных деталей]
+                </div>
+            </div>
         </div>
 
-        <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
-          <div class="my-3 p-3">
-            <h2 class="display-5">Кузов</h2>
-            <p class="lead">Бамперы, крылья, двери. Быстрая доставка по РФ.</p>
-          </div>
-          <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-            [Изображение кузовных деталей]
-          </div>
-        </div>
-      </div>
+        <div class="d-md-flex flex-md-equal w-100 my-md-3 justify-content-center">
+            <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between">
+                <div class="my-3 p-3">
+                    <h2 class="display-5">Тормозная система</h2>
+                    <p class="lead">Диски, суппорты, колодки. Новое и БУ.</p>
+                </div>
+                <div class="bg-dark shadow-sm mx-auto mt-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+                    [Изображение тормозных дисков]
+                </div>
+            </div>
 
-      <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-        <div class="bg-body-tertiary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
-          <div class="my-3 p-3">
-            <h2 class="display-5">Тормозная система</h2>
-            <p class="lead">Диски, суппорты, колодки. Новое и БУ.</p>
-          </div>
-          <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-            [Изображение тормозных дисков]
-          </div>
+            <div class="text-bg-secondary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between">
+                <div class="my-3 py-3">
+                    <h2 class="display-5">Шины и диски</h2>
+                    <p class="lead">Летние и зимние комплекты. Сезонные скидки.</p>
+                </div>
+                <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
+                    [Изображение шин]
+                </div>
+            </div>
         </div>
 
-        <div class="text-bg-primary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
-          <div class="my-3 py-3">
-            <h2 class="display-5">Шины и диски</h2>
-            <p class="lead">Летние и зимние комплекты. Сезонные скидки.</p>
-          </div>
-          <div class="bg-body-tertiary shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-            [Изображение шин]
-          </div>
-        </div>
-      </div>
-
+    </div>
     </main>
 
 <script src="{% static 'deps/js/filter_logic.js' %}">
