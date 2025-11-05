@@ -1,0 +1,88 @@
+/* Общие стили для ВСЕХ размеров экрана */
+body {
+    background-color: #D3D3D3 !important; /* Устанавливаем основной цвет */
+    background-image: url('/static/deps/icons/head/cap_head.jpg');
+    background-size: contain;
+    background-position: center;
+    height: 750px; /* Настройте высоту баннера по вкусу */
+    border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
+    background-color: #D3D3D3;
+    /* По умолчанию для больших экранов (Desktop) используем cover */
+    background-size: contain;
+}
+
+/* 🌟 МЕДИАЗАПРОС: Стиль для маленьких экранов (max-width: 767.98px) 🌟 */
+@media (max-width: 756.98px) {
+    body {
+        /* На маленьких экранах используем contain, чтобы не обрезать изображение */
+        background-size: cover;
+    }
+}
+/* Стилизация "телефонов" (визуальные элементы) */
+.product-device {
+    position: absolute;
+    right: 10%;
+    width: 300px;
+    height: 540px;
+    background-color: #3e3e3e;
+    border-radius: 21px;
+    transform: rotate(30deg);
+    z-index: 1; /* Для заднего плана */
+}
+.product-device::before {
+    position: absolute;
+    top: 10%;
+    right: 10px;
+    bottom: 10%;
+    left: 10px;
+    content: "";
+    background-color: rgba(255, 255, 255, .1);
+    border-radius: 5px;
+}
+.product-device-2 {
+    top: -3rem;
+    right: auto;
+    bottom: -3rem;
+    left: 5%;
+    background-color: #e5e5e5;
+    transform: rotate(-30deg);
+    z-index: 1; /* Для заднего плана */
+}
+.product-device-2::before {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+/* Медиа-запрос для скрытия "телефонов" на маленьких экранах */
+@media (max-width: 767.98px) {
+    .product-device {
+        display: none !important;
+    }
+}
+
+/* Зеленый ховер для выпадающего меню */
+.dropdown-menu a.dropdown-item:hover,
+.dropdown-menu a.dropdown-item:focus {
+    background-color: #198754; /* Это стандартный зеленый 'success' от Bootstrap */
+    color: #fff; /* Делаем текст на зеленом фоне белым для читаемости */
+}
+
+/* Селектор для полей ввода, select, textarea и т.д. в состоянии фокуса */
+.form-select:focus,
+.form-control:focus {
+    /* Цвет тени (свечения) в формате RGBA - делаем его зеленым */
+    border-color: #198754; /* Зеленый цвет обводки */
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important;/* Полупрозрачное зеленое свечение */
+}
+
+/* Изменяем цвет значка выбора в select-полях, когда они активны */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23198754' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Изменяем синее выделение для элементов списка SELECT (option) */
+select option:checked {
+    /* Меняем фон выделенного элемента */
+    background-color: #198754; /* Зеленый цвет */
+    /* Меняем цвет текста выделенного элемента */
+    color: #fff; /* Белый текст для читаемости */
+}

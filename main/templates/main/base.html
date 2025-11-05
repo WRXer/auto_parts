@@ -12,60 +12,12 @@
         crossorigin="anonymous"
     >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5vU/P1D9T+K2Z0qg1gqA3I6YQzL8D0f8mN5R5W0qB+5V5O5N5S5R5V5O5V5S5Q5R5V5O5V5S5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        /* Стилизация "телефонов" (визуальные элементы) */
-        .product-device {
-            position: absolute;
-            right: 10%;
-            width: 300px;
-            height: 540px;
-            background-color: #3e3e3e;
-            border-radius: 21px;
-            transform: rotate(30deg);
-            z-index: 1; /* Для заднего плана */
-        }
-        .product-device::before {
-            position: absolute;
-            top: 10%;
-            right: 10px;
-            bottom: 10%;
-            left: 10px;
-            content: "";
-            background-color: rgba(255, 255, 255, .1);
-            border-radius: 5px;
-        }
-        .product-device-2 {
-            top: -3rem;
-            right: auto;
-            bottom: -3rem;
-            left: 5%;
-            background-color: #e5e5e5;
-            transform: rotate(-30deg);
-            z-index: 1; /* Для заднего плана */
-        }
-        .product-device-2::before {
-            background-color: rgba(0, 0, 0, .1);
-        }
-
-        /* Медиа-запрос для скрытия "телефонов" на маленьких экранах */
-        @media (max-width: 767.98px) {
-            .product-device {
-                display: none !important;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'deps/css/main_styles.css' %}">
 </head>
 
-<body style="
-        background-image: url('{% static 'deps/icons/head/cap_head.jpg' %}');
-        background-size: contain;
-        background-position: center;
-        height: 750px; /* Настройте высоту баннера по вкусу */
-        border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
-        background-color: #D3D3D3;
-        ">
+<body>
     <nav class="navbar navbar-expand-lg navbar-border bg-border">
-        <div class="container-fluid">
+        <div class="container">
             <a class="navbar-brand" href="{% url 'index' %}" aria-label="Product">
                     <img src="{% static 'deps/icons/head/cap_main.svg' %}" alt="Car Part" width="150" height="150" class="me-2 align-text-bottom">
             </a>
@@ -78,7 +30,7 @@
                             <button class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             Каталог
                             </button>
-                                <ul class="dropdown-menu dropdown-menu-border">
+                                <ul class="dropdown-menu">
                                     <li>
                                         <a class="dropdown-item" href="{% url 'spare_parts:all_parts' %}">
                                         Все запчасти
