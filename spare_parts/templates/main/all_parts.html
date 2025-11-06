@@ -19,10 +19,24 @@
           {% for part in all_parts %}
             <div class="col-12 col-md-8">
                 <div class="card h-100 shadow-lg bg-light text-dark">
-                    <div class="card-body">
-                        <h5 class="card-title text-dark">{{ part.title }}</h5>
-                        <p class="card-text text-muted">Артикул: {{ part.part_number|default:"Не указан" }}</p>
-                        <p class="card-text">{{ part.description|truncatewords:25 }}</p>
+                    <div class="d-flex p-3">
+                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                            {% with main_image=part.images.all %}
+                                {% with main_image=part.get_main_image %}
+                                    {% if main_image and main_image.image %}
+                                        <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% endif %}
+                                {% endwith %}
+                            {% endwith %}
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <h5 class="card-title text-dark">{{ part.title }}</h5>
+                            <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                            <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
+                        </div>
                     </div>
                     <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
                         <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
@@ -30,13 +44,13 @@
                     </div>
                 </div>
             </div>
-            {% empty %}
+          {% empty %}
             <div class="col-12">
                 <div class="alert alert-warning" role="alert">
                     В данный момент запчастей в этой категории нет.
                 </div>
             </div>
-            {% endfor %}
+          {% endfor %}
             {% if is_paginated %}
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center">
@@ -67,8 +81,4 @@
         </div>
     </div>
 </main>
-<script>
-    // Вставьте сюда JavaScript-код для управления фильтрами
-    // (логика активации кнопок и обновления меню Модель/Модификация)
-</script>
 {% endblock content %}

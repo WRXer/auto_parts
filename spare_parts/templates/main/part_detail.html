@@ -13,16 +13,14 @@
             </ol>
         </nav>
         <div class="row g-4">
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-4">
                {% with all_images=part.images.all %}
                     {% with main_image=part.get_main_image %}
                         <div class="card shadow-sm border-0 mb-3">
                             {% if main_image and main_image.image %}
                                 <img src="{{ main_image.image.url }}" class="img-fluid rounded-3" alt="{{ part.title }}" style="max-height: 400px; object-fit: cover; width: 100%;">
                             {% else %}
-                                <img src="{% static 'img/default_part.png' %}"
-                                     class="img-fluid rounded-3"
-                                     alt="Изображение отсутствует">
+                                <img src="{% static 'deps/images/default_part_image.png' %}" class="img-fluid rounded-3" alt="Изображение отсутствует">
                             {% endif %}
                         </div>
                     {% endwith %}
