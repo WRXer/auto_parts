@@ -1,0 +1,77 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">
+            Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} ({{ current_generation.name }})
+        </h1>
+        <div class="row g-4 justify-content-center">
+            {% if parts_list %}
+                <p>Найдено запчастей: {{ page_obj.paginator.count }}</p>
+            {% endif %}
+            {% for part in parts_list %}
+                <div class="col-12 col-md-8">
+                    <div class="card h-100 shadow-lg bg-light text-dark">
+                        <div class="d-flex p-3">
+                            <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                {% with main_image=part.images.all %}
+                                    {% with main_image=part.get_main_image %}
+                                        {% if main_image and main_image.image %}
+                                            <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% else %}
+                                            <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endwith %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                                <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                            <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                            <a href="{% url 'spare_parts:part_get' part.pk %}" class="btn btn-outline-success">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-warning" role="alert">
+                            В данный момент запчастей в этой категории нет.
+                        </div>
+                    </div>
+            {% endfor %}
+            {% if is_paginated %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                            </li>
+                        {% endif %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock content %}
