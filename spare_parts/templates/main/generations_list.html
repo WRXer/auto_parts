@@ -14,7 +14,7 @@
                         <div class="card-body">
                             <h5 class="card-title ">{{ generation.name }}</h5>
                             <p class="card-text text-muted">{{ generation.year_start }} - {{ generation.year_end|default:">" }}</p>
-                            <a href="{% url 'spare_parts:all_parts' %}?generation={{ generation.pk }}" class="btn btn-outline-success">Посмотреть запчасти</a>
+                            <a href="{% url 'spare_parts:parts_by_generation' make_pk=current_make.pk model_pk=current_model.pk generation_pk=generation.pk %}" class="btn btn-outline-success">Посмотреть запчасти</a>
                         </div>
                     </div>
             </div>

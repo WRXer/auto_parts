@@ -19,7 +19,7 @@
           <div class="card-body">
             <h5 class="card-title">{{ model.name }}</h5>
             <p class="card-text text-muted">Доступно {{ model.generations.count }} поколений</p>
-            <a href="{% url 'spare_parts:generations_list' model.pk %}" class="btn btn-outline-success">Выбрать поколение</a>
+            <a href="{% url 'spare_parts:generations_list' make_pk=current_make.pk model_pk=model.pk %}" class="btn btn-outline-success">Выбрать поколение</a>
           </div>
         </div>
       </div>

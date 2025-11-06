@@ -11,31 +11,33 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-md-3">
                         <label for="id_make" class="form-label fw-bold">Марка:</label>
-                        <select name="make" id="id_make" class="form-select"
+                        <select data-name="make" id="id_make" class="form-select"
                                 data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
                                 data-load-generations-url="{% url 'spare_parts:ajax_load_car_generations' %}"
-                                data-car-model-list-url="{% url 'spare_parts:models_list' 0 %}"
+                                data-car-model-list-url="{% url 'spare_parts:models_list' make_pk=0 %}"
+                                data-car-generation-list-url="{% url 'spare_parts:generations_list' make_pk=0 model_pk=0 %}"
+                                data-parts-by-generation-url="{% url 'spare_parts:parts_by_generation' make_pk=0 model_pk=0 generation_pk=0 %}"
                                 data-default-action="{% url 'spare_parts:all_parts' %}">
                             <option value="">-- Выберите марку --</option>
                             {% for make in car_makes %}
-                                <option value="{{ make.id }}">{{ make.name }}</option>
+                                <option value="{{ make.pk }}">{{ make.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label for="id_model" class="form-label fw-bold">Модель:</label>
-                        <select name="model" id="id_model" class="form-select" disabled>
+                        <select data-name="model" id="id_model" class="form-select" disabled>
                             <option value="">-- Сначала выберите марку --</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label for="id_generation" class="form-label fw-bold">Модификация:</label>
-                        <select name="generation" id="id_generation" class="form-select" disabled>
+                        <select data-name="generation" id="id_generation" class="form-select" disabled>
                             <option value="">-- Сначала выберите модель --</option>
                         </select>
                     </div>
                     <div class="col-md-3 align-self-end">
-                        <button type="submit" class="btn btn-outline-success w-100">Перейти</button>
+                        <button type="submit" id="submit-filter-btn" class="btn btn-outline-success w-100">Перейти</button>
                     </div>
                 </div>
             </form>
