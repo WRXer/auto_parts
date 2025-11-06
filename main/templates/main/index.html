@@ -40,10 +40,10 @@
                 </div>
             </form>
 
-            <form class="d-flex" role="search">
+            <form class="d-flex" role="search" action="{% url 'spare_parts:search_by_number' %}" method="get">
               <div class="input-group me-2 flex-grow-1">
                 <span class="input-group-text">Поиск по номеру запчасти:</span>
-                <input class="form-control" type="search" placeholder="Пример: 25739AA100" aria-label="Search"/>
+                <input class="form-control" type="search" placeholder="Пример: 25739AA100" aria-label="Search" name="part_number"/>
               </div>
                 <button class="btn btn-outline-success" type="submit">Поиск</button>
             </form>

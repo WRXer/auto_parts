@@ -28,4 +28,5 @@ urlpatterns = [
     path('model/<int:pk>/generations/', CarGenerationListView.as_view(), name='generations_list'),
     path('ajax/load-models/', CarModelsAjaxView.as_view(), name='ajax_load_car_models'),
     path('ajax/load-generations/', CarGenerationAjaxView.as_view(), name='ajax_load_car_generations'),
+    path('search-by-number/', PartListView.as_view(), name='search_by_number'),
 ]

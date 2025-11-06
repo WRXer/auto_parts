@@ -1,4 +1,6 @@
+from django.db.models import Q
 from django.http import JsonResponse
+from django.urls import resolve
 from django.views import View
 from django.views.generic import ListView, DetailView
 from rest_framework import generics
@@ -19,9 +21,19 @@ class PartListView(ListView):
     Это представление будет рендерить HTML-страницу со списком запчастей.
     """
     model = Part
-    template_name = 'main/all_parts.html'
     context_object_name = 'all_parts'    #Имя, по которому вы обращаться к списку в HTML
     paginate_by = 10
+
+    def get_template_names(self):
+        """
+        К разному урлу своя страница
+        :return:
+        """
+        resolved_url = resolve(self.request.path_info)   #Получаем информацию о текущем URL-адресе, который вызвал эту вьюху
+        if resolved_url.url_name == 'search_by_number':
+            return ['main/search_results.html']
+        else:
+            return ['main/all_parts.html']    #Для остальных случаев (каталог, фильтры по авто) используем основной шаблон
 
     def get_queryset(self):
         queryset = super().get_queryset().select_related('donor_generation')    #Получаем базовый QuerySet
@@ -37,6 +49,12 @@ class PartListView(ListView):
             filters['donor_generation__model__make__id'] = selected_make
         if filters:
             queryset = queryset.filter(**filters)
+
+        part_number_query = self.request.GET.get('part_number')
+        if part_number_query:
+            normalized_query = part_number_query.strip().replace(' ', '').replace('-', '').upper()    #Нормализуем запрос: убираем пробелы и тире, переводим в верхний регистр
+            queryset = queryset.filter(Q(part_number__iexact=normalized_query) | Q(part_number__icontains=normalized_query)).distinct()    #Используем Q для поиска по точному совпадению И частичному совпадению
+            self.extra_context = {'search_query': part_number_query}    #Добавляем запрос в контекст, чтобы показать его в заголовке шаблона
         return queryset.order_by('title')
 
     def get_context_data(self, **kwargs):
