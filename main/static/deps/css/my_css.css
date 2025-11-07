@@ -62,3 +62,19 @@
     /* Изменяем цвет тени фокуса на зеленый (success) */
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
+
+
+/* Переопределяем цвет фона активного элемента на зеленый (#198754) */
+.list-group .list-group-item-action.active {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important; /* Убеждаемся, что текст белый */
+}
+
+/* Дополнительно: Убедимся, что hover для активного элемента не меняет цвет */
+.list-group .list-group-item-action.active:hover,
+.list-group .list-group-item-action.active:focus {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+}

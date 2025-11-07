@@ -7,71 +7,122 @@
         <h1 class="mb-4 text-center">
             Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} ({{ current_generation.name }})
         </h1>
-        <div class="row g-4 justify-content-center">
-            {% if parts_list %}
-                <p>Найдено запчастей: {{ page_obj.paginator.count }}</p>
-            {% endif %}
-            {% for part in parts_list %}
-                <div class="col-12 col-md-8">
-                    <div class="card h-100 shadow-lg bg-light text-dark">
-                        <div class="d-flex p-3">
-                            <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
-                                {% with main_image=part.images.all %}
-                                    {% with main_image=part.get_main_image %}
-                                        {% if main_image and main_image.image %}
-                                            <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                        {% else %}
-                                            <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endwith %}
+        <div class="row g-4">
+            <div class="col-12 col-lg-2">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow-sm rounded-2">
+                        <div class="card-header text-white">
+                            <div class="collapse show" id="categories-list">
+                                <div class="list-group list-group-flush">
+                                    {% url 'parts_by_generation' make_pk=current_generation.model.make.pk model_pk=current_generation.model.pk generation_pk=current_generation.pk as base_url %}
+                                    <a href="{{ base_url }}" onclick="clearCategoryFilter(event)" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">Все категории</a>
+                                    {% for category in categories %}
+                                        <a href="{{ base_url }}?category={{ category.pk }}" class="list-group-item list-group-item-action {% if request.GET.category|safe == category.pk|slugify or request.GET.category|safe == category.pk|stringformat:"s" %}active{% endif %}">{{ category.name }}</a>
+                                    {% endfor %}
+                                </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="card-title text-dark">{{ part.title }}</h5>
-                                <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
-                                <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
-                            <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
-                            <a href="{% url 'spare_parts:part_get' part.pk %}" class="btn btn-outline-success">Подробнее</a>
                         </div>
                     </div>
                 </div>
-            {% empty %}
-                    <div class="col-12">
-                        <div class="alert alert-warning" role="alert">
-                            В данный момент запчастей в этой категории нет.
+            </div>
+            <div class="col-12 col-lg-9">
+                <div class="row g-4">
+                    {% if parts_list %}
+                        <div class="col-12">
+                            <p>Найдено запчастей: {{ page_obj.paginator.count }}</p>
                         </div>
-                    </div>
-            {% endfor %}
-            {% if is_paginated %}
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
-                            </li>
-                        {% endif %}
-                        <li class="page-item active" aria-current="page">
-                            <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-                        </li>
+                    {% endif %}
 
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
+                    {% for part in parts_list %}
+                        <div class="col-12 col-md-6 col-xl-6">
+                            <div class="card h-100 shadow-lg bg-light text-dark">
+                                <div class="d-flex p-3">
+                                    <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                        {% with main_image=part.images.all %}
+                                            {% with main_image=part.get_main_image %}
+                                                {% if main_image and main_image.image %}
+                                                    <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                        <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                                        <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                    <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                                    <a href="{% url 'spare_parts:part_get' part.pk %}" class="btn btn-outline-success">Подробнее</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning" role="alert">
+                                В данный момент запчастей в этой категории нет.
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    {% if is_paginated %}
+                        <div class="col-12">
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    {% with current_category_param=request.GET.category|default:'' %}
+                                    {% if page_obj.has_previous %}
+                                        {% if current_category_param %}
+                                            {% with category_query='&category='|add:current_category_param %}
+                                                <li class="page-item">
+                                                    <a class="page-link text-success border-success" href="?page=1{{ category_query }}">&laquo; Первая</a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}{{ category_query }}">Предыдущая</a>
+                                                </li>
+                                            {% endwith %}
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endif %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                                    </li>
+                                    {% if page_obj.has_next %}
+                                        {% if current_category_param %}
+                                            {% with category_query='&category='|add:current_category_param %}
+                                                <li class="page-item">
+                                                    <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}{{ category_query }}">Следующая</a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}{{ category_query }}">Последняя &raquo;</a>
+                                                </li>
+                                            {% endwith %}
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% endwith %}
+                                </ul>
+                            </nav>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </main>
+<script src="{% static 'deps/js/filter_parts.js' %}"></script>
 {% endblock content %}

@@ -209,9 +209,17 @@ class PartsByGenerationView(ListView):
     def get_queryset(self):
         generation_pk = self.kwargs.get('generation_pk')
         self.generation_obj = get_object_or_404(CarGeneration, pk=generation_pk)
-        return Part.objects.filter(donor_generation=self.generation_obj).order_by('title')    #Фильтруем запчасти, связанные с этой Генерацией
+        queryset = Part.objects.filter(donor_generation=self.generation_obj)
+        category_pk = self.request.GET.get('category')
+        if category_pk:
+            queryset = queryset.filter(category__pk=category_pk)
+        return queryset.order_by('title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['current_generation'] = self.generation_obj
+        context['categories'] = Category.objects.filter(part__donor_generation=self.generation_obj).distinct().order_by('name')   #Фильтруем категории, чтобы показать только те, которые есть в этом поколении
+        selected_category_pk = self.request.GET.get('category')
+        if selected_category_pk:
+            context['selected_category_pk'] = selected_category_pk
         return context
