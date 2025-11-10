@@ -111,3 +111,16 @@ document.addEventListener('DOMContentLoaded', function() {
         loadGenerations(initialModelId);
     }
 });
+
+// Функция для сворачивания/разворачивания фильтра
+    function toggleFilterBody() {
+        const cardBody = document.querySelector('.card-body');
+        const arrow = document.getElementById('filter-arrow');
+
+        cardBody.classList.toggle('d-none'); // Временно используем d-none для простоты
+        if (cardBody.classList.contains('d-none')) {
+            arrow.classList.replace('bi-chevron-down', 'bi-chevron-right');
+        } else {
+            arrow.classList.replace('bi-chevron-right', 'bi-chevron-down');
+        }
+    }
