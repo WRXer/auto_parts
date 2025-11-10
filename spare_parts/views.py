@@ -51,20 +51,16 @@ class PartListView(ListView):
         if filters:
             queryset = queryset.select_related('donor_generation').filter(**filters).distinct()
         else:
-            # Если фильтров нет, используем prefetch_related для предотвращения N+1 проблемы
-            # и чтобы не отбрасывать NULL-значения.
             queryset = queryset.prefetch_related('donor_generation')
-
-        part_number_query = self.request.GET.get('part_number')
-        if part_number_query:
-            normalized_query = part_number_query.strip().replace(' ', '').replace('-', '').upper()    #Нормализуем запрос: убираем пробелы и тире, переводим в верхний регистр
-            queryset = queryset.filter(Q(part_number__iexact=normalized_query) | Q(part_number__icontains=normalized_query)).distinct()    #Используем Q для поиска по точному совпадению И частичному совпадению
-            self.extra_context = {'search_query': part_number_query}    #Добавляем запрос в контекст, чтобы показать его в заголовке шаблона
+        category_id = self.request.GET.get('category')   #Фильтр по категории
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
         return queryset.order_by('title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['car_makes'] = CarMake.objects.all().order_by('name')    #Загружаем все марки для формы поиска
+        context['categories'] = Category.objects.all().order_by('name')
         selected_make_id = self.request.GET.get('make')
         selected_model_id = self.request.GET.get('model')
         selected_generation_id = self.request.GET.get('generation')
@@ -75,7 +71,9 @@ class PartListView(ListView):
                 header_context['make'] = make.name
                 context['car_models'] = CarModel.objects.filter(make=make).order_by('name')
             except CarMake.DoesNotExist:
-                pass
+                context['car_models'] = []
+        else:
+            context['car_models'] = []
         if selected_model_id and not selected_generation_id:
             try:
                 model = CarModel.objects.get(pk=selected_model_id)
@@ -91,6 +89,15 @@ class PartListView(ListView):
             except CarGeneration.DoesNotExist:
                 pass
         context['header_info'] = header_context
+        if selected_model_id:     #Предзаполнение модификаций для выбранной модели
+            context['car_generations'] = CarGeneration.objects.filter(model_id=selected_model_id).order_by('name')
+        else:
+            context['car_generations'] = []
+        query_params = self.request.GET.copy()    #GET-параметры без фильтра по авто для кнопки "Сбросить авто"
+        query_params_without_auto = query_params.copy()
+        for key in ['make', 'model', 'generation']:
+            query_params_without_auto.pop(key, None)
+        context['query_params_without_auto'] = query_params_without_auto
         return context
 
 
