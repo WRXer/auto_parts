@@ -37,7 +37,7 @@ class PartListView(ListView):
             return ['main/all_parts.html']    #Для остальных случаев (каталог, фильтры по авто) используем основной шаблон
 
     def get_queryset(self):
-        queryset = super().get_queryset().select_related('donor_generation')    #Получаем базовый QuerySet
+        queryset = super().get_queryset()    #Получаем базовый QuerySet
         selected_make = self.request.GET.get('make')
         selected_model = self.request.GET.get('model')
         selected_generation = self.request.GET.get('generation')    #ID CarGeneration
@@ -49,7 +49,11 @@ class PartListView(ListView):
         elif selected_make:
             filters['donor_generation__model__make__id'] = selected_make
         if filters:
-            queryset = queryset.filter(**filters)
+            queryset = queryset.select_related('donor_generation').filter(**filters).distinct()
+        else:
+            # Если фильтров нет, используем prefetch_related для предотвращения N+1 проблемы
+            # и чтобы не отбрасывать NULL-значения.
+            queryset = queryset.prefetch_related('donor_generation')
 
         part_number_query = self.request.GET.get('part_number')
         if part_number_query:
@@ -69,6 +73,7 @@ class PartListView(ListView):
             try:
                 make = CarMake.objects.get(pk=selected_make_id)
                 header_context['make'] = make.name
+                context['car_models'] = CarModel.objects.filter(make=make).order_by('name')
             except CarMake.DoesNotExist:
                 pass
         if selected_model_id and not selected_generation_id:
