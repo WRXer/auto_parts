@@ -2,14 +2,14 @@
 @media (min-width: 992px) {
     /* Применяем кастомную ширину 20% к контейнеру фильтра */
     .custom-filter-width {
-        width: 21% !important; /* !important требуется, чтобы перебить Bootstrap */
+        width: 21% ; /* !important требуется, чтобы перебить Bootstrap */
         /* Flexbox-свойства для правильного отображения */
         flex: 0 0 auto;
     }
 
     /* Соответственно, колонка с запчастями должна занимать оставшиеся 80% */
     .col-lg-9 {
-        width: 79% !important;
+        width: 79% ;
         flex: 0 0 auto;
     }
 }
