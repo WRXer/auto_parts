@@ -2,14 +2,15 @@ import uuid
 
 from django import forms
 from django.contrib import admin
-from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage
-
+from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage, DonorVehicle, \
+    DonorVehicleImage
 
 
 class PartImageInline(admin.TabularInline):
     """Отображает форму добавления изображений в виде таблицы."""
     model = PartImage
     extra = 1  # Количество пустых форм для добавления новых изображений
+    fields = ('image', 'is_main')
     # Позволяем показывать миниатюры в админке (требует написания метода)
     # readonly_fields = ['get_image_preview']
 
@@ -18,6 +19,16 @@ class PartImageInline(admin.TabularInline):
     #         return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
     #     return 'Нет изображения'
     # get_image_preview.short_description = 'Предпросмотр'
+
+
+class DonorVehicleImageInline(admin.TabularInline):
+    """
+    Позволяет добавлять несколько изображений к конкретной машине-донору
+    прямо на странице ее редактирования.
+    """
+    model = DonorVehicleImage
+    extra = 1
+    fields = ('image', 'is_main')
 
 
 @admin.register(CarMake)
@@ -78,9 +89,21 @@ class PartAdmin(admin.ModelAdmin):
     inlines = [PartImageInline]
     form = PartAdminForm
     list_display = (
-        'part_id', 'title', 'price', 'donor_generation', 'compatible_auto_list', 'condition', 'is_active', 'created_at'
+        'part_id', 'title', 'price', 'donor_generation', 'compatible_auto_list', 'donor_vehicle', 'condition', 'is_active', 'created_at'
     )
+    list_filter = ('is_active', 'condition', 'category', 'donor_generation__model__make')
+    search_fields = ('title', 'part_number', 'part_id', 'description')
     filter_horizontal = ('car_generations',)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).select_related(
+            # Оптимизация для donor_generation и donor_vehicle
+            'donor_generation__model__make', 'donor_vehicle'
+        ).prefetch_related(
+            # Оптимизация для compatible_auto_list
+            'car_generations__model__make'
+        )
+        return queryset
 
     def compatible_auto_list(self, obj):
         full_list = []
@@ -91,3 +114,16 @@ class PartAdmin(admin.ModelAdmin):
     compatible_auto_list.short_description = 'Совместимые авто'
 
 
+@admin.register(DonorVehicle)
+class DonorVehicleAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'generation', 'arrival_date', 'get_image_count')
+    list_filter = ('generation__model__make', 'arrival_date')
+    search_fields = ('title', 'generation__name')
+    # Связываем инлайн-класс с основной моделью
+    inlines = [DonorVehicleImageInline]
+
+    # Добавляем метод для отображения количества фото в списке
+    def get_image_count(self, obj):
+        return obj.images.count()
+
+    get_image_count.short_description = 'Фото'
