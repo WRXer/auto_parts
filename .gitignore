@@ -21,6 +21,7 @@ sdist/
 var/
 wheels/
 media/part_images
+media/donor_vehicle_images
 share/python-wheels/
 *.egg-info/
 .installed.cfg
