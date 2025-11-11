@@ -104,7 +104,62 @@
             </div>
         </div>
     </div>
-    </main>
+    {% if new_arrivals %}
+    <div class="container px-4 pt-4 pb-2">
+        <h2 class="pb-3  text-center mb-2 text-dark">Последние поступления в разбор</h2>
+        <div class="row g-4 justify-content-center">
+
+            {% for car in new_arrivals %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow h-100 text-decoration-none text-dark border-0 rounded-4 overflow-hidden" style="background-color: rgba(255, 255, 255, 0.9);">
+
+                    <div id="donor-carousel-{{ car.pk }}" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-inner" style="height: 200px;">
+
+                            {% for image in car.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="d-block">
+                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="Фото {{ forloop.counter }}" style="height: 200px; object-fit: cover;">
+                                </a>
+                            </div>
+                            {% empty %}
+                            <div class="carousel-item active">
+                                <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="d-block">
+                                    <img src="{% static 'deps/images/default_car_image.png' %}" class="d-block w-100" alt="Фото отсутствует" style="height: 200px; object-fit: cover; background-color: #e9ecef;">
+                                </a>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                        <!--Кнопки управления изображениями в блоке поступивших авто -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#donor-carousel-{{ car.pk }}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущее</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#donor-carousel-{{ car.pk }}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующее</span>
+                        </button>
+                    </div>
+
+                    <div class="card-body d-flex flex-column text-center p-3">
+                        <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="text-decoration-none">
+                            <h3 class="card-title text-dark fs-5 fw-bold mb-1">{{ car.generation.model.make.name }} {{ car.generation.model.name }} {{ car.generation.name }}</h3>
+                            <p class="card-text text-muted small fw-bold mb-3">{{ car.title }}</p>
+                        </a>
+                        <a href="{% url 'spare_parts:all_parts' %}?donor_vehicle_id={{ car.pk }}" class="btn btn-sm btn-outline-success mt-auto rounded-pill">
+                            Посмотреть все запчасти
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% endif %}
+
+</main>
 
 <script src="{% static 'deps/js/filter_logic.js' %}"></script>
 

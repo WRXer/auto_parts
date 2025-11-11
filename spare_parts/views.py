@@ -5,7 +5,7 @@ from django.urls import resolve
 from django.views import View
 from django.views.generic import ListView, DetailView
 from rest_framework import generics
-from spare_parts.models import Part, Category, CarModel, CarMake, CarGeneration
+from spare_parts.models import Part, Category, CarModel, CarMake, CarGeneration, DonorVehicle
 from spare_parts.serializers import PartSerializer
 
 
@@ -38,6 +38,18 @@ class PartListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()    #Получаем базовый QuerySet
+        donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
+
+        # 1. Если клик был с карточки "Новое поступление"
+        if donor_vehicle_id and donor_vehicle_id.isdigit():
+            # Фильтруем *только* по ID конкретного донора
+            queryset = queryset.filter(donor_vehicle_id=donor_vehicle_id)
+            # Возвращаем результат сразу, игнорируя остальные фильтры
+            return queryset.order_by('title').select_related(
+                'donor_vehicle', 'donor_generation__model__make', 'category'
+            ).prefetch_related('images')
+
+
         selected_make = self.request.GET.get('make')
         selected_model = self.request.GET.get('model')
         selected_generation = self.request.GET.get('generation')    #ID CarGeneration
@@ -55,10 +67,33 @@ class PartListView(ListView):
         category_id = self.request.GET.get('category')   #Фильтр по категории
         if category_id:
             queryset = queryset.filter(category_id=category_id)
+        queryset = queryset.select_related('donor_vehicle', 'donor_generation__model__make','category').prefetch_related('images')
         return queryset.order_by('title')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
+        if donor_vehicle_id and donor_vehicle_id.isdigit():
+            try:
+                # Получаем донора для формирования заголовка
+                donor = DonorVehicle.objects.select_related('generation__model__make').get(pk=donor_vehicle_id)
+
+                context['header_info'] = {
+                    'make': donor.generation.model.make.name,
+                    'model': donor.generation.model.name,
+                    # Очень понятный заголовок для страницы
+                    'generation': f"{donor.generation.name} (Поступление: {donor.title})"
+                }
+                context['car_makes'] = CarMake.objects.all().order_by('name')
+                context['categories'] = Category.objects.all().order_by('name')
+
+                # Возвращаем контекст, чтобы избежать выполнения старой логики фильтров
+                return context
+            except DonorVehicle.DoesNotExist:
+                pass
+
+
         context['car_makes'] = CarMake.objects.all().order_by('name')    #Загружаем все марки для формы поиска
         context['categories'] = Category.objects.all().order_by('name')
         selected_make_id = self.request.GET.get('make')
@@ -234,4 +269,39 @@ class PartsByGenerationView(ListView):
         selected_category_pk = self.request.GET.get('category')
         if selected_category_pk:
             context['selected_category_pk'] = selected_category_pk
+        return context
+
+
+class DonorDetailView(DetailView):
+    """
+    Отображает детали конкретной машины-донора: полную галерею и список
+    всех запчастей, снятых с нее.
+    """
+    model = DonorVehicle
+    template_name = 'spare_parts/donor_detail.html'
+    context_object_name = 'donor'
+
+    def get_queryset(self):
+        # Оптимизация запросов: получаем Make/Model/Generation и все изображения
+        return super().get_queryset().select_related(
+            'generation__model__make'
+        ).prefetch_related(
+            'images', 'parts__category', 'parts__images'  # Запчасти, их категории и фото
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        donor = self.object  # Полученный DonorVehicle
+
+        # Загружаем запчасти с этого донора (можно добавить пагинацию, если их много)
+        parts_list = donor.parts.filter(is_active=True).select_related(
+            'category'
+        ).prefetch_related(
+            'images'
+        ).order_by('category__name', 'title')
+
+        context['parts_list'] = parts_list
+        context[
+            'page_title'] = f"Донор: {donor.generation.model.make.name} {donor.generation.model.name} ({donor.title})"
+
         return context
