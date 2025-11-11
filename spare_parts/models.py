@@ -86,6 +86,7 @@ class Part(models.Model):
     part_number = models.CharField(max_length=100, verbose_name='OEM/Артикул', **NULLABLE)
     donor_generation = models.ForeignKey('CarGeneration',on_delete=models.PROTECT,related_name='donor_parts',verbose_name='Автомобиль-донор (Поколение/Модификация)')
     car_generations = models.ManyToManyField('CarGeneration',related_name='compatible_parts', verbose_name='Совместимые модификации/поколения', blank=True)    #Связь с совместимыми машинами (куда подходит запчасть)
+    donor_vehicle = models.ForeignKey('DonorVehicle',on_delete=models.SET_NULL,blank=True,null=True,related_name='parts',verbose_name="Конкретная машина-донор (поступление)",help_text="С какой конкретной машины снята эта запчасть")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     condition = models.CharField(max_length=10, choices=CONDITION_CHOICES, default='used', verbose_name='Состояние')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
@@ -121,3 +122,42 @@ class PartImage(models.Model):
     class Meta:
         verbose_name = 'Изображение запчасти'
         verbose_name_plural = 'Изображения запчастей'
+
+
+class DonorVehicle(models.Model):
+    """
+    Представляет КОНКРЕТНЫЙ автомобиль, поступивший в разбор.
+    """
+    generation = models.ForeignKey(CarGeneration, on_delete=models.PROTECT,verbose_name="Модификация (Тип авто)")
+    title = models.CharField(max_length=255,verbose_name="Название/Описание поступления (для себя)",help_text="Напр: 'Синий, 2.0л, пробег 140т.км' или 'Поступление #2'")    #Название или описание конкретного поступления для отображения на главной
+    arrival_date = models.DateField(auto_now_add=True,verbose_name="Дата поступления")
+
+    class Meta:
+        verbose_name = "Машина-донор (поступление)"
+        verbose_name_plural = "Машины-доноры (поступления)"
+        ordering = ['-arrival_date']
+
+    def __str__(self):
+        return f"{self.generation.model.make.name} {self.generation.model.name} ({self.title})"
+
+    def get_main_image(self):
+        """
+        Возвращает главное изображение или первое изображение, если главное не отмечено.
+        """
+        main_img = self.images.filter(is_main=True).first()
+        if main_img:
+            return main_img
+        return self.images.first()
+
+
+class DonorVehicleImage(models.Model):
+    """
+    Изображения для конкретного автомобиля-донора.
+    """
+    donor_vehicle = models.ForeignKey(DonorVehicle,on_delete=models.CASCADE,related_name='images',verbose_name='Машина-донор')
+    image = models.ImageField(upload_to='donor_vehicle_images/', verbose_name='Изображение')
+    is_main = models.BooleanField(default=False, verbose_name='Главное фото')
+
+    class Meta:
+        verbose_name = 'Изображение донора'
+        verbose_name_plural = 'Изображения донора'
