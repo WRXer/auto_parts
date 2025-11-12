@@ -39,6 +39,9 @@ class PartListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()    #Получаем базовый QuerySet
         queryset = queryset.filter(is_active=True)
+        search_query = self.request.GET.get('part_number')  # Получаем текстовый запрос
+        if search_query:
+            queryset = queryset.filter(Q(title__icontains=search_query) |  Q(description__icontains=search_query) |  Q(part_number__icontains=search_query)  ).distinct()    #Ищем совпадения в нескольких полях, используя Q-объекты (логика ИЛИ)
         donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
         if donor_vehicle_id and donor_vehicle_id.isdigit():   #Если клик был с карточки "Новое поступление"
             queryset = queryset.filter(donor_vehicle_id=donor_vehicle_id)
@@ -66,27 +69,19 @@ class PartListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        search_query = self.request.GET.get('part_number', '')
+        context['search_query'] = search_query
+        context['part_number'] = search_query
         donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
         if donor_vehicle_id and donor_vehicle_id.isdigit():
             try:
-                #Получаем донора для формирования заголовка
                 donor = DonorVehicle.objects.select_related('generation__model__make').get(pk=donor_vehicle_id)
-
-                context['header_info'] = {
-                    'make': donor.generation.model.make.name,
-                    'model': donor.generation.model.name,
-                    # Очень понятный заголовок для страницы
-                    'generation': f"{donor.generation.name} (Поступление: {donor.title})"
-                }
+                context['header_info'] = {'make': donor.generation.model.make.name,'model': donor.generation.model.name,'generation': f"{donor.generation.name} (Поступление: {donor.title})"}
                 context['car_makes'] = CarMake.objects.all().order_by('name')
                 context['categories'] = Category.objects.all().order_by('name')
-
-                # Возвращаем контекст, чтобы избежать выполнения старой логики фильтров
                 return context
             except DonorVehicle.DoesNotExist:
                 pass
-
-
         context['car_makes'] = CarMake.objects.all().order_by('name')    #Загружаем все марки для формы поиска
         context['categories'] = Category.objects.all().order_by('name')
         selected_make_id = self.request.GET.get('make')
