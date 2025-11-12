@@ -13,7 +13,7 @@ Including another URLconf
 """
 from django.urls import path
 from spare_parts.apps import SparePartsConfig
-from spare_parts.views import PartListView, PartDetailView, CategoryListView, CarModelsAjaxView, CarGenerationAjaxView, \
+from spare_parts.views import PartListView, PartDetailView, CategoryDetailView, CarModelsAjaxView, CarGenerationAjaxView, \
     CarModelListView, CarGenerationListView, PartsByGenerationView, DonorDetailView
 
 app_name = SparePartsConfig.name
@@ -22,7 +22,7 @@ app_name = SparePartsConfig.name
 urlpatterns = [
 
     path('catalog/all_parts/', PartListView.as_view(), name='all_parts'),
-    path('catalog/category/<int:category_id>/', CategoryListView.as_view(), name='category_detail'),
+    path('catalog/category/<int:pk>/', CategoryDetailView.as_view(), name='category_detail'),
     path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_detail'),
     path('cars/<int:make_pk>/models/', CarModelListView.as_view(), name='models_list'),
     path('cars/<int:make_pk>/models/<int:model_pk>/generations/', CarGenerationListView.as_view(), name='generations_list'),

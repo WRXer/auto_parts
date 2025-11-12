@@ -1,80 +1,140 @@
 {% extends 'main/base.html' %}
 {% load static %}
 {% block content %}
-
-
-<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
-    <div class="container py-5">
+<main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="container py-1">
         <h1 class="mb-4 text-center">{{ category.name }}</h1>
         {% if category.description %}
             <p class="lead text-center mb-5 text-secondary">{{ category.description }}</p>
         {% endif %}
-        <div class="row g-4 justify-content-center">
-            {% for part in parts %}
-            <div class="col-12 col-md-8">
-                <div class="card h-100 shadow-lg bg-light text-dark">
-                    <div class="d-flex p-3">
-                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
-                            {% with main_image=part.images.all %}
-                                {% with main_image=part.get_main_image %}
-                                    {% if main_image and main_image.image %}
-                                        <img src="{{ main_image.image.url }}" alt="{{ part.title }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% endif %}
-                                {% endwith %}
-                            {% endwith %}
+        <div class="row g-4">
+            <div class="col-12 col-lg-3 custom-filter-width">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow-sm rounded-2">
+                        <div class="card-header bg-light text-dark">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleFilterBody()">
+                                Фильтр <i id="filter-arrow" class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                            </h5>
                         </div>
-                        <div class="flex-grow-1">
-                            <h5 class="card-title text-dark">{{ part.title }}</h5>
-                            <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
-                            <p class="card-text">{{ part.description|truncatewords:15 }}</p>
+                        <div class="card-body">
+                            <form id="sidebar-filter-form" action="." method="GET">
+                                {% if category.pk %}
+                                    <input type="hidden" name="category" value="{{ category.pk }}">
+                                {% elif request.GET.category %}
+                                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label for="id_make_sidebar" class="form-label">Марка:</label>
+                                    <select name="make" id="id_make_sidebar" class="form-select" onchange="this.form.submit()">
+                                        <option value="">-- Все марки --</option>
+                                        {% for make in car_makes %}
+                                            <option value="{{ make.pk }}" {% if request.GET.make == make.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ make.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_model_sidebar" class="form-label">Модель:</label>
+                                    <select name="model" id="id_model_sidebar" class="form-select" {% if not car_models %}disabled{% endif %} onchange="this.form.submit()">
+                                        <option value="">-- Все модели --</option>
+                                        {% for model in car_models %}
+                                            <option value="{{ model.pk }}" {% if request.GET.model == model.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ model.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_generation_sidebar" class="form-label">Модификация:</label>
+                                    <select name="generation" id="id_generation_sidebar" class="form-select" {% if not car_generations %}disabled{% endif %} onchange="this.form.submit()">
+                                        <option value="">-- Все модификации --</option>
+                                        {% for gen in car_generations %}
+                                            <option value="{{ gen.pk }}" {% if request.GET.generation == gen.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ gen.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                    <a href="?category={{ category.pk }}" class="btn btn-outline-success w-100 mt-2">
+                                    Сбросить
+                                    </a>
+                            </form>
                         </div>
-                    </div>
-                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
-                        <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
-
-                        <a href="{% url 'spare_parts:part_detail' part.pk %}" class="btn btn-outline-success">Подробнее</a>
-
                     </div>
                 </div>
             </div>
 
-            {% empty %}
-            <div class="col-12">
-                <div class="alert alert-info text-center" role="alert">
-                    В категории "{{ category.name }}" запчастей не найдено.
+            <div class="col-lg-9">
+                <div id="parts-container">
+                    <div class="row g-4 justify-content-center">
+                        {% for part in parts %}
+                        <div class="col-12 col-md-8 col-xl-6">
+                            <div class="card h-100 shadow-lg bg-light text-dark">
+                                <div class="d-flex p-3">
+                                    <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                        {% with main_image=part.images.all %}
+                                            {% with main_image=part.get_main_image %}
+                                                {% if main_image and main_image.image %}
+                                                    <img src="{{ main_image.image.url }}" alt="{{ part.title }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                        <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                                        <p class="card-text">{{ part.description|truncatewords:15 }}</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                    <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                                    <a href="{% url 'spare_parts:part_detail' part.pk %}" class="btn btn-outline-success">Подробнее</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning text-center" role="alert">
+                                В категории "{{ category.name }}" запчастей не найдено.
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% if is_paginated %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                                    </li>
+                                {% endif %}
+                                <li class="page-item active" aria-current="page">
+                                    <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+                                </li>
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            {% endfor %}
-
-            {% if is_paginated %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link text-success border-success" href="?page=1">&laquo; Первая</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
-                        </li>
-                    {% endif %}
-                    <li class="page-item active" aria-current="page">
-                        <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-                    </li>
-
-                    {% if page_obj.has_next %}
-                        <li class="page-item">
-                            <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}">Следующая</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
-                        </li>
-                    {% endif %}
-
-                </ul>
-            </nav>
-            {% endif %}
         </div>
     </div>
 </main>

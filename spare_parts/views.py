@@ -1,5 +1,5 @@
-from django.db.models import Count
-from django.http import JsonResponse
+from django.db.models import Count, Q
+from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import resolve
 from django.views import View
@@ -156,6 +156,94 @@ class CategoryListView(ListView):
         category_id = self.kwargs['category_id']
         context['category'] = Category.objects.get(id=category_id)    #Получаем объект Category
         return context
+
+
+class CategoryDetailView(ListView):
+    """
+    Отображает список запчастей для конкретной категории.
+    Фильтр отображает полный список автомобилей, а QuerySet фильтрует запчасти по выбранной машине.
+    """
+    model = Part
+    template_name = 'main/category_detail.html'
+    context_object_name = 'parts'
+    paginate_by = 10
+
+    def get_category_id(self):
+        """
+        Находит ID категории, считывая его из именованного аргумента URL (pk),
+        либо из GET-параметра (category).
+        """
+        # Читаем pk из именованных аргументов URL (из-за <int:pk>/ в urls.py)
+        category_pk = self.kwargs.get('pk')
+
+        # Если pk нет в URL, пытаемся получить его из GET-параметров
+        if not category_pk:
+            category_pk = self.request.GET.get('category')
+
+        if not category_pk:
+            raise Http404("Идентификатор категории не указан.")
+
+        return category_pk
+
+    def get_category(self):
+        """Получает объект категории по найденному ID."""
+        category_pk = self.get_category_id()
+        return get_object_or_404(Category, pk=category_pk)
+
+    def get_queryset(self):
+        """
+        Формирует QuerySet, фильтруя по категории и применяя
+        дополнительные фильтры по марке/модели/поколению из GET-параметров.
+        """
+        category = self.get_category()
+        queryset = super().get_queryset().filter(category=category)
+        selected_make_pk = self.request.GET.get('make')
+        selected_model_pk = self.request.GET.get('model')
+        selected_generation_pk = self.request.GET.get('generation')
+        filters = Q()
+        if selected_make_pk:
+            filters &= Q(car_generations__model__make__pk=selected_make_pk)
+        if selected_model_pk:
+            filters &= Q(car_generations__model__pk=selected_model_pk)
+        if selected_generation_pk:
+            filters &= Q(car_generations__pk=selected_generation_pk)
+        if filters:
+            queryset = queryset.filter(filters).distinct()
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        """
+        Добавляет в контекст объект категории и ПОЛНЫЕ списки для боковой панели фильтрации.
+        """
+        context = super().get_context_data(**kwargs)
+        category = self.get_category()
+        context['category'] = category
+        selected_make_pk = self.request.GET.get('make')
+        selected_model_pk = self.request.GET.get('model')
+        available_makes = CarMake.objects.all().order_by('name')
+        context['car_makes'] = available_makes
+        context['car_models'] = []
+        context['car_generations'] = []
+
+        if selected_make_pk:
+            try:
+                models = CarModel.objects.filter(
+                    make__pk=selected_make_pk
+                ).order_by('name')
+                context['car_models'] = models
+            except Exception:
+                pass
+
+        if selected_model_pk:
+            try:
+                generations = CarGeneration.objects.filter(
+                    model__pk=selected_model_pk
+                ).order_by('name')
+                context['car_generations'] = generations
+            except Exception:
+                pass
+        return context
+
 
 class CarModelListView(ListView):
     """
