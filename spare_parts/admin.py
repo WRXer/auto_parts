@@ -108,7 +108,7 @@ class PartAdmin(admin.ModelAdmin):
 
 @admin.register(DonorVehicle)
 class DonorVehicleAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'generation', 'arrival_date', 'get_image_count')
+    list_display = ('__str__', 'generation', 'title', 'color', 'engine_details', 'description', 'transmission_type' ,'arrival_date', 'get_image_count')
     list_filter = ('generation__model__make', 'arrival_date')
     search_fields = ('title', 'generation__name')
     inlines = [DonorVehicleImageInline]    #Связываем инлайн-класс с основной моделью
