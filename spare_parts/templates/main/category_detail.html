@@ -26,7 +26,7 @@
 
                                 <div class="mb-3">
                                     <label for="id_make_sidebar" class="form-label">Марка:</label>
-                                    <select name="make" id="id_make_sidebar" class="form-select" onchange="this.form.submit()">
+                                    <select name="make" id="id_make_sidebar" onchange="filterChange(this)" class="form-select">
                                         <option value="">-- Все марки --</option>
                                         {% for make in car_makes %}
                                             <option value="{{ make.pk }}" {% if request.GET.make == make.pk|stringformat:"s" %}selected{% endif %}>
@@ -38,7 +38,7 @@
 
                                 <div class="mb-3">
                                     <label for="id_model_sidebar" class="form-label">Модель:</label>
-                                    <select name="model" id="id_model_sidebar" class="form-select" {% if not car_models %}disabled{% endif %} onchange="this.form.submit()">
+                                    <select name="model" id="id_model_sidebar" onchange="filterChange(this)" class="form-select" {% if not car_models %}disabled{% endif %}>
                                         <option value="">-- Все модели --</option>
                                         {% for model in car_models %}
                                             <option value="{{ model.pk }}" {% if request.GET.model == model.pk|stringformat:"s" %}selected{% endif %}>
@@ -50,7 +50,7 @@
 
                                 <div class="mb-3">
                                     <label for="id_generation_sidebar" class="form-label">Модификация:</label>
-                                    <select name="generation" id="id_generation_sidebar" class="form-select" {% if not car_generations %}disabled{% endif %} onchange="this.form.submit()">
+                                    <select name="generation" id="id_generation_sidebar" onchange="filterChange(this)" class="form-select" {% if not car_generations %}disabled{% endif %}>
                                         <option value="">-- Все модификации --</option>
                                         {% for gen in car_generations %}
                                             <option value="{{ gen.pk }}" {% if request.GET.generation == gen.pk|stringformat:"s" %}selected{% endif %}>
@@ -138,4 +138,12 @@
         </div>
     </div>
 </main>
+<script>
+    // Передаем PK категории в глобальный объект
+    window.FilterConfig = {
+        categoryPk: '{{ category.pk }}'
+    };
+</script>
+<script src="{% static 'deps/js/filter_logic_new.js' %}"></script>
+
 {% endblock content %}
