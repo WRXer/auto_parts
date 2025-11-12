@@ -147,7 +147,7 @@
                             <h3 class="card-title text-dark fs-5 fw-bold mb-1">{{ car.generation.model.make.name }} {{ car.generation.model.name }} {{ car.generation.name }}</h3>
                             <p class="card-text text-muted small fw-bold mb-3">{{ car.title }}</p>
                         </a>
-                        <a href="{% url 'spare_parts:all_parts' %}?donor_vehicle_id={{ car.pk }}" class="btn btn-sm btn-outline-success mt-auto rounded-pill">
+                        <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="btn btn-sm btn-outline-success mt-auto rounded-pill">
                             Посмотреть все запчасти
                         </a>
                     </div>
