@@ -128,8 +128,17 @@ class DonorVehicle(models.Model):
     """
     Представляет КОНКРЕТНЫЙ автомобиль, поступивший в разбор.
     """
+    TRANSMISSION_CHOICES = [
+        ('AT', 'Автоматическая'),
+        ('MT', 'Механическая')]
+
     generation = models.ForeignKey(CarGeneration, on_delete=models.PROTECT,verbose_name="Модификация (Тип авто)")
     title = models.CharField(max_length=255,verbose_name="Название/Описание поступления (для себя)",help_text="Напр: 'Синий, 2.0л, пробег 140т.км' или 'Поступление #2'")    #Название или описание конкретного поступления для отображения на главной
+    color = models.CharField(max_length=50, blank=True, null=True, verbose_name="Цвет")
+    production_year = models.IntegerField(blank=True, null=True, verbose_name="Год выпуска")
+    engine_details = models.CharField(max_length=255, blank=True, null=True, verbose_name="Детали двигателя (объем/модель)")
+    description = models.TextField(blank=True, null=True, verbose_name="Полное описание донора")
+    transmission_type = models.CharField(max_length=10, choices=TRANSMISSION_CHOICES, blank=True, null=True,verbose_name="Тип КПП")
     arrival_date = models.DateField(auto_now_add=True,verbose_name="Дата поступления")
 
     class Meta:
