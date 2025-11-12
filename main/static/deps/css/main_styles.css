@@ -5,7 +5,7 @@ body {
     background-size: contain;
     background-position: center;
     height: 750px; /* Настройте высоту баннера по вкусу */
-    border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
+    /* border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
     background-color: #D3D3D3;
     /* По умолчанию для больших экранов (Desktop) используем cover */
     background-size: contain;
