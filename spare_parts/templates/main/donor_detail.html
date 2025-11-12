@@ -1,0 +1,205 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="container py-6">
+        <div class="row g-4 mb-5">
+            <div class="col-12 col-lg-5">
+               {% with all_images=donor.images.all %}
+                   {% if all_images %}
+                       <div id="donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden" data-bs-ride="carousel">
+                           <div class="carousel-indicators">
+                               {% for image in all_images %}
+                                   <button type="button" data-bs-target="#donorImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                                           class="{% if forloop.first %}active{% endif %}"
+                                           aria-current="{% if forloop.first %}true{% endif %}"
+                                           aria-label="Slide {{ forloop.counter }}"></button>
+                               {% endfor %}
+                           </div>
+                           <div class="carousel-inner">
+                               {% for image in all_images %}
+                                   <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                       <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                            style="max-height: 400px; object-fit: cover;">
+                                   </div>
+                               {% endfor %}
+                           </div>
+                           <button class="carousel-control-prev" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="prev">
+                               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                               <span class="visually-hidden">Предыдущее</span>
+                           </button>
+                           <button class="carousel-control-next" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="next">
+                               <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                               <span class="visually-hidden">Следующее</span>
+                           </button>
+                       </div>
+                   {% else %}
+                       <div class="card shadow-sm border-0 mb-3">
+                           <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 400px; object-fit: cover; width: 100%;">
+                       </div>
+                   {% endif %}
+               {% endwith %}
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-lg p-2 h-100">
+                    <h1 class="display-6 ">Разбор: {{ donor.generation.model.make.name }} {{ donor.generation.model.name }} {{ donor.generation.name }}</h1>
+                    <p class="text-secondary">{{ donor.description|default:"Описание отсутствует"|linebreaksbr }}</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li><strong>Марка:</strong> {{ donor.generation.model.make.name }}</li>
+                        <li><strong>Модель:</strong> {{ donor.generation.model.name }}</li>
+                        <li><strong>Поколение:</strong> {{ donor.generation.name }}</li>
+                        <li><strong>Год выпуска:</strong> {{ donor.production_year|default:"Не указан" }}</li>
+                        <li><strong>Цвет:</strong> {{ donor.color|default:"Не указан" }}</li>
+                        {% if donor.engine_details %}
+                            <li><strong>Двигатель:</strong> {{ donor.engine_details }}</li>
+                        {% else %}
+                            <li><strong>Двигатель:</strong> Не указан</li>
+                        {% endif %}
+                        {% if donor.transmission_type %}
+                            <li><strong>Трансмиссия:</strong> {{ donor.get_transmission_type_display }}</li>
+                        {% else %}
+                            <li><strong>Трансмиссия:</strong> Не указана</li>
+                        {% endif %}
+                        <li><strong>Дата поступления:</strong> {{ donor.arrival_date|date:"d.m.Y" }}</li>
+                        <li><strong>Деталей с авто:</strong> {{ total_parts_count }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="mb-4">Каталог запчастей с данного авто</h3>
+        <div class="row g-4">
+            <div class="col-12 col-lg-3 custom-filter-width">
+                <div class="card shadow-sm rounded-2 sticky-top" style="top: 20px;">
+                    <div class="card-header bg-light text-dark" data-bs-toggle="collapse" data-bs-target="#donor-categories-collapse" aria-expanded="false" aria-controls="donor-categories-collapse" style="cursor: pointer;">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                            Категории
+                            <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                        </h5>
+                    </div>
+                    <div class="collapse show" id="donor-categories-collapse">
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush rounded-bottom-2">
+                                {% url 'spare_parts:donor_detail' pk=donor.pk as donor_url_base %}
+                                <a href="{{ donor_url_base }}"
+                                   class="list-group-item list-group-item-action
+                                          {% if not request.GET.category_id %}bg-success text-white{% endif %}
+                                          d-flex justify-content-between align-items-center">
+                                    Все запчасти
+                                    <span class="badge {% if not request.GET.category_id %}bg-white text-success{% else %}bg-secondary{% endif %} rounded-pill">{{ total_parts_count }}</span>
+                                </a>
+
+                                {% for category in categories %}
+                                    <a href="{% url 'spare_parts:donor_detail' pk=donor.pk %}?category_id={{ category.pk }}"
+                                       class="list-group-item list-group-item-action
+                                              {% if request.GET.category_id|stringformat:'s' == category.pk|stringformat:'s' %}bg-success text-white{% endif %}
+                                              d-flex justify-content-between align-items-center">
+                                        {{ category.name }}
+                                        <span class="badge {% if request.GET.category_id|stringformat:'s' == category.pk|stringformat:'s' %}bg-white text-success{% else %}bg-secondary{% endif %} rounded-pill">{{ category.part_count }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9">
+                <div id="parts-container">
+                    <div class="row g-4 justify-content-center">
+
+                        {% for part in parts_list %}
+                            <div class="col-12 col-md-8 col-xl-6">
+                                <a href="{% url 'spare_parts:part_detail' part.pk %}" class="text-decoration-none d-block h-100">
+                                    <div class="card h-100 shadow-lg bg-light text-dark">
+                                        <div class="d-flex p-3">
+
+                                            <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                                {% with main_image=part.get_main_image %}
+                                                    {% if main_image and main_image.image %}
+                                                        <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% else %}
+                                                        <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
+
+                                            <div class="flex-grow-1">
+                                                <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                                <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+
+                                                <p class="card-text small text-dark">
+                                                    {{ donor.generation.model.make.name }}
+                                                    {{ donor.generation.model.name }} ({{ donor.generation.name }})
+                                                </p>
+
+                                                <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                            <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                                            <span class="btn btn-outline-success">Подробнее</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                        {% empty %}
+                            <div class="col-10">
+                                <div class="alert alert-warning" role="alert">
+                                    В данный момент запчастей по этому фильтру нет. Попробуйте изменить критерии поиска.
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if is_paginated %}
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                            {% endif %}
+
+                            <!-- Номера страниц -->
+                            {% for i in page_obj.paginator.page_range %}
+                                {% if page_obj.number == i %}
+                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
+                                {% else %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ i }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- Следующая страница -->
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+
+        </div>
+        <!-- КОНЕЦ БЛОКА 2 -->
+
+    </div>
+</main>
+{% endblock content %}

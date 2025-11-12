@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Count
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import resolve
@@ -39,16 +39,9 @@ class PartListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()    #Получаем базовый QuerySet
         donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
-
-        # 1. Если клик был с карточки "Новое поступление"
-        if donor_vehicle_id and donor_vehicle_id.isdigit():
-            # Фильтруем *только* по ID конкретного донора
+        if donor_vehicle_id and donor_vehicle_id.isdigit():   #Если клик был с карточки "Новое поступление"
             queryset = queryset.filter(donor_vehicle_id=donor_vehicle_id)
-            # Возвращаем результат сразу, игнорируя остальные фильтры
-            return queryset.order_by('title').select_related(
-                'donor_vehicle', 'donor_generation__model__make', 'category'
-            ).prefetch_related('images')
-
+            return queryset.order_by('title').select_related('donor_vehicle', 'donor_generation__model__make', 'category').prefetch_related('images')
 
         selected_make = self.request.GET.get('make')
         selected_model = self.request.GET.get('model')
@@ -72,11 +65,10 @@ class PartListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         donor_vehicle_id = self.request.GET.get('donor_vehicle_id')
         if donor_vehicle_id and donor_vehicle_id.isdigit():
             try:
-                # Получаем донора для формирования заголовка
+                #Получаем донора для формирования заголовка
                 donor = DonorVehicle.objects.select_related('generation__model__make').get(pk=donor_vehicle_id)
 
                 context['header_info'] = {
@@ -275,10 +267,10 @@ class PartsByGenerationView(ListView):
 class DonorDetailView(DetailView):
     """
     Отображает детали конкретной машины-донора: полную галерею и список
-    всех запчастей, снятых с нее.
+    всех запчастей, снятых с нее, с возможностью фильтрации по категории.
     """
     model = DonorVehicle
-    template_name = 'spare_parts/donor_detail.html'
+    template_name = 'main/donor_detail.html'
     context_object_name = 'donor'
 
     def get_queryset(self):
@@ -286,21 +278,38 @@ class DonorDetailView(DetailView):
         return super().get_queryset().select_related(
             'generation__model__make'
         ).prefetch_related(
-            'images', 'parts__category', 'parts__images'  # Запчасти, их категории и фото
+            'images'
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         donor = self.object  # Полученный DonorVehicle
 
-        # Загружаем запчасти с этого донора (можно добавить пагинацию, если их много)
-        parts_list = donor.parts.filter(is_active=True).select_related(
-            'category'
-        ).prefetch_related(
-            'images'
-        ).order_by('category__name', 'title')
+        # 1. Получаем ID категории из GET-параметров (параметр category_id из шаблона)
+        category_id = self.request.GET.get('category_id')
 
-        context['parts_list'] = parts_list
+        # 2. Базовый QuerySet для активных запчастей донора
+        parts_queryset = donor.parts.filter(is_active=True).select_related('category').prefetch_related('images')
+
+        # 3. Применяем фильтр по категории, если она выбрана
+        if category_id:
+            parts_queryset = parts_queryset.filter(category_id=category_id)
+
+        context['parts_list'] = parts_queryset.order_by('category__name', 'title')
+
+        # 4. Получаем категории, которые фактически присутствуют на этом доноре, с подсчетом
+        categories_with_count = Category.objects.filter(
+            part__donor_vehicle=donor,
+            part__is_active=True  # Считаем только активные запчасти
+        ).annotate(
+            part_count=Count('part')  # Используем Count для подсчета
+        ).order_by('name')
+
+        context['categories'] = categories_with_count
+
+        # 5. Общее количество активных запчастей для кнопки "Все запчасти"
+        context['total_parts_count'] = donor.parts.filter(is_active=True).count()
+
         context[
             'page_title'] = f"Донор: {donor.generation.model.make.name} {donor.generation.model.name} ({donor.title})"
 

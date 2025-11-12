@@ -23,7 +23,7 @@ urlpatterns = [
 
     path('catalog/all_parts/', PartListView.as_view(), name='all_parts'),
     path('catalog/category/<int:category_id>/', CategoryListView.as_view(), name='category_detail'),
-    path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_get'),
+    path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_detail'),
     path('cars/<int:make_pk>/models/', CarModelListView.as_view(), name='models_list'),
     path('cars/<int:make_pk>/models/<int:model_pk>/generations/', CarGenerationListView.as_view(), name='generations_list'),
     path('cars/<int:make_pk>/models/<int:model_pk>/generations/<int:generation_pk>/parts', PartsByGenerationView.as_view(), name='parts_by_generation'),
