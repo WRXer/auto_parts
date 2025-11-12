@@ -43,9 +43,9 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                        {% for category in categories %}
+                                        {% for category in all_categories %}
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.id %}">
+                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.pk %}">
                                         {{ category.name }}
                                         </a>
                                     </li>
