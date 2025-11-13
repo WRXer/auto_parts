@@ -2,18 +2,25 @@
 {% load static %}
 {% block content %}
 
-<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
-    <div class="container py-5">
+<main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="container py-1">
         <h1 class="mb-4 text-center">
             Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} ({{ current_generation.name }})
         </h1>
         <div class="row g-4">
-            <div class="col-12 col-lg-2">
+            <div class="col-12 col-lg-3 custom-filter-width">
                 <div class="sticky-top" style="top: 20px;">
                     <div class="card shadow-sm rounded-2">
-                        <div class="card-header text-white">
-                            <div class="collapse show" id="categories-list">
-                                <div class="list-group list-group-flush">
+                        <div class="card-header bg-light text-dark" data-bs-toggle="collapse" data-bs-target="#categories-collapse" aria-expanded="false" aria-controls="categories-collapse" style="cursor: pointer;">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                                Категории
+                                <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                            </h5>
+                        </div>
+
+                        <div class="collapse show" id="categories-collapse">
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush rounded-bottom-2">
                                     {% url 'parts_by_generation' make_pk=current_generation.model.make.pk model_pk=current_generation.model.pk generation_pk=current_generation.pk as base_url %}
                                     <a href="{{ base_url }}" onclick="clearCategoryFilter(event)" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">Все категории</a>
                                     {% for category in categories %}
@@ -23,15 +30,15 @@
                             </div>
                         </div>
                     </div>
+                    {% if parts_list %}
+                        <div class="col-12 text-center mt-3">
+                            <p>Найдено позиций: {{ page_obj.paginator.count }}</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="col-12 col-lg-9">
                 <div class="row g-4">
-                    {% if parts_list %}
-                        <div class="col-12">
-                            <p>Найдено запчастей: {{ page_obj.paginator.count }}</p>
-                        </div>
-                    {% endif %}
 
                     {% for part in parts_list %}
                         <div class="col-12 col-md-6 col-xl-6">
