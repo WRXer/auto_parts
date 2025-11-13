@@ -2,68 +2,119 @@
 {% load static %}
 {% block content %}
 
-<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+<link rel="stylesheet" href="{% static 'deps/css/image_styles.css' %}">
+
+<main class="container text-dark py-4 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-5">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-decoration-none">Главная</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'spare_parts:all_parts' %}" class="text-decoration-none">Все запчасти</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'spare_parts:category_detail' part.category.pk %}" class="text-decoration-none">{{part.category.name}}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ part.title|truncatewords:5 }}</li>
-            </ol>
-        </nav>
         <div class="row g-4">
             <div class="col-12 col-lg-4">
-               {% with all_images=part.images.all %}
-                    {% with main_image=part.get_main_image %}
-                        <div class="card shadow-sm border-0 mb-3">
-                            {% if main_image and main_image.image %}
-                                <img src="{{ main_image.image.url }}" class="img-fluid rounded-3" alt="{{ part.title }}" style="max-height: 400px; object-fit: cover; width: 100%;">
-                            {% else %}
-                                <img src="{% static 'deps/images/default_part_image.png' %}" class="img-fluid rounded-3" alt="Изображение отсутствует">
-                            {% endif %}
-                        </div>
-                    {% endwith %}
-
+                {% with all_images=part.images.all %}
                     {% if all_images %}
-                        <h5 class="mb-2">Все фотографии:</h5>
-                        <div class="row g-2">
-                            {% for img_obj in all_images %}
-                                {% if img_obj != part.get_main_image %}
-                                <div class="col-3">
-                                    <a href="{{ img_obj.image.url }}" target="_blank">
-                                        <img src="{{ img_obj.image.url }}" alt="{{ part.title }}" class="img-thumbnail w-100" style="height: 80px; object-fit: cover;">
-                                    </a>
+                        <div id="donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden mb-3" data-bs-interval="false">
+                            <div class="carousel-inner">
+                                {% for image in all_images %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img src="{{ image.image.url }}"
+                                            class="d-block w-100"
+                                            alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                            style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#imageModal"
+                                            data-bs-slide-index="{{ forloop.counter0 }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Предыдущее</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Следующее</span>
+                            </button>
+                        </div>
+
+                        <div class="row g-2 justify-content-center">
+                            {% for image in all_images %}
+                                <div class="col-3 col-md-2 col-lg-2">
+                                    <button type="button"
+                                            data-bs-target="#donorImageCarousel"
+                                            data-bs-slide-to="{{ forloop.counter0 }}"
+                                            class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
+                                            style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
+                                            onmouseover="this.style.opacity='1'"
+                                            onmouseout="this.style.opacity='0.7'"
+                                            aria-label="Перейти к слайду {{ forloop.counter }}">
+                                        <img src="{{ image.image.url }}"
+                                             class="img-fluid"
+                                             alt="Миниатюра {{ forloop.counter }}"
+                                             style="height: 60px; object-fit: cover; width: 100%;">
+                                    </button>
                                 </div>
-                                {% endif %}
                             {% endfor %}
+                        </div>
+
+                        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content bg-transparent border-0">
+                                    <div class="modal-body p-0">
+                                        <div id="fullScreenCarousel" class="carousel slide" data-bs-interval="false">
+                                            <div class="carousel-inner">
+                                                {% for image in all_images %}
+                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                                        <img src="{{ image.image.url }}"
+                                                             class="d-block w-100 rounded-3"
+                                                             alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                                             style="max-height: 90vh; object-fit: contain; object-position: top;">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            <!-- Кнопки навигации модального окна -->
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Предыдущее</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Следующее</span>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <div class="card shadow-sm border-0 mb-3">
+                            <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 200px; object-fit: cover; width: 100%;">
                         </div>
                     {% endif %}
                 {% endwith %}
             </div>
+
             <div class="col-12 col-lg-7">
                 <div class="card shadow-lg p-4 h-100">
-                    <h1 class="display-6 fw-bold">{{ part.title }}</h1>
-                    <p class="text-muted mb-4">Артикул: <span class="fw-semibold">{{ part.part_number|default:"Не указан" }}</span></p>
-                    <div class="mb-4 p-3 bg-success-subtle rounded-3">
-                        <span class="fs-4 text-success fw-bold">Цена: {{ part.price }} ₽</span>
-                    </div>
-                    <h4 class="mb-3 mt-3">Описание</h4>
-                    <p class="text-secondary">{{ part.description|linebreaksbr }}</p>
-                    <hr>
-                    <h5 class="mb-3">Характеристики</h5>
+                    <h1 class="display-8 fw-bold">{{ part.title }}</h1>
                     <ul class="list-unstyled">
-                        <li><strong>Марка:</strong> {{ part.car_model.brand.name|default:"Не указана" }}</li>
-                        <li><strong>Модель:</strong> {{ part.car_model.name|default:"Не указана" }}</li>
+                        <li class="mb-2"><strong>Артикул:</strong> {{ part.part_number|default:"Не указан" }}</li>
+                        <li class="mb-2"><strong>Описание:</strong> {{ part.description|linebreaksbr }}</li>
+                        <li class="mb-2"><strong>Марка:</strong> {{ part.car_model.brand.name|default:"Не указана" }}</li>
+                        <li class="mb-2"><strong>Модель:</strong> {{ part.car_model.name|default:"Не указана" }}</li>
                         {% if part.car_modification %}
                             <li><strong>Модификация:</strong> {{ part.car_modification.name }}</li>
                         {% endif %}
                         <li><strong>Состояние:</strong> {{ part.get_condition_display }}</li>
                     </ul>
-                    <div class="mt-auto pt-3">
-                        <a href="" class="btn btn-success btn-lg w-100">
-                            Добавить в корзину
-                        </a>
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-6 pt-3 pt-md-0">
+                                <span class="fs-5 text-dark fw-bold">Цена:</span>
+                                <span class="fs-3 text-dark fw-bold">{{ part.price }} ₽</span>
+                        </div>
+                        <div class="col-md-6 pt-3 pt-md-0">
+                            <a href="" class="btn btn-outline-success btn-lg w-100">Добавить в корзину</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -71,8 +122,5 @@
     </div>
 </main>
 
-
-
-
-
+<script src="{% static 'js/image_carousel.js' %}"></script>
 {% endblock content %}

@@ -1,0 +1,67 @@
+/* ПРИОРИТЕТ Z-INDEX: Модальное окно поверх всего */
+#imageModal.modal {
+    z-index: 10000 !important;
+}
+.modal-backdrop {
+    z-index: 9999 !important;
+}
+
+/* ---------------------------------------------------- */
+/* СТИЛИ ДЛЯ КРЕСТИКА (ВНЕ ИЗОБРАЖЕНИЯ) */
+/* ---------------------------------------------------- */
+
+#imageModal .btn-close {
+    width: 4.5rem;
+    height: 4.5rem;
+
+    /* Убираем фон и тень */
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    filter: invert(1); /* Делаем крестик белым
+
+    /* НОВОЕ ПОЗИЦИОНИРОВАНИЕ: Вертикальное центрирование и выравнивание со стрелкой */
+    right: -4rem; /* Смещаем вправо, на одну линию со стрелкой */
+    top: 0; /* Смещаем на половину высоты */
+    transform: translateY(-50%); /* Компенсируем собственную высоту, чтобы было идеально по центру */
+    z-index: 1050; /* Должен быть выше карусели */
+}
+
+#imageModal .btn-close:hover {
+    opacity: 1;
+}
+
+/* ---------------------------------------------------- */
+/* СТИЛИ ДЛЯ БОЛЬШИХ КНОПОК НАВИГАЦИИ (СТРЕЛОК) */
+/* ---------------------------------------------------- */
+
+/* Сдвигаем стрелки влево и вправо, чтобы они выходили за пределы изображения */
+#imageModal .carousel-control-prev {
+    left: -4rem; /* Выталкиваем за пределы карусели */
+    width: 5rem;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+}
+
+#imageModal .carousel-control-next {
+    right: -4rem; /* Выталкиваем за пределы карусели */
+    width: 5rem;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+}
+
+#imageModal .carousel-control-prev:hover,
+#imageModal .carousel-control-next:hover {
+    opacity: 1;
+}
+
+/* Стиль вокруг со стрелки */
+#imageModal .carousel-control-prev-icon,
+#imageModal .carousel-control-next-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0.5rem;
+    box-shadow: none;
+}
