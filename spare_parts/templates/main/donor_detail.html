@@ -1,44 +1,96 @@
 {% extends 'main/base.html' %}
 {% load static %}
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'deps/css/image_styles.css' %}">
+
 <main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-6">
         <div class="row g-4 mb-5">
             <div class="col-12 col-lg-5">
-               {% with all_images=donor.images.all %}
-                   {% if all_images %}
-                       <div id="donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden" data-bs-ride="carousel">
-                           <div class="carousel-indicators">
-                               {% for image in all_images %}
-                                   <button type="button" data-bs-target="#donorImageCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
-                                           class="{% if forloop.first %}active{% endif %}"
-                                           aria-current="{% if forloop.first %}true{% endif %}"
-                                           aria-label="Slide {{ forloop.counter }}"></button>
-                               {% endfor %}
-                           </div>
-                           <div class="carousel-inner">
-                               {% for image in all_images %}
-                                   <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                       <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ donor.title }} - Фото {{ forloop.counter }}"
-                                            style="max-height: 400px; object-fit: cover;">
-                                   </div>
-                               {% endfor %}
-                           </div>
-                           <button class="carousel-control-prev" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="prev">
-                               <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                               <span class="visually-hidden">Предыдущее</span>
-                           </button>
-                           <button class="carousel-control-next" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="next">
-                               <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                               <span class="visually-hidden">Следующее</span>
-                           </button>
-                       </div>
-                   {% else %}
-                       <div class="card shadow-sm border-0 mb-3">
-                           <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 400px; object-fit: cover; width: 100%;">
-                       </div>
-                   {% endif %}
-               {% endwith %}
+                {% with all_images=donor.images.all %}
+                    {% if all_images %}
+                        <div id="donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden mb-3" data-bs-interval="false">
+                            <div class="carousel-inner">
+                                {% for image in all_images %}
+                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                        <img src="{{ image.image.url }}"
+                                            class="d-block w-100"
+                                            alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                            style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#imageModal"
+                                            data-bs-slide-index="{{ forloop.counter0 }}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button class="carousel-control-prev" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Предыдущее</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Следующее</span>
+                            </button>
+                        </div>
+
+                        <div class="row g-2 justify-content-center">
+                            {% for image in all_images %}
+                                <div class="col-3 col-md-2 col-lg-2">
+                                    <button type="button"
+                                            data-bs-target="#donorImageCarousel"
+                                            data-bs-slide-to="{{ forloop.counter0 }}"
+                                            class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
+                                            style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
+                                            onmouseover="this.style.opacity='1'"
+                                            onmouseout="this.style.opacity='0.7'"
+                                            aria-label="Перейти к слайду {{ forloop.counter }}">
+                                        <img src="{{ image.image.url }}"
+                                             class="img-fluid"
+                                             alt="Миниатюра {{ forloop.counter }}"
+                                             style="height: 60px; object-fit: cover; width: 100%;">
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content bg-transparent border-0">
+                                    <div class="modal-body p-0">
+                                        <div id="fullScreenCarousel" class="carousel slide" data-bs-interval="false">
+                                            <div class="carousel-inner">
+                                                {% for image in all_images %}
+                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                                        <img src="{{ image.image.url }}"
+                                                             class="d-block w-100 rounded-3"
+                                                             alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                                             style="max-height: 90vh; object-fit: contain; object-position: top;">
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                            <!-- Кнопки навигации модального окна -->
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Предыдущее</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Следующее</span>
+                                            </button>
+                                        </div>
+                                        <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="card shadow-sm border-0 mb-3">
+                            <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 200px; object-fit: cover; width: 100%;">
+                        </div>
+                    {% endif %}
+                {% endwith %}
             </div>
 
             <div class="col-12 col-lg-6">
@@ -171,7 +223,6 @@
                                 </li>
                             {% endif %}
 
-                            <!-- Номера страниц -->
                             {% for i in page_obj.paginator.page_range %}
                                 {% if page_obj.number == i %}
                                     <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
@@ -179,8 +230,6 @@
                                     <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ i }}</a></li>
                                 {% endif %}
                             {% endfor %}
-
-                            <!-- Следующая страница -->
                             {% if page_obj.has_next %}
                                 <li class="page-item">
                                     <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Next">
@@ -196,10 +245,9 @@
                     </nav>
                 {% endif %}
             </div>
-
         </div>
-        <!-- КОНЕЦ БЛОКА 2 -->
-
     </div>
 </main>
+
+<script src="{% static 'js/image_carousel.js' %}"></script>
 {% endblock content %}
