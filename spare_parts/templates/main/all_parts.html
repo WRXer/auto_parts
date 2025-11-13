@@ -83,6 +83,9 @@
                         <div class="collapse" id="categories-collapse">
                             <div class="card-body p-0">
                                 <div class="list-group list-group-flush rounded-bottom-2">
+                                    <a href="{% url 'spare_parts:all_parts' %}?{% if request.GET.make %}make={{ request.GET.make }}&{% endif %}{% if request.GET.model %}model={{ request.GET.model }}&{% endif %}{% if request.GET.generation %}generation={{ request.GET.generation }}&{% endif %}" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">
+                                        Все запчасти
+                                    </a>
                                     {% for category in categories %}
                                         {% comment %}
                                             Формируем ссылку, сохраняя выбранные make, model, generation,
@@ -93,9 +96,6 @@
                                         </a>
                                     {% endfor %}
 
-                                    <a href="{% url 'spare_parts:all_parts' %}?{% if request.GET.make %}make={{ request.GET.make }}&{% endif %}{% if request.GET.model %}model={{ request.GET.model }}&{% endif %}{% if request.GET.generation %}generation={{ request.GET.generation }}&{% endif %}" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">
-                                        Все запчасти
-                                    </a>
                                 </div>
                             </div>
                         </div>
