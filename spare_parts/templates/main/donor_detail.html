@@ -17,7 +17,7 @@
                                         <img src="{{ image.image.url }}"
                                             class="d-block w-100"
                                             alt="{{ donor.title }} - Фото {{ forloop.counter }}"
-                                            style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                            style="max-height: 300px; object-fit: cover; cursor: pointer;"
                                             data-bs-toggle="modal"
                                             data-bs-target="#imageModal"
                                             data-bs-slide-index="{{ forloop.counter0 }}">
@@ -87,7 +87,7 @@
                         </div>
                     {% else %}
                         <div class="card shadow-sm border-0 mb-3">
-                            <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 200px; object-fit: cover; width: 100%;">
+                            <img src="{% static 'deps/images/default_car_image.png' %}" class="img-fluid rounded-3" alt="Изображение донора отсутствует" style="max-height: 300px; object-fit: cover; width: 100%;">
                         </div>
                     {% endif %}
                 {% endwith %}
