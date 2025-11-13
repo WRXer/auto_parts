@@ -1,12 +1,11 @@
 /* Общие стили для ВСЕХ размеров экрана */
 body {
-    background-color: #D3D3D3 !important; /* Устанавливаем основной цвет */
+    background-color: #D3D3D3; /* Устанавливаем основной цвет */
     background-image: url('/static/deps/icons/head/cap_head.jpg');
     background-size: contain;
     background-position: center;
     height: 750px; /* Настройте высоту баннера по вкусу */
     /* border-bottom: 2px solid #ccc; /* Граница для отделения от NAV */
-    background-color: #D3D3D3;
     /* По умолчанию для больших экранов (Desktop) используем cover */
     background-size: contain;
 }
@@ -85,4 +84,20 @@ select option:checked {
     background-color: #198754; /* Зеленый цвет */
     /* Меняем цвет текста выделенного элемента */
     color: #fff; /* Белый текст для читаемости */
+}
+
+.navbar-nav .nav-link {
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+    border-radius: 0.375rem; /* Закругление для имитации кнопки */
+    padding: 0.5rem 1rem; /* Стандартный padding для кнопки */
+    color: #000 !important; /* УСТАНОВЛЕН ЧЕРНЫЙ ЦВЕТ */
+    font-weight: 500; /* Полужирный, чтобы выглядело как активный элемент */
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link[aria-expanded="true"] {
+    /* Имитация .btn-secondary при наведении или в активном состоянии */
+    color: #fff !important;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
 }
