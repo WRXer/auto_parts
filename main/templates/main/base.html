@@ -92,9 +92,12 @@
                                         <hr class="dropdown-divider bg-tertiary">
                                     </li>
                                     <li>
-                                        <a class="dropdown-item btn btn-tertiary w-100" href="{% url 'logout' %}">
-                                            Выход 🚪
-                                        </a>
+                                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item btn btn-tertiary w-100 text-start">
+                                                Выход 🚪
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
 
@@ -113,7 +116,7 @@
                                         </div>
                                         <button type="submit" class="btn btn-outline-success w-100">Войти</button>
                                         <hr class="dropdown-divider bg-tertiary">
-                                        <a href="{% url 'users:single_register' %}" class="btn btn-outline-success w-100">Регистрация</a>
+                                        <a href="{% url 'users:registration_page' %}" class="btn btn-outline-success w-100">Регистрация</a>
                                         <input type="hidden" name="next" value="{{ request.path }}">
                                     </form>
                                 </ul>
