@@ -1,0 +1,39 @@
+{% extends 'main/base.html' %}
+
+
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">Личный кабинет</h2>
+            
+            <div class="card p-4">
+                <h4 class="card-title">Ваши данные</h4>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if user.image %}
+                    <div class="mb-3 text-center">
+                        <img src="{{ user.image.url }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+
+                    {{ form.as_p }}
+                    
+                    <button type="submit" class="btn btn-success mt-3 w-100">Сохранить изменения</button>
+                </form>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h4 class="card-title">Пароль</h4>
+                <p>
+                    <a href="{% url 'users:password_change' %}" class="btn btn-outline-secondary">Изменить пароль</a>
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</main>
+{% endblock %}

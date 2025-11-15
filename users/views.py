@@ -30,3 +30,17 @@ class RegistrationView(View):
         }
         return render(request, 'users/registration.html', context)
 
+
+class ProfileView(View):
+    """
+    Профиль
+    """
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+
+        context = {
+            'user': request.user,
+            'title': 'Мой профиль'
+        }
+        return render(request, 'users/profile.html', context)
