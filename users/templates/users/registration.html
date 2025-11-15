@@ -1,11 +1,31 @@
 {% extends 'main/base.html' %}
 {% load static %}
-{% block content %}
 
+{% block content %}
 <main class="container text-dark py-4 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <h2 class="text-center">Регистрация</h2>
+
+            {% if messages %}
+                <div class="container mt-2">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div
+                id="registration-data"
+                data-successful="{% if registration_successful %}true{% else %}false{% endif %}"
+                data-user-email="{{ user_email|default:'' }}"
+                data-redirect-url="/"
+                style="display: none;"
+            ></div>
+
             <form method="POST" id="registration-form">
                 {% csrf_token %}
 
@@ -38,10 +58,28 @@
                         Завершить регистрацию
                     </button>
                  </div>
-
             </form>
         </div>
     </div>
 </main>
+
+<div class="modal fade" id="activationModal" tabindex="-1" aria-labelledby="activationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="activationModalLabel">🎉 Регистрация завершена!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Ваш аккаунт создан и ожидает активации.</p>
+        <p>Для завершения активации, пожалуйста, перейдите по ссылке, отправленной на <span id="modal-email"></span>.</p>      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="modal-ok-button">ОК</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static '/deps/js/registration.js' %}"></script>
 
 {% endblock %}

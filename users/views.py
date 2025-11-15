@@ -1,9 +1,15 @@
+from django.contrib.messages import get_messages
 from django.shortcuts import render, redirect
 from django.views import View
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import login
-from .forms import CustomUserCreationForm
 from django.contrib import messages
-from django.conf import settings
+from config import settings
+from .forms import CustomUserCreationForm
+from .models import User
 
 
 class RegistrationView(View):
@@ -11,6 +17,9 @@ class RegistrationView(View):
     Регистрация
     """
     def get(self, request):
+        storage = get_messages(request)
+        storage.used = True
+
         form = CustomUserCreationForm()
         context = {
             'form': form
@@ -19,15 +28,30 @@ class RegistrationView(View):
 
     def post(self, request):
         form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            backend_path = settings.AUTHENTICATION_BACKENDS[0]    #Берем путь к бэкенду из настроек (первый в списке)
-            login(request, user, backend=backend_path)
-            messages.success(request, f"Аккаунт {user.email} успешно зарегистрирован!")
-            return redirect('/')
         context = {
             'form': form
         }
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False    #Деактивация аккаунта пока не подтвердили акк
+            user.save()
+
+            current_site = get_current_site(request)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))   #Кодируем ID пользователя (primary key)
+            token = default_token_generator.make_token(user)    #Создаем токен (уникальный для этого пользователя и момента)
+            activation_link = f"http://{current_site.domain}/activate/{uid}/{token}/"
+
+            """ВЫВОД ССЫЛКИ В ТЕРМИНАЛ (вместо отправки Email)"""
+            print("-" * 50)
+            print(f"📧 Ссылка активации для пользователя {user.email}:")
+            print(activation_link)
+            print("-" * 50)
+
+            context = {
+                'registration_successful': True,    #Флаг для JS
+                'user_email': user.email
+            }
+            return render(request, 'users/registration.html', context)
         return render(request, 'users/registration.html', context)
 
 
@@ -44,3 +68,31 @@ class ProfileView(View):
             'title': 'Мой профиль'
         }
         return render(request, 'users/profile.html', context)
+
+
+class ActivateView(View):
+    def get(self, request, uidb64, token):
+        try:
+            # Декодируем ID пользователя
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        # Проверяем, существует ли пользователь и валиден ли токен
+        if user is not None and default_token_generator.check_token(user, token):
+
+            # 🔑 АКТИВАЦИЯ ПОЛЬЗОВАТЕЛЯ
+            user.is_active = True
+            user.save()
+
+            # Автоматический вход после активации (опционально)
+            backend_path = settings.AUTHENTICATION_BACKENDS[0]
+            login(request, user, backend=backend_path)
+
+            messages.success(request, 'Ваш аккаунт успешно активирован!')
+            return redirect('/')
+        else:
+            # Если токен невалиден или просрочен
+            messages.error(request, 'Ссылка активации недействительна или устарела.')
+            return redirect('users:registration')  # Или на страницу с ошибкой

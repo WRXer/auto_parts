@@ -13,7 +13,7 @@ Including another URLconf
 """
 from django.urls import path
 from users.apps import UsersConfig
-from users.views import RegistrationView, ProfileView
+from users.views import RegistrationView, ProfileView, ActivateView
 from django.contrib.auth import views as auth_views
 
 app_name = UsersConfig.name
@@ -26,4 +26,7 @@ urlpatterns = [
     path('password/change/', auth_views.PasswordChangeView.as_view(template_name='users/password_change_form.html'), name='password_change'),
     path('password/change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='users/password_change_done.html'), name='password_change_done'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+    path('activate/<str:uidb64>/<str:token>/', ActivateView.as_view(), name='activate'),
+
 ]
