@@ -70,7 +70,7 @@
                                 <ul class="dropdown-menu dropdown-menu-tertiary dropdown-menu-end p-3" style="min-width: 200px;" aria-labelledby="accountDropdown">
                                     <li>
                                         <div class="px-2 py-1 text-center">
-                                            Добро пожаловать, {{ user.phone }}
+                                            Добро пожаловать, {{ user.email }}
                                         </div>
                                     </li>
                                     <li>
@@ -92,7 +92,7 @@
                                         <hr class="dropdown-divider bg-tertiary">
                                     </li>
                                     <li>
-                                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                        <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
                                             {% csrf_token %}
                                             <button type="submit" class="dropdown-item btn btn-tertiary w-100 text-start">
                                                 Выход 🚪
@@ -104,11 +104,11 @@
                             {% else %}
 
                                 <ul class="dropdown-menu dropdown-menu-tertiary dropdown-menu-end p-3" style="min-width: 200px;" aria-labelledby="accountDropdown">
-                                    <form class="px-2 py-1" method="post" action="{% url 'login' %}">
+                                    <form class="px-2 py-1" method="post" action="{% url 'users:login' %}">
                                         {% csrf_token %}
                                         <div class="mb-3">
-                                            <label for="id_username" class="form-label">Номер телефона</label>
-                                            <input type="text" class="form-control" name="username" id="id_username" placeholder="+79271234567" required/>
+                                            <label for="id_email_input" class="form-label">Емейл</label>
+                                            <input type="text" class="form-control" name="username" id="id_email_input" placeholder="example@mail.ru" required/>
                                         </div>
                                         <div class="mb-3">
                                             <label for="id_password" class="form-label">Пароль</label>
