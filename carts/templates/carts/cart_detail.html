@@ -1,0 +1,88 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<main class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="p-4 rounded-4 shadow-lg" style="background-color: rgba(211, 211, 211, 0.95);">
+                <h1 class="mb-4 text-dark">Ваша корзина</h1>
+
+                {% if not cart %}
+                    <div class="row justify-content-center">
+                    <div class="col-8 alert alert-warning text-center" role="alert">
+                        Ваша корзина пуста. <a href="{% url 'index' %}" class="alert-link">Начните покупки!</a>
+                    </div>
+                    </div>
+                {% else %}
+
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="card shadow-sm border-0 bg-white">
+                                <div class="card-body p-3">
+                                    <h4 class="card-title mb-3 border-bottom pb-2">Состав заказа</h4>
+                                    {% for item in cart %}
+                                        {% with part=item.part %}
+                                        <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                                            {% with main_image=part.get_main_image %}
+                                                {% if main_image %}
+                                                    <img src="{{ main_image.image.url }}"
+                                                         alt="{{ part.title }}"
+                                                         class="rounded me-3"
+                                                         style="width: 70px; height: 70px; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                            <div class="flex-grow-1">
+                                                <a href="{{ part.get_absolute_url }}" class="text-dark fw-bold text-decoration-none">
+                                                    {{ part.title }}
+                                                </a>
+                                                <div class="text-muted small mt-1">
+                                                    <span>Арт.: {{ part.part_id|default:"-" }}</span> |
+                                                    <span>Авто: {{ part.donor_generation|default:"-" }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end ms-3">
+                                                <div class="fw-bold fs-5">{{ item.total_price }} ₽</div>
+                                                <form action="{% url 'carts:cart_remove' part.pk %}" method="post" class="mt-2">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить товар">
+                                                        Удалить &times;
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        {% endwith %}
+                                    {% endfor %}
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card shadow-sm border-0 bg-white sticky-top" style="top: 20px;">
+                                <div class="card-body p-3">
+                                    <h4 class="card-title mb-3 border-bottom pb-2">Итого к оплате</h4>
+                                    <div class="d-flex justify-content-between align-items-baseline mb-5">
+                                        <span class="text-muted fw-bold">
+                                            {{ cart|length }} позици{% if cart|length == 1 %}я{% elif cart|length < 5 %}и{% else %}й{% endif %}:
+                                        </span>
+                                        <span class="fw-bold fs-3 text-dark">
+                                            {{ cart.get_total_price }} ₽
+                                        </span>
+                                    </div>
+                                    <div class="d-grid gap-2">
+                                        <a href="#" class="btn btn-success btn-lg">Оформить заказ</a>
+                                        <a href="{% url 'index' %}" class="btn btn-outline-secondary">Продолжить покупки</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock content %}

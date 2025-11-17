@@ -5,6 +5,7 @@ from django.urls import resolve
 from django.views import View
 from django.views.generic import ListView, DetailView
 from rest_framework import generics
+from carts.forms import CartAddPartForm
 from spare_parts.models import Part, Category, CarModel, CarMake, CarGeneration, DonorVehicle
 from spare_parts.serializers import PartSerializer
 
@@ -131,6 +132,14 @@ class PartDetailView(DetailView):
     model = Part
     template_name = 'main/part_detail.html'
     context_object_name = 'part'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 🔑 Добавляем форму корзины в контекст
+        context['cart_add_form'] = CartAddPartForm()
+
+        return context
 
 
 class CategoryListView(ListView):
