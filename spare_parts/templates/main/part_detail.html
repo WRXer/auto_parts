@@ -113,7 +113,13 @@
                                 <span class="fs-3 text-dark fw-bold">{{ part.price }} ₽</span>
                         </div>
                         <div class="col-md-6 pt-3 pt-md-0">
-                            <a href="" class="btn btn-outline-success btn-lg w-100">Добавить в корзину</a>
+                            <form action="{% url 'carts:cart_add' part.pk %}" method="post" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                {{ cart_add_form.override }}
+                                <button type="submit" class="btn btn-outline-success btn-lg ms-2">
+                                    Добавить в корзину
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
