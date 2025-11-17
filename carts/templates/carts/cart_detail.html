@@ -23,22 +23,22 @@
                                 <div class="card-body p-3">
                                     <h4 class="card-title mb-3 border-bottom pb-2">Состав заказа</h4>
                                     {% for item in cart %}
-    {% with part=item.part %}
-    <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                                        {% with part=item.part %}
+                                        <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
 
-        {% with main_image=part.get_main_image %}
-            {% if main_image %}
-                <img src="{{ main_image.image.url }}"
-                     alt="{{ part.title }}"
-                     class="rounded me-3"
-                     style="width: 70px; height: 70px; object-fit: cover;">
-            {% else %}
-                <img src="{% static 'deps/images/default_part_image.png' %}"
-                     alt="{{ part.title }}"
-                     class="rounded me-3"
-                     style="width: 70px; height: 70px; object-fit: cover;">
-            {% endif %}
-        {% endwith %}
+                                            {% with main_image=part.get_main_image %}
+                                                {% if main_image %}
+                                                    <img src="{{ main_image.image.url }}"
+                                                         alt="{{ part.title }}"
+                                                         class="rounded me-3"
+                                                         style="width: 70px; height: 70px; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}"
+                                                         alt="{{ part.title }}"
+                                                         class="rounded me-3"
+                                                         style="width: 70px; height: 70px; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
                                             <div class="flex-grow-1">
                                                 <a href="{{ part.get_absolute_url }}" class="text-dark fw-bold text-decoration-none">
                                                     {{ part.title }}
