@@ -115,6 +115,7 @@
                         <div class="col-md-6 pt-3 pt-md-0">
                             <form action="{% url 'carts:cart_add' part.pk %}" method="post" class="d-flex align-items-center">
                                 {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
                                 {{ cart_add_form.override }}
                                 <button type="submit" class="btn btn-outline-success btn-lg ms-2">
                                     Добавить в корзину
@@ -128,5 +129,5 @@
     </div>
 </main>
 
-<script src="{% static 'js/image_carousel.js' %}"></script>
+<script src="{% static 'deps/js/image_carousel.js' %}"></script>
 {% endblock content %}

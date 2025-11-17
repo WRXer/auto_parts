@@ -15,6 +15,8 @@ class Cart:
             self.session.modified = True
         self.cart = cart
 
+
+
     def add(self, part, quantity=1, override_quantity=False):
         """
         Добавляет запчасть в корзину или обновляет ее количество.
@@ -27,7 +29,6 @@ class Cart:
             self.cart[part_id]['quantity'] = quantity
         else:
             self.cart[part_id]['quantity'] += quantity
-
         self.save()
 
     def save(self):

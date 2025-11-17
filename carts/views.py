@@ -11,11 +11,12 @@ def cart_add(request, part_id):
     Добавляет или обновляет запчасть в корзине.
     """
     cart = Cart(request)
-    part = get_object_or_404(Part, id=part_id)    #Ищем по ID запчасти
+    part = get_object_or_404(Part, pk=part_id)    #Ищем по ID запчасти
     form = CartAddPartForm(request.POST)
     if form.is_valid():
         cd = form.cleaned_data
         cart.add(part=part, quantity=cd['quantity'],override_quantity=cd['override'])
+        request.session.save()
     return redirect('carts:cart_detail')
 
 @require_POST
@@ -34,6 +35,5 @@ def cart_detail(request):
     Отображает содержимое корзины.
     """
     cart = Cart(request)
-    for item in cart:
-        item['update_quantity_form'] = CartAddPartForm(initial={'quantity': item['quantity'],'override': True})    #Для каждого товара создаем форму обновления
+
     return render(request, 'carts/cart_detail.html', {'cart': cart})
