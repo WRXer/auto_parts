@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'users',
     'main',
     'spare_parts',
+    'carts',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'spare_parts.context_processors.all_categories',
+                'carts.context_processors.carts',
             ],
         },
     },
@@ -155,3 +157,4 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SITE_ID = 1
+CART_SESSION_ID = 'carts'
