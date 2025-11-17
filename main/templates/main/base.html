@@ -56,8 +56,13 @@
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link me-2" href="#" role="button">
-                                Корзина 🛒 (0)
+                            <a class="nav-link btn btn-outline-dark position-relative"
+                               href="{% url 'carts:cart_detail' %}"
+                               title="Корзина">
+                                🛒 Корзина
+                                    {% if cart.get_total_quantity %}
+                                        <span class="badge bg-danger rounded-pill">{{ cart.get_total_quantity }}</span>
+                                    {% endif %}
                             </a>
                         </li>
                         <li class="nav-item dropdown">
