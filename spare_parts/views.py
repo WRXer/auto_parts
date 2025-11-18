@@ -1,11 +1,12 @@
 from django.db.models import Count, Q
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import resolve
 from django.views import View
 from django.views.generic import ListView, DetailView
 from rest_framework import generics
+from carts.cart import Cart
 from carts.forms import CartAddPartForm
 from spare_parts.models import Part, Category, CarModel, CarMake, CarGeneration, DonorVehicle
 from spare_parts.serializers import PartSerializer
@@ -126,20 +127,22 @@ class PartListView(ListView):
         return context
 
 
-def part_detail_modal(request, part_pk):
-    part = get_object_or_404(Part, pk=part_pk)
+def part_detail_modal(request, pk):
+    """
+    Загружает HTML-фрагмент для модального окна.
+    """
+    part = get_object_or_404(Part, pk=pk)
+    cart = Cart(request)    #Инициализируем корзину
 
-    # Добавляем форму корзины в контекст
+    is_part_in_cart = str(part.id) in cart.cart    #Проверяем, есть ли запчасть в корзине
+    cart_add_form = CartAddPartForm(initial={'quantity': 1, 'override': False})
     context = {
         'part': part,
-        'cart_add_form': CartAddPartForm(),
-        # Если нужно, добавьте сюда другие данные, которые нужны в модальном окне
+        'cart_add_form': cart_add_form,
+        'is_part_in_cart': is_part_in_cart,
     }
-
-    # Рендерим шаблон, который содержит только тело модального окна
     html = render_to_string('main/part_detail_fragment.html', context, request=request)
-
-    return JsonResponse({'html': html})
+    return HttpResponse(html, content_type="text/html; charset=utf-8")
 
 
 
