@@ -1,6 +1,7 @@
 from django.db.models import Count, Q
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import resolve
 from django.views import View
 from django.views.generic import ListView, DetailView
@@ -123,6 +124,23 @@ class PartListView(ListView):
             query_params_without_auto.pop(key, None)
         context['query_params_without_auto'] = query_params_without_auto
         return context
+
+
+def part_detail_modal(request, part_pk):
+    part = get_object_or_404(Part, pk=part_pk)
+
+    # Добавляем форму корзины в контекст
+    context = {
+        'part': part,
+        'cart_add_form': CartAddPartForm(),
+        # Если нужно, добавьте сюда другие данные, которые нужны в модальном окне
+    }
+
+    # Рендерим шаблон, который содержит только тело модального окна
+    html = render_to_string('main/part_detail_fragment.html', context, request=request)
+
+    return JsonResponse({'html': html})
+
 
 
 class PartDetailView(DetailView):
