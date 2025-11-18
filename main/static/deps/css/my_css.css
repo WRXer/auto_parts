@@ -81,7 +81,7 @@ body.modal-open {
    Sticky элементы (шапка, футер, контакты)
 ============================================ */
 header, footer, .site-footer, .contact-section {
-    z-index: 2010;
+    z-index: 1050;
     position: relative;
 }
 
