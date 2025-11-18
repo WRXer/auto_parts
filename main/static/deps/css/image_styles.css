@@ -8,11 +8,22 @@
     z-index: 8999 !important;
 }
 
+/* ПРИОРИТЕТ Z-INDEX: Модальное окно поверх всего */
+#donorimageModal.modal {
+    /* ЭТО НУЖНО УДАЛИТЬ ИЛИ ЗАКОММЕНТИРОВАТЬ */
+    z-index: 9000 !important;
+}
+.modal-backdrop {
+    /* ЭТО НУЖНО УДАЛИТЬ ИЛИ ЗАКОММЕНТИРОВАТЬ */
+    z-index: 8999 !important;
+}
+
+
 /* ---------------------------------------------------- */
 /* СТИЛИ ДЛЯ КРЕСТИКА (ВНЕ ИЗОБРАЖЕНИЯ) */
 /* ---------------------------------------------------- */
 
-#imageModal .btn-close {
+#donorimageModal .btn-close {
     width: 4.5rem;
     height: 4.5rem;
 
@@ -29,7 +40,7 @@
     z-index: 1050; /* Должен быть выше карусели */
 }
 
-#imageModal .btn-close:hover {
+#donorimageModal .btn-close:hover {
     opacity: 1;
 }
 
@@ -38,28 +49,28 @@
 /* ---------------------------------------------------- */
 
 /* Сдвигаем стрелки влево и вправо, чтобы они выходили за пределы изображения */
-#imageModal .carousel-control-prev {
+#donorimageModal .carousel-control-prev {
     left: -4rem; /* Выталкиваем за пределы карусели */
     width: 5rem;
     opacity: 0.8;
     transition: opacity 0.15s ease;
 }
 
-#imageModal .carousel-control-next {
+#donorimageModal .carousel-control-next {
     right: -4rem; /* Выталкиваем за пределы карусели */
     width: 5rem;
     opacity: 0.8;
     transition: opacity 0.15s ease;
 }
 
-#imageModal .carousel-control-prev:hover,
-#imageModal .carousel-control-next:hover {
+#donorimageModal .carousel-control-prev:hover,
+#donorimageModal .carousel-control-next:hover {
     opacity: 1;
 }
 
 /* Стиль вокруг со стрелки */
-#imageModal .carousel-control-prev-icon,
-#imageModal .carousel-control-next-icon {
+#donorimageModal .carousel-control-prev-icon,
+#donorimageModal .carousel-control-next-icon {
     width: 3.5rem;
     height: 3.5rem;
     background-color: transparent;

@@ -2,15 +2,13 @@
 {% load static %}
 {% block content %}
 
-<link rel="stylesheet" href="{% static 'deps/css/image_styles.css' %}">
-
 <main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-6">
         <div class="row g-4 mb-5">
             <div class="col-12 col-lg-5">
                 {% with all_images=donor.images.all %}
                     {% if all_images %}
-                        <div id="donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden mb-3" data-bs-interval="false">
+                        <div id="checked_donorImageCarousel" class="carousel slide carousel-fade shadow-sm border-0 rounded-3 overflow-hidden mb-3" data-bs-interval="false">
                             <div class="carousel-inner">
                                 {% for image in all_images %}
                                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
@@ -19,17 +17,17 @@
                                             alt="{{ donor.title }} - Фото {{ forloop.counter }}"
                                             style="max-height: 300px; object-fit: cover; cursor: pointer;"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#imageModal"
+                                            data-bs-target="#donorimageModal"
                                             data-bs-slide-index="{{ forloop.counter0 }}">
                                     </div>
                                 {% endfor %}
                             </div>
 
-                            <button class="carousel-control-prev" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="prev">
+                            <button class="carousel-control-prev" type="button" data-bs-target="#checked_donorImageCarousel" data-bs-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="visually-hidden">Предыдущее</span>
                             </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#donorImageCarousel" data-bs-slide="next">
+                            <button class="carousel-control-next" type="button" data-bs-target="#checked_donorImageCarousel" data-bs-slide="next">
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="visually-hidden">Следующее</span>
                             </button>
@@ -39,7 +37,7 @@
                             {% for image in all_images %}
                                 <div class="col-3 col-md-2 col-lg-2">
                                     <button type="button"
-                                            data-bs-target="#donorImageCarousel"
+                                            data-bs-target="#checked_donorImageCarousel"
                                             data-bs-slide-to="{{ forloop.counter0 }}"
                                             class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
                                             style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
@@ -55,11 +53,11 @@
                             {% endfor %}
                         </div>
 
-                        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="donorimageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-xl modal-dialog-centered">
                                 <div class="modal-content bg-transparent border-0">
                                     <div class="modal-body p-0">
-                                        <div id="fullScreenCarousel" class="carousel slide" data-bs-interval="false">
+                                        <div id="donorfullScreenCarousel" class="carousel slide" data-bs-interval="false">
                                             <div class="carousel-inner">
                                                 {% for image in all_images %}
                                                     <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
@@ -71,11 +69,11 @@
                                                 {% endfor %}
                                             </div>
                                             <!-- Кнопки навигации модального окна -->
-                                            <button class="carousel-control-prev" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="prev">
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#donorfullScreenCarousel" data-bs-slide="prev">
                                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                                 <span class="visually-hidden">Предыдущее</span>
                                             </button>
-                                            <button class="carousel-control-next" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="next">
+                                            <button class="carousel-control-next" type="button" data-bs-target="#donorfullScreenCarousel" data-bs-slide="next">
                                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                                 <span class="visually-hidden">Следующее</span>
                                             </button>
@@ -163,39 +161,43 @@
 
                         {% for part in parts_list %}
                             <div class="col-12 col-md-8 col-xl-6">
-                                <a href="{% url 'spare_parts:part_detail' part.pk %}" class="text-decoration-none d-block h-100">
-                                    <div class="card h-100 shadow-lg bg-light text-dark">
-                                        <div class="d-flex p-3">
-
-                                            <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
-                                                {% with main_image=part.get_main_image %}
-                                                    {% if main_image and main_image.image %}
-                                                        <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% else %}
-                                                        <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
-                                                    {% endif %}
-                                                {% endwith %}
-                                            </div>
-
-                                            <div class="flex-grow-1">
-                                                <h5 class="card-title text-dark">{{ part.title }}</h5>
-                                                <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
-
-                                                <p class="card-text small text-dark">
-                                                    {{ donor.generation.model.make.name }}
-                                                    {{ donor.generation.model.name }} ({{ donor.generation.name }})
-                                                </p>
-
-                                                <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
-                                            </div>
+                                <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
+                                    <div class="d-flex p-3 flex-grow-1">
+                                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                            {% with main_image=part.get_main_image %}
+                                                {% if main_image and main_image.image %}
+                                                    <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
                                         </div>
 
-                                        <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
-                                            <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
-                                            <span class="btn btn-outline-success">Подробнее</span>
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                            <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+
+                                            {% if part.donor_generation %}
+                                                <p class="card-text small text-dark">
+                                                    {{ part.donor_generation.model.make.name }}
+                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                </p>
+                                            {% else %}
+                                                <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
+                                            {% endif %}
+
                                         </div>
                                     </div>
-                                </a>
+
+                                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                        <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                                        <a href="#"
+                                        data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
+                                           class="btn btn-outline-success js-open-part-modal">
+                                            Подробнее
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
 
                         {% empty %}
@@ -249,5 +251,22 @@
     </div>
 </main>
 
+<div class="modal fade" id="partDetailModal" tabindex="-1" aria-labelledby="partDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partDetailModalLabel">Загрузка...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Загрузка данных...
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script src="{% static 'js/image_carousel.js' %}"></script>
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
+
 {% endblock content %}
