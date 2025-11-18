@@ -75,10 +75,7 @@ body.modal-open {
     z-index: 2000 !important;
 }
 
-#partDetailModal {
-    z-index: 2001 !important;
-    pointer-events: auto; /* только модалка кликабельна */
-}
+
 
 /* ============================================
    Sticky элементы (шапка, футер, контакты)

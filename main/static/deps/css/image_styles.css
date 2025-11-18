@@ -1,9 +1,11 @@
-/* ПРИОРИТЕТ Z-INDEX: Модальное окно поверх всего */
-#imageModal.modal {
-    z-index: 10000 !important;
+/* ГАРАНТИРУЕМ, ЧТО МОДАЛЬНОЕ ОКНО ЗАПЧАСТИ БУДЕТ ВЫШЕ ЛЮБОГО СТАРТОВОГО ФОНА */
+#partDetailModal.modal {
+    z-index: 9000 !important;
 }
-.modal-backdrop {
-    z-index: 9999 !important;
+
+/* Фон, который открывается с модальным окном запчастей, должен быть на 1 ниже */
+#partDetailModal ~ .modal-backdrop {
+    z-index: 8999 !important;
 }
 
 /* ---------------------------------------------------- */
