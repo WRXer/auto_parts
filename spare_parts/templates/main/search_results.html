@@ -99,8 +99,8 @@
                     <div class="row g-4 justify-content">
                         {% for part in all_parts %}
                             <div class="col-12 col-md-8 col-xl-6">
-                                <div class="card h-100 shadow-lg bg-light text-dark">
-                                    <div class="d-flex p-3">
+                                <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
+                                    <div class="d-flex p-3 flex-grow-1">
                                         <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
                                             {% with main_image=part.get_main_image %}
                                                 {% if main_image and main_image.image %}
@@ -124,12 +124,16 @@
                                                 <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
                                             {% endif %}
 
-                                            <p class="card-text small">{{ part.description|truncatewords:20 }}</p>
                                         </div>
                                     </div>
+
                                     <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
                                         <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
-                                        <a href="{% url 'spare_parts:part_detail' part.pk %}" class="btn btn-outline-success">Подробнее</a>
+                                        <a href="#"
+                                        data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
+                                           class="btn btn-outline-success js-open-part-modal">
+                                            Подробнее
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -178,5 +182,21 @@
     </div>
 </main>
 
+<div class="modal fade" id="partDetailModal" tabindex="-1" aria-labelledby="partDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partDetailModalLabel">Загрузка...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Загрузка данных...
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="{% static 'deps/js/filter_logic_new.js' %}"></script>
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
+
 {% endblock content %}
