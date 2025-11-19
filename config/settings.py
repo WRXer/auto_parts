@@ -29,7 +29,12 @@ SECRET_KEY = 'django-insecure-r4_&g^aie7cji=z=xh)lz)!kypxf-o$34s4=jbq*-1ejp%3-)y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.cloudpub.ru',  # Добавляем все поддомены CloudPub
+    'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
+]
 
 
 # Application definition
