@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Инициализируем основное модальное окно
     const partDetailModal = new bootstrap.Modal(modalElement, { keyboard: true });
+    const modalDialog = modalElement.querySelector('.modal-dialog');
 
     // Функция для получения CSRF-токена из куки
     function getCookie(name) {
@@ -30,14 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. ЛОГИКА ОТКРЫТИЯ МОДАЛЬНОГО ОКНА ДЕТАЛЕЙ (AJAX)
     // =========================================================
 
-    document.querySelectorAll('.js-open-part-modal').forEach(button => {
-        button.addEventListener('click', function(e) {
+    document.body.addEventListener('click', function(e) {
+        const button = e.target.closest('.js-open-part-modal');
+        if (button) {
             e.preventDefault();
-            const url = this.dataset.url;
-            this.blur();
+            const url = button.dataset.url;
+            button.blur();
 
-            // Находим контейнер для вставки контента
-            const modalDialog = modalElement.querySelector('.modal-dialog');
             if (modalDialog) {
                 // Показываем заглушку
                 modalDialog.innerHTML = `
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                  console.error("Ошибка: Не найден .modal-dialog внутри #partDetailModal.");
             }
-        });
+        }
     });
 
     // =========================================================
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initCarousels(context);
 
         // Инициализация AJAX-логики для формы корзины
-        initCartAjax(context, partDetailModal);
+        initCartAjax(context);
     }
 
     // =========================================================
@@ -94,48 +94,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // =========================================================
 
     function initCarousels(context) {
-        const mainCarouselEl = context.querySelector('#donorImageCarousel');
-        const fullScreenCarouselEl = context.querySelector('#fullScreenCarousel');
-        const imageModalEl = context.querySelector('#imageModal');
+        // Логика каруселей должна быть адаптирована под ID,
+        // которые используются в загружаемом фрагменте (если они есть).
 
-        let primaryCarousel;
+        // ВАЖНО: Убедитесь, что ID ваших каруселей в фрагменте (например, #partImageCarousel)
+        // не конфликтуют с ID каруселей донора.
 
-        // Инициализация основной карусели
-        if (mainCarouselEl) {
-            primaryCarousel = new bootstrap.Carousel(mainCarouselEl, { interval: false });
-        }
-
-        // Инициализация полноэкранной галереи и синхронизация
-        if (fullScreenCarouselEl && imageModalEl) {
-
-            const fullScreenCarousel = new bootstrap.Carousel(fullScreenCarouselEl, { interval: false });
-            const imageModal = new bootstrap.Modal(imageModalEl);
-
-            // Логика открытия галереи по клику на изображение
-            context.querySelectorAll('.js-open-fullscreen').forEach(img => {
-                img.addEventListener('click', function() {
-                    const slideIndex = this.dataset.slideIndex;
-                    fullScreenCarousel.to(parseInt(slideIndex));
-                    imageModal.show();
-                });
-            });
-
-            // Синхронизация: Модалка -> Превью
-            fullScreenCarouselEl.addEventListener('slide.bs.carousel', function (event) {
-                if (primaryCarousel) {
-                    primaryCarousel.to(event.to);
-                }
-            });
-
-            // Хак: Убедиться, что карусель корректно отображается
-            imageModalEl.addEventListener('shown.bs.modal', function () {
-                fullScreenCarouselEl.dispatchEvent(new Event('resize'));
-            });
-
-            // Сброс состояния
-            imageModalEl.addEventListener('hidden.bs.modal', function () {
-                document.activeElement.blur();
-            });
+        // Пример инициализации основной карусели в фрагменте
+        const partCarouselEl = context.querySelector('#partImageCarousel');
+        if (partCarouselEl) {
+            new bootstrap.Carousel(partCarouselEl, { interval: false });
         }
     }
 
@@ -143,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 4. ЛОГИКА AJAX КОРЗИНЫ (Добавление и смена кнопки)
     // =========================================================
 
-    function initCartAjax(context, mainModal) {
+    function initCartAjax(context) {
         const form = context.querySelector('#add-to-cart-form');
         const buttonContainer = context.querySelector('#add-to-cart-button-container');
 
@@ -202,7 +170,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         // 🔑 Здесь можно добавить код для обновления значка корзины в шапке
                         const cartCountEl = document.getElementById('cart-total-count');
                         if (cartCountEl && data.total_quantity !== undefined) {
-                            cartCountEl.textContent = data.total_quantity;
+                            const quantity = parseInt(data.total_quantity);
+
+                            // Обновляем текст
+                            cartCountEl.textContent = quantity;
+
+                            // Управляем видимостью (скрываем при 0, показываем при > 0)
+                            if (quantity > 0) {
+                                cartCountEl.style.display = 'inline-block';
+                            } else {
+                                cartCountEl.style.display = 'none';
+                            }
                         }
 
                     } else {
