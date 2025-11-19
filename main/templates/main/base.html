@@ -56,16 +56,18 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
+                        <li class="nav-item me-2">
                             <a class="nav-link btn btn-outline-dark position-relative"
                                href="{% url 'carts:cart_detail' %}"
                                title="Корзина">
-                                🛒 Корзина
+                                Корзина 🛒
                                 <span id="cart-total-count" class="badge bg-danger rounded-pill" style="{% if not cart.get_total_quantity %}display: none;{% endif %}">
                                     {{ cart.get_total_quantity|default:0 }}
                                 </span>
                             </a>
                         </li>
+                    </ul>
+                    <ul class="navbar-nav ">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Личный кабинет 💼
