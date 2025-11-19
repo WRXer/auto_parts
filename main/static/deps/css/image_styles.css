@@ -13,31 +13,49 @@
     /* ЭТО НУЖНО УДАЛИТЬ ИЛИ ЗАКОММЕНТИРОВАТЬ */
     z-index: 9000 !important;
 }
-.modal-backdrop {
-    /* ЭТО НУЖНО УДАЛИТЬ ИЛИ ЗАКОММЕНТИРОВАТЬ */
-    z-index: 8999 !important;
+
+
+
+/* 🔑 Изображение: ИЗМЕНЕНИЕ ДЛЯ РАСТЯГИВАНИЯ */
+#donorimageModal .carousel-item img {
+    border-radius: 0 !important;
+    max-height: 100%;
+    height: 100%;
+    width: 100%;
+    object-fit: cover !important;
+    object-position: center !important;
+    position: relative;
 }
 
+/* ========================================================= */
+/* СТИЛИ ДЛЯ КНОПОК (ИЗМЕНЕНИЯ В КРЕСТИКЕ) */
+/* ========================================================= */
 
-/* ---------------------------------------------------- */
-/* СТИЛИ ДЛЯ КРЕСТИКА (ВНЕ ИЗОБРАЖЕНИЯ) */
-/* ---------------------------------------------------- */
-
+/* 🔑 КРЕСТИК: ОЧЕНЬ КРУПНЫЙ (5rem) И ВЫРОВНЕН ПО ВЕРТИКАЛИ СО СТРЕЛКАМИ */
 #donorimageModal .btn-close {
-    width: 4.5rem;
-    height: 4.5rem;
+    /* 🔑 УВЕЛИЧЕНИЕ РАЗМЕРА КОНТЕЙНЕРА */
+    width: 5rem;
+    height: 5rem;
 
-    /* Убираем фон и тень */
+    /* Убираем фон */
     background-color: transparent;
     border-radius: 0;
-    box-shadow: none;
-    filter: invert(1); /* Делаем крестик белым
-
+    filter: invert(1); /* Делаем крестик белым */
+    right: 0;
     /* НОВОЕ ПОЗИЦИОНИРОВАНИЕ: Вертикальное центрирование и выравнивание со стрелкой */
-    right: -4rem; /* Смещаем вправо, на одну линию со стрелкой */
     top: 0; /* Смещаем на половину высоты */
-    transform: translateY(-50%); /* Компенсируем собственную высоту, чтобы было идеально по центру */
-    z-index: 1050; /* Должен быть выше карусели */
+    margin: 0; /* Сбрасываем лишние margin от Bootstrap */
+    z-index: 1060;
+}
+
+#donorimageModal .btn-close:focus,
+#donorimageModal .btn-close:active {
+    /* 🔑 Убираем стандартное внешнее свечение */
+    box-shadow: none !important;
+    /* Убеждаемся, что фон остается прозрачным */
+    background-color: transparent !important;
+    /* Убираем рамку, если она есть */
+    outline: none !important;
 }
 
 #donorimageModal .btn-close:hover {
@@ -49,32 +67,22 @@
 /* ---------------------------------------------------- */
 
 /* Сдвигаем стрелки влево и вправо, чтобы они выходили за пределы изображения */
-#donorimageModal .carousel-control-prev {
-    left: -4rem; /* Выталкиваем за пределы карусели */
+#donorimageModal .carousel-control-prev{
     width: 5rem;
     opacity: 0.8;
     transition: opacity 0.15s ease;
 }
-
 #donorimageModal .carousel-control-next {
-    right: -4rem; /* Выталкиваем за пределы карусели */
     width: 5rem;
     opacity: 0.8;
     transition: opacity 0.15s ease;
 }
 
-#donorimageModal .carousel-control-prev:hover,
-#donorimageModal .carousel-control-next:hover {
-    opacity: 1;
-}
-
-/* Стиль вокруг со стрелки */
 #donorimageModal .carousel-control-prev-icon,
 #donorimageModal .carousel-control-next-icon {
-    width: 3.5rem;
-    height: 3.5rem;
     background-color: transparent;
     border-radius: 0;
     padding: 0.5rem;
-    box-shadow: none;
+    width: 3.5rem;
+    height: 3.5rem;
 }
