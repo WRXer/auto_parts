@@ -176,7 +176,7 @@
                                         </div>
 
                                         <div class="flex-grow-1">
-                                            <h5 class="card-title text-dark">{{ part.title }}</h5>
+                                            <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
                                             <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
 
                                             {% if part.donor_generation %}
