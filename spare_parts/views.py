@@ -145,6 +145,22 @@ def part_detail_modal(request, pk):
     return HttpResponse(html, content_type="text/html; charset=utf-8")
 
 
+def part_detail_modal_in_cart(request, pk):
+    """
+    Загружает чистый HTML-фрагмент для модального окна,
+    предназначенного для просмотра деталей запчасти из корзины.
+    Не включает форму добавления в корзину.
+    """
+    part = get_object_or_404(Part, pk=pk)
+
+    context = {
+        'part': part,
+    }
+    html = render_to_string('main/part_detail_fragment_in_cart.html', context, request=request)
+    return HttpResponse(html, content_type="text/html; charset=utf-8")
+
+
+
 
 class PartDetailView(DetailView):
     """

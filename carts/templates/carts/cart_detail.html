@@ -40,9 +40,12 @@
                                                 {% endif %}
                                             {% endwith %}
                                             <div class="flex-grow-1">
-                                                <a href="{{ part.get_absolute_url }}" class="text-dark fw-bold text-decoration-none">
-                                                    {{ part.title }}
-                                                </a>
+                                                <a href="#"
+       data-url="{% url 'spare_parts:part_detail_modal_in_cart' part.pk %}"
+       class="text-dark fw-bold text-decoration-none js-open-part-modal"
+       style="cursor: pointer;">
+        {{ part.title }}
+    </a>
                                                 <div class="text-muted small mt-1">
                                                     <span>Арт.: {{ part.part_id|default:"-" }}</span> |
                                                     <span>Авто: {{ part.donor_generation|default:"-" }}</span>
@@ -91,4 +94,20 @@
     </div>
 </main>
 
+    <div class="modal fade" id="partDetailModal" tabindex="-1" aria-labelledby="partDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partDetailModalLabel">Загрузка...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Загрузка данных...
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
 {% endblock content %}
