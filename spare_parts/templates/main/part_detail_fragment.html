@@ -60,27 +60,29 @@
                             <div class="modal-dialog modal-xl modal-dialog-centered">
                                 <div class="modal-content bg-transparent border-0">
                                     <div class="modal-body p-0">
-                                        <div id="fullScreenCarousel" class="carousel slide" data-bs-interval="false">
-                                            <div class="carousel-inner">
-                                                {% for image in all_images %}
-                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-                                                        <img src="{{ image.image.url }}"
-                                                             class="d-block w-100 rounded-3"
-                                                             alt="{{ part.title }} - Фото {{ forloop.counter }}"
-                                                             style="max-height: 90vh; object-fit: contain; object-position: top;">
-                                                    </div>
-                                                {% endfor %}
+                                        <div class="part-image-clip-wrapper rounded-3 overflow-hidden">
+                                            <div id="fullScreenCarousel" class="carousel slide" data-bs-interval="false">
+                                                <div class="carousel-inner">
+                                                    {% for image in all_images %}
+                                                        <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                                                            <img src="{{ image.image.url }}"
+                                                                 class="d-block w-100 rounded-3"
+                                                                 alt="{{ part.title }} - Фото {{ forloop.counter }}"
+                                                                 style="max-height: 90vh; object-fit: contain; object-position: top;">
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                                <button class="carousel-control-prev" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="prev">
+                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Предыдущее</span>
+                                                </button>
+                                                <button class="carousel-control-next" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="next">
+                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Следующее</span>
+                                                </button>
                                             </div>
-                                            <button class="carousel-control-prev" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="prev">
-                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Предыдущее</span>
-                                            </button>
-                                            <button class="carousel-control-next" type="button" data-bs-target="#fullScreenCarousel" data-bs-slide="next">
-                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                <span class="visually-hidden">Следующее</span>
-                                            </button>
+                                            <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <button type="button" class="btn-close position-absolute top-0 end-0 m-3 text-white" data-bs-dismiss="modal" aria-label="Close" style="z-index: 100; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8));"></button>
                                     </div>
                                 </div>
                             </div>
