@@ -41,11 +41,11 @@
                                             {% endwith %}
                                             <div class="flex-grow-1">
                                                 <a href="#"
-       data-url="{% url 'spare_parts:part_detail_modal_in_cart' part.pk %}"
-       class="text-dark fw-bold text-decoration-none js-open-part-modal"
-       style="cursor: pointer;">
-        {{ part.title }}
-    </a>
+                                                   data-url="{% url 'spare_parts:part_detail_modal_in_cart' part.pk %}"
+                                                   class="text-dark fw-bold text-decoration-none js-open-part-modal"
+                                                   style="cursor: pointer;">
+                                                    {{ part.title }}
+                                                </a>
                                                 <div class="text-muted small mt-1">
                                                     <span>Арт.: {{ part.part_id|default:"-" }}</span> |
                                                     <span>Авто: {{ part.donor_generation|default:"-" }}</span>
