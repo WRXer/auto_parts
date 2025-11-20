@@ -1,7 +1,10 @@
+import re
 import uuid
+from django.db import transaction
 from django.utils.safestring import mark_safe
 from django import forms
 from django.contrib import admin
+from spare_parts.forms import DonorVehicleAdminForm
 from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage, DonorVehicle, \
     DonorVehicleImage
 
@@ -137,10 +140,48 @@ class PartAdmin(admin.ModelAdmin):
 
 @admin.register(DonorVehicle)
 class DonorVehicleAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'generation', 'title', 'color', 'engine_details', 'description', 'transmission_type' ,'arrival_date', 'get_image_count')
+    form = DonorVehicleAdminForm  # Используем кастомную форму
+    list_display = ('__str__', 'generation', 'get_main_image_preview', 'title', 'color', 'engine_details', 'description', 'transmission_type' ,'arrival_date', 'get_image_count')
     list_filter = ('generation__model__make', 'arrival_date')
     search_fields = ('title', 'generation__name')
     inlines = [DonorVehicleImageInline]    #Связываем инлайн-класс с основной моделью
+
+    def save_model(self, request, obj, form, change):
+        """
+        Сохраняет объект DonorVehicle и обрабатывает пакетный ввод URL,
+        создавая новые записи DonorVehicleImage.
+        """
+
+        # 1. Сначала сохраняем сам объект донора
+        super().save_model(request, obj, form, change)
+
+        # 2. Обрабатываем пакетный ввод
+        bulk_urls = form.cleaned_data.get('bulk_url_input')
+
+        if bulk_urls:
+            # Разделяем текст по запятым, пробелам, переводам строки.
+            # Фильтруем и убираем пустые строки, оставляем только те, что похожи на ссылки.
+            urls = re.split(r'[,\s\t\n]+', bulk_urls)
+            valid_urls = [url.strip() for url in urls if url.strip().startswith('http')]
+
+            # Проверяем, есть ли уже главное фото
+            is_main_exists = obj.images.filter(is_main=True).exists()
+
+            # Создаем записи в базе данных
+            with transaction.atomic():
+                for index, url in enumerate(valid_urls):
+                    # Если главный снимок еще не задан, делаем первый в пакете главным
+                    make_main = False
+                    if index == 0 and not is_main_exists:
+                        make_main = True
+                        is_main_exists = True  # Устанавливаем флаг, чтобы следующие фото не стали главными
+
+                    DonorVehicleImage.objects.create(
+                        donor_vehicle=obj,
+                        image_url=url,  # Сохраняем ссылку сюда
+                        is_main=make_main
+                    )
+
 
     def get_image_count(self, obj):
         return obj.images.count()
