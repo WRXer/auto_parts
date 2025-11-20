@@ -34,7 +34,18 @@ class DonorVehicleImageInline(admin.TabularInline):
     """
     model = DonorVehicleImage
     extra = 1
-    fields = ('image', 'is_main')
+    fields = ('image', 'image_url', 'is_main', 'image_preview')
+    readonly_fields = ('image_preview',)
+    extra = 1
+    verbose_name_plural = "Фотографии Донора (Файл ИЛИ URL)"
+
+    def image_preview(self, obj):
+        source = obj.get_image_source()    #Используем универсальный метод
+        if source:
+            return mark_safe(f'<img src="{source}" style="max-height: 50px; max-width: 70px; border-radius: 4px;" />')
+        return "Нет фото"
+
+    image_preview.short_description = 'Предпросмотр'
 
 
 @admin.register(CarMake)
@@ -134,4 +145,11 @@ class DonorVehicleAdmin(admin.ModelAdmin):
     def get_image_count(self, obj):
         return obj.images.count()
 
+    def get_main_image_preview(self, obj):
+        url = obj.get_main_image_source()   #Используем метод из модели DonorVehicle
+        if url:
+            return mark_safe(f'<img src="{url}" style="max-height: 50px; max-width: 70px; border-radius: 4px;" />')
+        return 'Нет фото'
+
+    get_main_image_preview.short_description = 'Главное фото'
     get_image_count.short_description = 'Фото'

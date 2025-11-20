@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -135,6 +136,18 @@ class PartImage(models.Model):
             return self.image_url
         return None
 
+    def clean(self):
+        """
+        Проверяет, что заполнено только одно из полей.
+        """
+        has_file = bool(self.image)
+        has_url = bool(self.image_url)
+
+        if has_file and has_url:
+            raise ValidationError(
+                'Нельзя заполнять одновременно "Файл Изображения" и "Внешний URL Изображения".'
+            )
+
 
 class DonorVehicle(models.Model):
     """
@@ -161,14 +174,15 @@ class DonorVehicle(models.Model):
     def __str__(self):
         return f"{self.generation.model.make.name} {self.generation.model.name} ({self.title})"
 
-    def get_main_image(self):
+    def get_main_image_source(self):
         """
         Возвращает главное изображение или первое изображение, если главное не отмечено.
         """
         main_img = self.images.filter(is_main=True).first()
         if main_img:
-            return main_img
-        return self.images.first()
+            return main_img.get_image_source()
+        first_image = self.images.first()
+        return first_image.get_image_source() if first_image else None
 
 
 class DonorVehicleImage(models.Model):
@@ -176,9 +190,32 @@ class DonorVehicleImage(models.Model):
     Изображения для конкретного автомобиля-донора.
     """
     donor_vehicle = models.ForeignKey(DonorVehicle,on_delete=models.CASCADE,related_name='images',verbose_name='Машина-донор')
-    image = models.ImageField(upload_to='donor_vehicle_images/', verbose_name='Изображение')
+    image = models.ImageField(upload_to='donor_vehicle_images/', verbose_name='Изображение', blank=True, null=True)
+    image_url = models.URLField(max_length=500,verbose_name='Внешний URL Изображения',blank=True, null=True)
     is_main = models.BooleanField(default=False, verbose_name='Главное фото')
 
     class Meta:
         verbose_name = 'Изображение донора'
         verbose_name_plural = 'Изображения донора'
+
+    def get_image_source(self) -> str | None:
+        """
+        Возвращает актуальный источник изображения (URL или путь к загруженному файлу).
+        """
+        if self.image:
+            return self.image.url    #Возвращает URL загруженного файла
+        if self.image_url:
+            return self.image_url    #Возвращает внешний URL
+        return None
+
+    def clean(self):
+        """
+        Проверяет, что заполнено только одно из полей.
+        """
+        has_file = bool(self.image)
+        has_url = bool(self.image_url)
+
+        if has_file and has_url:
+            raise ValidationError(
+                'Нельзя заполнять одновременно "Файл Изображения" и "Внешний URL Изображения".'
+            )

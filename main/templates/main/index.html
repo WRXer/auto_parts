@@ -119,7 +119,7 @@
                             {% for image in car.images.all %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %}">
                                 <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="d-block">
-                                    <img src="{{ image.image.url }}" class="d-block w-100" alt="Фото {{ forloop.counter }}" style="height: 200px; object-fit: cover;">
+                                    <img src="{{ image.get_image_source }}" class="d-block w-100" alt="Фото {{ forloop.counter }}" style="height: 200px; object-fit: cover;">
                                 </a>
                             </div>
                             {% empty %}
