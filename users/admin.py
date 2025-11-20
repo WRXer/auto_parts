@@ -1,35 +1,31 @@
 from django.contrib import admin
-from .forms import UserCreationForm
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User
-
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 @admin.register(User)
-class CustomUserAdmin(admin.ModelAdmin):
-    add_form = UserCreationForm
+class CustomUserAdmin(BaseUserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = User
 
-    list_display = ('phone',
-        'email',
-        'first_name',
-        'is_active',
-        'is_staff',
-    )
+    list_display = ('email', 'phone', 'first_name', 'last_name', 'is_active', 'is_staff')
+    list_filter = ('is_active', 'role', 'is_staff')
 
     fieldsets = (
-        (None, {'fields': ('phone', 'email', 'password')}),
-        ('Персональная информация', {'fields': ('first_name', 'last_name', 'role')}),
-        ('Права доступа', {
-            'fields': ('is_active', 'groups', 'user_permissions'),
-        }),
+        (None, {'fields': ('email', 'password', 'phone')}),
+        ('Персональная информация', {'fields': ('first_name', 'last_name', 'role', 'image')}),
+        ('Права доступа', {'fields': ('is_active', 'is_staff', 'groups', 'user_permissions')}),
         ('Важные даты', {'fields': ('last_login', 'date_joined')}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('phone', 'email', 'first_name', 'last_name', 'password', 'role'),
+            'fields': ('email', 'phone', 'first_name', 'last_name', 'password1', 'password2', 'role', 'is_staff', 'is_active'),
         }),
-    )    #Поля, которые мы хотим видеть при создании:
+    )
 
-    list_filter = ('is_active', 'role')
-    search_fields = ('phone', 'email', 'first_name', 'last_name')
-    ordering = ('phone',)
+    search_fields = ('email', 'phone', 'first_name', 'last_name')
+    ordering = ('email',)
+    filter_horizontal = ('groups', 'user_permissions')
