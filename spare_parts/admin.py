@@ -1,10 +1,8 @@
 import re
-import uuid
 from django.db import transaction
 from django.utils.safestring import mark_safe
-from django import forms
 from django.contrib import admin
-from spare_parts.forms import DonorVehicleAdminForm
+from spare_parts.forms import DonorVehicleAdminForm, PartAdminForm
 from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage, DonorVehicle, \
     DonorVehicleImage
 
@@ -69,40 +67,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-class PartAdminForm(forms.ModelForm):
-    """
-    Кастомная форма, которая гарантирует, что
-    донор будет добавлен в M2M перед сохранением.
-    """
     class Meta:
         model = Part
         fields = '__all__'
-
-    def clean_part_id(self):
-        """
-        Автозаполнение внутреннего артикула продавца
-        :return:
-        """
-        id = self.cleaned_data.get('part_id')
-        if not id:    #Если поле пустое (или None), генерируем новый ID
-            id = uuid.uuid4().hex[:8].upper()    #Гарантируем уникальность и краткость
-            if Part.objects.filter(part_id=id).exists():    #Проверяем уникальность, чтобы избежать конфликтов при ручной генерации
-                return self.clean_part_id()    #Если сгенерированный ID уже есть, генерируем заново
-        return id
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)    #Получаем экземпляр Part (еще не в БД)
-        donor = self.cleaned_data.get('donor_generation')    #Получаем донора из 'cleaned_data'
-        selected_gens = self.cleaned_data.get('car_generations', [])    #Получаем список выбранных пользователем авто из 'cleaned_data'
-        final_gens = list(selected_gens)    #Превращаем в Python-список
-        if donor and (donor not in final_gens):    #Добавляем донора в список, если его там нет
-            final_gens.append(donor)
-        self.cleaned_data['car_generations'] = final_gens    #Перезаписываем 'cleaned_data' нашим новым списком.
-        if commit:
-            instance.save()   #Теперь мы вызываем оригинальный метод save(), который сохранит и инстанс, и M2M-поля, но M2M он возьмет уже из нашего измененного cleaned_data.
-            self.save_m2m()  # Сохраняем M2M, используя обновленные cleaned_data
-        return instance
-
 
 @admin.register(Part)
 class PartAdmin(admin.ModelAdmin):
@@ -112,6 +79,31 @@ class PartAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'condition', 'category', 'donor_generation__model__make')
     search_fields = ('title', 'part_number', 'part_id', 'description')
     filter_horizontal = ('car_generations',)
+
+    def save_model(self, request, obj, form, change):
+        """
+        Сохраняет объект Part и обрабатывает пакетный ввод URL,
+        создавая новые записи PartImage.
+        """
+        super().save_model(request, obj, form, change)
+
+        bulk_urls = form.cleaned_data.get('bulk_url_input')
+        if bulk_urls:
+            urls = re.split(r'[,\s\t\n]+', bulk_urls)    #Разделяем текст по разделителям (запятые, пробелы, новая строка)
+            valid_urls = [url.strip() for url in urls if url.strip().startswith('http')]
+            is_main_exists = obj.images.filter(is_main=True).exists()
+
+            with transaction.atomic():
+                for index, url in enumerate(valid_urls):
+                    make_main = False
+                    if index == 0 and not is_main_exists:
+                        make_main = True
+                        is_main_exists = True    #Устанавливаем флаг
+                    PartImage.objects.create(
+                        part=obj,    #Ссылка на текущую запчасть
+                        image_url=url,    #Сохраняем ссылку в поле URL
+                        is_main=make_main
+                    )
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request).select_related('donor_generation__model__make', 'donor_vehicle').prefetch_related('car_generations__model__make')
