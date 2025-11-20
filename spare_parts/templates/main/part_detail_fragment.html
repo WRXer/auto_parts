@@ -17,7 +17,7 @@
                             <div class="carousel-inner">
                                 {% for image in all_images %}
                                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                        <img src="{{ image.image.url }}"
+                                        <img src="{{ image.get_image_source }}"
                                             class="d-block w-100 js-open-fullscreen"
                                             alt="{{ part.title }} - Фото {{ forloop.counter }}"
                                             style="max-height: 270px; min-height: 270px; object-fit: cover; cursor: pointer;"
@@ -40,14 +40,14 @@
                             {% for image in all_images %}
                                 <div class="col-3 col-md-2 col-lg-2">
                                     <button type="button"
-                                            data-bs-target="#donorImageCarousel"
-                                            data-bs-slide-to="{{ forloop.counter0 }}"
-                                            class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
-                                            style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
-                                            onmouseover="this.style.opacity='1'"
-                                            onmouseout="this.style.opacity='0.7'"
-                                            aria-label="Перейти к слайду {{ forloop.counter }}">
-                                        <img src="{{ image.image.url }}"
+                                        data-bs-target="#donorImageCarousel"
+                                        data-bs-slide-to="{{ forloop.counter0 }}"
+                                        class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
+                                        style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
+                                        onmouseover="this.style.opacity='1'"
+                                        onmouseout="this.style.opacity='0.7'"
+                                        aria-label="Перейти к слайду {{ forloop.counter }}">
+                                        <img src="{{ image.get_image_source }}"
                                              class="img-fluid"
                                              alt="Миниатюра {{ forloop.counter }}"
                                              style="height: 60px; object-fit: cover; width: 100%;">
@@ -65,7 +65,7 @@
                                                 <div class="carousel-inner">
                                                     {% for image in all_images %}
                                                         <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-                                                            <img src="{{ image.image.url }}"
+                                                            <img src="{{ image.get_image_source }}"
                                                                  class="d-block w-100 rounded-3"
                                                                  alt="{{ part.title }} - Фото {{ forloop.counter }}"
                                                                  style="max-height: 90vh; object-fit: contain; object-position: top;">

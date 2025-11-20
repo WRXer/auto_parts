@@ -119,9 +119,9 @@
                                 <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
                                     <div class="d-flex p-3 flex-grow-1">
                                         <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
-                                            {% with main_image=part.get_main_image %}
-                                                {% if main_image and main_image.image %}
-                                                    <img src="{{ main_image.image.url }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% with image=part.get_main_image_source %}
+                                                {% if image%}
+                                                    <img src="{{ image }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
                                                 {% else %}
                                                     <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
                                                 {% endif %}

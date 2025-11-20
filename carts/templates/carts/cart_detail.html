@@ -26,9 +26,9 @@
                                         {% with part=item.part %}
                                         <div class="d-flex align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
 
-                                            {% with main_image=part.get_main_image %}
-                                                {% if main_image %}
-                                                    <img src="{{ main_image.image.url }}"
+                                            {% with image=part.get_main_image_source %}
+                                                {% if image %}
+                                                    <img src="{{ image }}"
                                                          alt="{{ part.title }}"
                                                          class="rounded me-3"
                                                          style="width: 70px; height: 70px; object-fit: cover;">

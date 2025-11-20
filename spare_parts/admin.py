@@ -1,5 +1,5 @@
 import uuid
-
+from django.utils.safestring import mark_safe
 from django import forms
 from django.contrib import admin
 from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage, DonorVehicle, \
@@ -7,18 +7,24 @@ from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category,
 
 
 class PartImageInline(admin.TabularInline):
-    """Отображает форму добавления изображений в виде таблицы."""
+    """
+    Форма добавления изображений в виде таблицы.
+    """
     model = PartImage
-    extra = 1    #Количество пустых форм для добавления новых изображений
-    fields = ('image', 'is_main')
-    # Позволяем показывать миниатюры в админке (требует написания метода)
-    # readonly_fields = ['get_image_preview']
+    fields = ('image', 'image_url', 'is_main', 'image_preview')
+    readonly_fields = ('image_preview',)    #Предпросмотр не должен быть редактируемым
+    extra = 1    #Одна пустая строка для добавления нового фото
+    verbose_name_plural = "Фотографии (Файл ИЛИ URL)"
 
-    # def get_image_preview(self, obj):
-    #     if obj.image:
-    #         return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
-    #     return 'Нет изображения'
-    # get_image_preview.short_description = 'Предпросмотр'
+    def image_preview(self, obj):
+        """
+        Отображает миниатюру по URL (если есть) или по загруженному файлу.
+        """
+        source = obj.get_image_source()
+        if source:
+            return mark_safe(f'<img src="{source}" style="max-height: 100px; max-width: 150px; border-radius: 4px;" />')
+        return "Нет изображения"     #mark_safe позволяет Django отобразить HTML-тег <img>
+    image_preview.short_description = 'Предпросмотр'
 
 
 class DonorVehicleImageInline(admin.TabularInline):
@@ -88,7 +94,7 @@ class PartAdminForm(forms.ModelForm):
 class PartAdmin(admin.ModelAdmin):
     inlines = [PartImageInline]
     form = PartAdminForm
-    list_display = ('part_id', 'title', 'price', 'donor_generation', 'compatible_auto_list', 'donor_vehicle', 'condition', 'is_active', 'created_at')
+    list_display = ('title', 'price', 'is_active', 'get_main_image_preview')
     list_filter = ('is_active', 'condition', 'category', 'donor_generation__model__make')
     search_fields = ('title', 'part_number', 'part_id', 'description')
     filter_horizontal = ('car_generations',)
@@ -104,6 +110,18 @@ class PartAdmin(admin.ModelAdmin):
         return ", ".join(full_list)
 
     compatible_auto_list.short_description = 'Совместимые авто'
+
+    def get_main_image_preview(self, obj):
+        """
+        Отображает миниатюру главного изображения в списке запчастей.
+        Использует метод get_main_image_source() из модели Part.
+        """
+        url = obj.get_main_image_source()
+        if url:
+            return mark_safe(f'<img src="{url}" style="max-height: 50px; max-width: 50px; border-radius: 4px;" />')
+        return 'Нет фото'
+
+    get_main_image_preview.short_description = 'Главное фото'
 
 
 @admin.register(DonorVehicle)

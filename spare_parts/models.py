@@ -100,15 +100,16 @@ class Part(models.Model):
         verbose_name_plural = 'Запчасти (Объявления)'
         ordering = ('-created_at',)
 
-    def get_main_image(self):
+    def get_main_image_source(self):
         """
         Возвращает главное изображение (is_main=True) или первое
         изображение, если главное не отмечено.
         """
         main_img = self.images.filter(is_main=True).first()    #Сначала ищем изображение, помеченное как главное
         if main_img:
-            return main_img
-        return self.images.first()    #Если главное не найдено, возвращаем первое
+            return main_img.get_image_source()
+        first_image = self.images.first()
+        return first_image.get_image_source() if first_image else None
 
 
 class PartImage(models.Model):
@@ -116,12 +117,23 @@ class PartImage(models.Model):
     Изображения для объявления
     """
     part = models.ForeignKey(Part, on_delete=models.CASCADE, related_name='images', verbose_name='Запчасть')
-    image = models.ImageField(upload_to='part_images/', verbose_name='Изображение')
+    image = models.ImageField(upload_to='part_images/', verbose_name='Изображение', blank=True, null=True)
+    image_url = models.URLField(max_length=500,verbose_name='URL Изображения', blank=True, null=True)
     is_main = models.BooleanField(default=False, verbose_name='Главное фото')
 
     class Meta:
         verbose_name = 'Изображение запчасти'
         verbose_name_plural = 'Изображения запчастей'
+
+    def get_image_source(self) -> str | None:
+        """
+        Возвращает актуальный путь или URL для отображения.
+        """
+        if self.image:
+            return self.image.url   #Django добавляет .url к ImageField
+        if self.image_url:
+            return self.image_url
+        return None
 
 
 class DonorVehicle(models.Model):
