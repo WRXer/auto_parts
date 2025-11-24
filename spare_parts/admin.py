@@ -3,8 +3,8 @@ from django.db import transaction
 from django.utils.safestring import mark_safe
 from django.contrib import admin
 from spare_parts.forms import DonorVehicleAdminForm, PartAdminForm
-from spare_parts.models import Part, CarGeneration, CarMake, CarModel, Category, PartImage, DonorVehicle, \
-    DonorVehicleImage
+from spare_parts.models import Part, CarGeneration, CarMake, CarModel, PartImage, DonorVehicle, \
+    DonorVehicleImage, Category, PartSubCategory
 
 
 class PartImageInline(admin.TabularInline):
@@ -75,8 +75,8 @@ class CategoryAdmin(admin.ModelAdmin):
 class PartAdmin(admin.ModelAdmin):
     inlines = [PartImageInline]
     form = PartAdminForm
-    list_display = ('title', 'price', 'is_active', 'get_main_image_preview')
-    list_filter = ('is_active', 'condition', 'category', 'donor_generation__model__make')
+    list_display = ('title', 'price','category', 'is_active', 'get_main_image_preview', 'get_donor_vin')
+    list_filter = ('is_active', 'condition','category', 'donor_generation__model__make')
     search_fields = ('title', 'part_number', 'part_id', 'description')
     filter_horizontal = ('car_generations',)
 
@@ -126,14 +126,20 @@ class PartAdmin(admin.ModelAdmin):
         if url:
             return mark_safe(f'<img src="{url}" style="max-height: 50px; max-width: 50px; border-radius: 4px;" />')
         return 'Нет фото'
-
     get_main_image_preview.short_description = 'Главное фото'
+
+    def get_donor_vin(self, obj):
+        """Возвращает поле donor_vin из связанного DonorVehicle."""
+        if obj.donor_vehicle:
+            return obj.donor_vehicle.donor_vin   #Получаем значение поля donor_vin из связанного донора
+        return '—'    #Если донор не привязан
+    get_donor_vin.short_description = 'Конкретная машина-донор(поступление)'
 
 
 @admin.register(DonorVehicle)
 class DonorVehicleAdmin(admin.ModelAdmin):
     form = DonorVehicleAdminForm  # Используем кастомную форму
-    list_display = ('__str__', 'generation', 'get_main_image_preview', 'title', 'color', 'engine_details', 'description', 'transmission_type' ,'arrival_date', 'get_image_count')
+    list_display = ('__str__', 'id', 'donor_vin', 'generation', 'get_main_image_preview', 'title', 'color', 'engine_details', 'description', 'transmission_type' ,'arrival_date', 'get_image_count')
     list_filter = ('generation__model__make', 'arrival_date')
     search_fields = ('title', 'generation__name')
     inlines = [DonorVehicleImageInline]    #Связываем инлайн-класс с основной моделью
@@ -186,3 +192,11 @@ class DonorVehicleAdmin(admin.ModelAdmin):
 
     get_main_image_preview.short_description = 'Главное фото'
     get_image_count.short_description = 'Фото'
+
+
+@admin.register(PartSubCategory)
+class PartSubCategoryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'category', 'slug')
+    list_filter = ('category',)    #Отличный фильтр по главной категории
+    search_fields = ('title',)
+    prepopulated_fields = {'slug': ('title',)}    #Автозаполнение ЧПУ из названия

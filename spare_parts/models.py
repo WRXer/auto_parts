@@ -1,6 +1,7 @@
+import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.utils.text import slugify
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -55,6 +56,7 @@ class CarGeneration(models.Model):
         verbose_name_plural = 'Поколения/Модификации'
         ordering = ('model__make__name', 'model__name', 'year_start')
 
+
 class Category(models.Model):
     """
     Категория запчасти (Двигатель, Кузов, Салон)
@@ -69,6 +71,53 @@ class Category(models.Model):
         verbose_name = 'Категория запчасти'
         verbose_name_plural = 'Категории запчастей'
 
+
+class PartSubCategory(models.Model):
+    """
+    Модель для конкретных подкатегорий запчастей (например, 'Бампер передний').
+    Привязываются к жестко заданным Главным Категориям через CHOICES.
+    """
+    MAIN_CATEGORY_CHOICES = [
+        ('BODY', 'Кузовные детали'),
+        ('INTERIOR', 'Детали салона'),
+        ('HVAC', 'Отопители и кондиционирование'),
+        ('ENGINE', 'Двигатель'),
+        ('FUEL', 'Топливная система'),
+        ('EXHAUST', 'Выпускная система'),
+        ('TRANSMISSION', 'Трансмиссия'),
+        ('SUSPENSION', 'Подвеска'),
+        ('STEERING', 'Рулевое управление'),
+        ('BRAKES', 'Тормозная система'),
+        ('ELECTRICS', 'Электрооборудование'),
+        ('WHEELS', 'Шины и диски'),
+        ('DONORS', 'Автомобили в разбор'),
+        ('OTHER', 'Прочие запчасти'),
+    ]  # ЗАДАННЫЙ СПИСОК ГЛАВНЫХ КАТЕГОРИЙ (MainCategory)
+
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name='Категория')    #Связи с другими моделями
+    title = models.CharField(max_length=255,unique=True,verbose_name="Название Подкатегории")
+    slug = models.SlugField(max_length=255,unique=True,blank=True,null=True,verbose_name="ЧПУ (Slug)")
+
+
+    class Meta:
+        verbose_name = "Подкатегория запчасти"
+        verbose_name_plural = "Подкатегории запчастей"
+        ordering = ['category', 'title']
+
+    def __str__(self):
+
+        return f"{self.category} / {self.title}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            if self.title:
+                self.slug = slugify(self.title)
+            else:
+                # Если title пустой, создаём уникальный slug по UUID
+                self.slug = str(uuid.uuid4())[:8]  # 8 символов достаточно
+        super().save(*args, **kwargs)
+
+
 class Part(models.Model):
     """
     Основное объявление о продаже запчасти
@@ -78,7 +127,7 @@ class Part(models.Model):
         ('new', 'Новая'),
         ('restored', 'Восстановленная'),
     )
-
+    subcategory = models.ForeignKey(PartSubCategory,on_delete=models.PROTECT,related_name='parts',verbose_name="Подкатегория",**NULLABLE)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, verbose_name='Категория')    #Связи с другими моделями
 
     part_id = models.CharField(max_length=50,verbose_name='Внутренний артикул продавца',unique=True,**NULLABLE)
@@ -156,9 +205,9 @@ class DonorVehicle(models.Model):
     TRANSMISSION_CHOICES = [
         ('AT', 'Автоматическая'),
         ('MT', 'Механическая')]
-
+    donor_vin = models.CharField(max_length=50,blank=True, null=True,verbose_name="ID Донора/Поступления",help_text="Уникальный ID, например, 'DNR001' или '3'.")
     generation = models.ForeignKey(CarGeneration, on_delete=models.PROTECT,verbose_name="Модификация (Тип авто)")
-    title = models.CharField(max_length=255,verbose_name="Название/Описание поступления (для себя)",help_text="Напр: 'Синий, 2.0л, пробег 140т.км' или 'Поступление #2'")    #Название или описание конкретного поступления для отображения на главной
+    title = models.CharField(max_length=255, blank=True, null=True,verbose_name="Название/Описание поступления (для себя)",help_text="Напр: 'Синий, 2.0л, пробег 140т.км' или 'Поступление #2'")    #Название или описание конкретного поступления для отображения на главной
     color = models.CharField(max_length=50, blank=True, null=True, verbose_name="Цвет")
     production_year = models.IntegerField(blank=True, null=True, verbose_name="Год выпуска")
     engine_details = models.CharField(max_length=255, blank=True, null=True, verbose_name="Детали двигателя (объем/модель)")
@@ -172,7 +221,7 @@ class DonorVehicle(models.Model):
         ordering = ['-arrival_date']
 
     def __str__(self):
-        return f"{self.generation.model.make.name} {self.generation.model.name} ({self.title})"
+        return f"{self.generation.model.make.name} {self.generation.model.name}"
 
     def get_main_image_source(self):
         """
