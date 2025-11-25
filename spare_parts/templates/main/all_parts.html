@@ -2,6 +2,10 @@
 {% load static %}
 {% block content %}
 
+
+<link rel="stylesheet" href="{% static 'deps/css/pagination_styles.css' %}">
+
+
 <main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-1">
         <h1 class="mb-4 text-center" >
@@ -166,32 +170,83 @@
 
                         {% if is_paginated %}
                             <nav aria-label="Page navigation" class="mt-4">
-                                <ul class="pagination justify-content-center">
-                                    {% with all_params=request.GET.urlencode|cut:'page' %}
-                                        {% if page_obj.has_previous %}
-                                            <li class="page-item">
-                                                <a class="page-link text-success border-success" href="?page=1&{{ all_params }}">&laquo; Первая</a>
-                                            </li>
-                                            <li class="page-item">
-                                                <a class="page-link text-success border-success" href="?page={{ page_obj.previous_page_number }}&{{ all_params }}">Предыдущая</a>
-                                            </li>
-                                        {% endif %}
-
-                                        <li class="page-item active" aria-current="page">
-                                            <span class="page-link bg-success border-success">{{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-                                        </li>
-
-                                        {% if page_obj.has_next %}
-                                            <li class="page-item">
-                                                <a class="page-link text-success border-success" href="?page={{ page_obj.next_page_number }}&{{ all_params }}">Следующая</a>
-                                            </li>
-                                            <li class="page-item">
-                                                <a class="page-link text-success border-success" href="?page={{ page_obj.paginator.num_pages }}&{{ all_params }}">Последняя &raquo;</a>
-                                            </li>
-                                        {% endif %}
+                                {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
+                                    {% with filter_params="" %}
+                                        {% if request.GET.make %}{% with filter_params=filter_params|add:"&make="|add:request.GET.make %}{% endwith %}{% endif %}
+                                        {% if request.GET.model %}{% with filter_params=filter_params|add:"&model="|add:request.GET.model %}{% endwith %}{% endif %}
+                                        {% if request.GET.generation %}{% with filter_params=filter_params|add:"&generation="|add:request.GET.generation %}{% endwith %}{% endif %}
+                                        {% if request.GET.category %}{% with filter_params=filter_params|add:"&category="|add:request.GET.category %}{% endwith %}{% endif %}
                                     {% endwith %}
+                                    {% with filter_params_macro=filter_params %}
+                                        <ul class="pagination justify-content-center">
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ page_obj.previous_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                                                       aria-label="Предыдущая">
+                                                        &lsaquo;
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&lsaquo;</span>
+                                                </li>
+                                            {% endif %}
 
-                                </ul>
+                                            {% comment %}
+                                                ЛОГИКА ПАГИНАЦИИ: [1] [..] [C-1] [C] [C+1] [..] [N]
+                                            {% endcomment %}
+
+                                            {% for p in page_obj.paginator.page_range %}
+                                                {% comment %} Условия для отображения: Первая (1), Последняя (N), или Центральный блок (C, C-1, C+1) {% endcomment %}
+                                                {% if p == 1 or p == total_pages or p == current_page or p == current_page|add:1 or current_page == p|add:1 %}
+                                                    {# Активная страница (C) #}
+                                                    {% if p == current_page %}
+                                                        <li class="page-item active" aria-current="page">
+                                                            <span class="page-link fw-bold"
+                                                                style="min-width: 44px; display: flex; align-items: center; justify-content: center;">{{ p }}</span>
+                                                        </li>
+                                                    {# Обычная ссылка #}
+                                                    {% else %}
+                                                        <li class="page-item">
+                                                            <a class="page-link"
+                                                               href="?page={{ p }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                                                               {{ p }}
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% comment %} Условия для многоточия {% endcomment %}
+                                                {% else %}
+                                                    {# Многоточие после 1-й страницы: показываем, если p=2 и текущая страница дальше, чем 3. #}
+                                                    {% if p == 2 and current_page > 3 %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {# Многоточие перед последней страницей: показываем, если p=N-1 (total_pages == p+1) и текущая страница далеко от N. #}
+                                                    {% elif total_pages == p|add:1 and current_page|add:2 < total_pages %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% comment %} Кнопка "Следующая" {% endcomment %}
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ page_obj.next_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                                                       aria-label="Следующая">
+                                                        &rsaquo;
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&rsaquo;</span>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    {% endwith %}
+                                {% endwith %}
                             </nav>
                         {% endif %}
                     </div>
