@@ -18,6 +18,8 @@ function applyFilterChange(keyToChange, valueToChange) {
         url.searchParams.delete(keyToChange);
     }
 
+    url.searchParams.delete('page');
+
     // 2. Добавляем ID категории из глобальной конфигурации
     if (CATEGORY_PK) {
         url.searchParams.set('category', CATEGORY_PK);
