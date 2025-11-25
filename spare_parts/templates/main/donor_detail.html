@@ -2,6 +2,10 @@
 {% load static %}
 {% block content %}
 
+
+<link rel="stylesheet" href="{% static 'deps/css/pagination_styles.css' %}">
+
+
 <main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-6">
         <div class="row g-4 mb-5">
@@ -161,7 +165,8 @@
                 <div id="parts-container">
                     <div class="row g-4 justify-content">
 
-                        {% for part in parts_list %}
+                        {# используем page_obj.object_list вместо parts_list #}
+                        {% for part in page_obj.object_list %}
                             <div class="col-12 col-md-8 col-xl-6">
                                 <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
                                     <div class="d-flex p-3 flex-grow-1">
@@ -209,45 +214,84 @@
                                 </div>
                             </div>
                         {% endfor %}
+
+                {% with category_param=request.GET.category_id %}
+                    {% if page_obj.paginator.num_pages > 1 %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               href="?page={{ page_obj.previous_page_number }}{% if category_param %}&category_id={{ category_param }}{% endif %}"
+                                               aria-label="Предыдущая">
+                                                &lsaquo;
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">&lsaquo;</span>
+                                        </li>
+                                    {% endif %}
+
+                                    {% comment %}
+                                        ЛОГИКА ПАГИНАЦИИ: [1] [..] [C-1] [C] [C+1] [..] [N]
+                                    {% endcomment %}
+
+                                    {% for p in page_obj.paginator.page_range %}
+                                        {% comment %} Условия для отображения: Первая (1), Последняя (N), или Центральный блок (C, C-1, C+1) {% endcomment %}
+                                        {% if p == 1 or p == total_pages or p == current_page or p == current_page|add:1 or current_page == p|add:1 %}
+                                            {# Активная страница (C) #}
+                                            {% if p == current_page %}
+                                                <li class="page-item active" aria-current="page">
+                                                    <span class="page-link fw-bold"
+                                                        style="min-width: 44px; display: flex; align-items: center; justify-content: center;">{{ p }}</span>
+                                                </li>
+                                            {# Обычная ссылка #}
+                                            {% else %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ p }}{% if category_param %}&category_id={{ category_param }}{% endif %}">
+                                                        {{ p }}
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% comment %} Условия для многоточия {% endcomment %}
+                                        {% else %}
+                                            {# Многоточие после 1-й страницы: показываем, если p=2 и текущая страница дальше, чем 3. #}
+                                            {% if p == 2 and current_page > 3 %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            {# Многоточие перед последней страницей: показываем, если p=N-1 (total_pages == p+1) и текущая страница далеко от N. #}
+                                            {% elif total_pages == p|add:1 and current_page|add:2 < total_pages %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">...</span>
+                                                </li>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% comment %} Кнопка "Следующая" {% endcomment %}
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                               href="?page={{ page_obj.next_page_number }}{% if category_param %}&category_id={{ category_param }}{% endif %}"
+                                               aria-label="Следующая">
+                                                &rsaquo;
+                                            </a>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">&rsaquo;</span>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            {% endwith %}
+                        </nav>
+                    {% endif %}
+                {% endwith %}
                     </div>
                 </div>
-
-                {% if is_paginated %}
-                    <nav aria-label="Page navigation" class="mt-4">
-                        <ul class="pagination justify-content-center">
-                            {% if page_obj.has_previous %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">&laquo;</span>
-                                </li>
-                            {% endif %}
-
-                            {% for i in page_obj.paginator.page_range %}
-                                {% if page_obj.number == i %}
-                                    <li class="page-item active" aria-current="page"><span class="page-link">{{ i }}</span></li>
-                                {% else %}
-                                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}">{{ i }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                            {% if page_obj.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category_id %}&category_id={{ request.GET.category_id }}{% endif %}" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link">&raquo;</span>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                {% endif %}
             </div>
         </div>
     </div>

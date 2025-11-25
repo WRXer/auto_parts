@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, Q
 from django.http import JsonResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -402,11 +403,10 @@ class DonorDetailView(DetailView):
     model = DonorVehicle
     template_name = 'main/donor_detail.html'
     context_object_name = 'donor'
+    paginate_by = 10
 
     def get_queryset(self):
-
-        # Оптимизация запросов: получаем Make/Model/Generation и все изображения
-        return super().get_queryset().select_related('generation__model__make').prefetch_related('images')
+        return super().get_queryset().select_related('generation__model__make').prefetch_related('images')    #Оптимизация запросов: получаем Make/Model/Generation и все изображения
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -415,7 +415,18 @@ class DonorDetailView(DetailView):
         parts_queryset = donor.parts.filter(is_active=True).select_related('category').prefetch_related('images')
         if category_id:
             parts_queryset = parts_queryset.filter(category_id=category_id)
-        context['parts_list'] = parts_queryset.order_by('category__name', 'title')
+        sorted_parts = parts_queryset.order_by('category__name', 'title')
+
+        paginator = Paginator(sorted_parts, self.paginate_by)
+        page = self.request.GET.get('page')
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)    #Если 'page' не число, берем первую страницу
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+        context['parts_list'] = page_obj.object_list
+        context['page_obj'] = page_obj
         categories_with_count = Category.objects.filter(part__donor_vehicle=donor,part__is_active=True).annotate(part_count=Count('part')).order_by('name')
         context['categories'] = categories_with_count
         context['total_parts_count'] = donor.parts.filter(is_active=True).count()
