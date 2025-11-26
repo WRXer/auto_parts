@@ -24,7 +24,7 @@ app_name = SparePartsConfig.name
 urlpatterns = [
 
     path('catalog/all_parts/', PartListView.as_view(), name='all_parts'),
-    path('catalog/category/<int:pk>/', CategoryDetailView.as_view(), name='category_detail'),
+    path('catalog/category/<slug:category_slug>/', CategoryDetailView.as_view(), name='category_detail'),
     path('part/detail/modal/<int:pk>/', part_detail_modal, name='part_detail_modal'),
     path('part/detail/modal/in-cart/<int:pk>/', part_detail_modal_in_cart, name='part_detail_modal_in_cart'),
     path('catalog/part/<int:pk>/', PartDetailView.as_view(), name='part_detail'),

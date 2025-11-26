@@ -190,14 +190,21 @@ class CategoryListView(ListView):
     paginate_by = 10     #Пагинация
 
     def get_queryset(self):
-        category_id = self.kwargs['category_id']     #Получаем ID категории из URL-адреса
-        queryset = Part.objects.filter(category_id=category_id)            #Фильтруем запчасти: возвращаем только те, которые относятся к этой категории
+        """
+        Получаем слаг категории из URL-адреса и фильтруем запчасти по этому слагу.
+        """
+        category_slug = self.kwargs['category_slug']
+        category = get_object_or_404(Category, slug=category_slug)
+        queryset = Part.objects.filter(category=category)
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)     #Добавляем объект категории в контекст для использования в заголовке шаблона
-        category_id = self.kwargs['category_id']
-        context['category'] = Category.objects.get(id=category_id)    #Получаем объект Category
+        """
+        Добавляем объект категории в контекст.
+        """
+        context = super().get_context_data(**kwargs)
+        category_slug = self.kwargs['category_slug']
+        context['category'] = get_object_or_404(Category, slug=category_slug)
         return context
 
 
@@ -211,27 +218,26 @@ class CategoryDetailView(ListView):
     context_object_name = 'parts'
     paginate_by = 10
 
-    def get_category_id(self):
+    def get_category_lookup_data(self):
         """
-        Находит ID категории, считывая его из именованного аргумента URL (pk),
-        либо из GET-параметра (category).
+        Находит идентификатор категории и поле для поиска (slug или pk).
         """
-        # Читаем pk из именованных аргументов URL (из-за <int:pk>/ в urls.py)
-        category_pk = self.kwargs.get('pk')
-
-        # Если pk нет в URL, пытаемся получить его из GET-параметров
-        if not category_pk:
-            category_pk = self.request.GET.get('category')
-
-        if not category_pk:
-            raise Http404("Идентификатор категории не указан.")
-
-        return category_pk
+        slug = self.kwargs.get('category_slug')
+        if slug:
+            return {'field': 'slug', 'value': slug}
+        pk = self.kwargs.get('pk')
+        if pk:
+            return {'field': 'pk', 'value': pk}
+        category_param = self.request.GET.get('category')
+        if category_param:
+            return {'field': 'pk', 'value': category_param}
+        raise Http404("Идентификатор категории не указан.")
 
     def get_category(self):
         """Получает объект категории по найденному ID."""
-        category_pk = self.get_category_id()
-        return get_object_or_404(Category, pk=category_pk)
+        lookup_data = self.get_category_lookup_data()
+        lookup_kwargs = {lookup_data['field']: lookup_data['value']}
+        return get_object_or_404(Category, **lookup_kwargs)
 
     def get_queryset(self):
         """
