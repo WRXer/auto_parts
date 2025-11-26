@@ -182,7 +182,13 @@
 
                                         <div class="flex-grow-1">
                                             <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
-                                            <p class="card-text text-muted mb-1">Артикул: {{ part.part_number|default:"Не указан" }}</p>
+                                            <p class="card-text text-muted mb-1">
+                                                Артикул: {% if part.part_number and part.part_number|lower != 'nan' %}
+                                                    {{ part.part_number }}
+                                                {% else %}
+                                                    Отсутствует
+                                                {% endif %}
+                                            </p>
 
                                             {% if part.donor_generation %}
                                                 <p class="card-text small text-dark">
@@ -197,7 +203,7 @@
                                     </div>
 
                                     <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
-                                        <strong class="fs-5 text-dark">{{ part.price }} ₽</strong>
+                                        <strong class="fs-4 text-dark">{{ part.price|floatformat:0 }} ₽</strong>
                                         <a href="#"
                                         data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
                                            class="btn btn-outline-success js-open-part-modal">

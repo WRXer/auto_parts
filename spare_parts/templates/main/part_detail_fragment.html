@@ -102,7 +102,13 @@
 
                     <dl class="row mb-3 small">
                         <dt class="col-sm-4 text-muted">Артикул:</dt>
-                        <dd class="col-sm-8 fw-bold">{{ part.part_number|default:"Не указан" }}</dd>
+                        <dd class="col-sm-8 fw-bold">
+                            {% if part.part_number and part.part_number|lower != 'nan' %}
+                                {{ part.part_number }}
+                            {% else %}
+                                Отсутствует
+                            {% endif %}
+                        </dd>
 
                         {% if part.donor_generation %}
                             <dt class="col-sm-4 text-muted">Применимость:</dt>
@@ -123,7 +129,7 @@
 
                     <hr>
 
-                    <strong class="fs-2 text-dark d-block mb-3">{{ part.price }} ₽</strong>
+                    <strong class="fs-2 text-dark d-block mb-3">{{ part.price|floatformat:0 }} ₽</strong>
                     {% if not is_part_in_cart %}
                         <div class="d-flex justify-content-end mb-4">
                             <form action="{% url 'carts:cart_add' part.pk %}"

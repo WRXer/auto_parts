@@ -47,12 +47,18 @@
                                                     {{ part.title }}
                                                 </a>
                                                 <div class="text-muted small mt-1">
-                                                    <span>Арт.: {{ part.part_id|default:"-" }}</span> |
+                                                    <span>Арт.:
+                                                        {% if part.part_number and part.part_number|lower != 'nan' %}
+                                                            {{ part.part_number }}
+                                                        {% else %}
+                                                            Отсутствует
+                                                        {% endif %}
+                                                    </span> |
                                                     <span>Авто: {{ part.donor_generation|default:"-" }}</span>
                                                 </div>
                                             </div>
                                             <div class="text-end ms-3">
-                                                <div class="fw-bold fs-5">{{ item.total_price }} ₽</div>
+                                                <div class="fw-bold fs-5">{{ item.total_price|floatformat:0 }} ₽</div>
                                                 <form action="{% url 'carts:cart_remove' part.pk %}" method="post" class="mt-2">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить товар">
@@ -77,7 +83,8 @@
                                             {{ cart|length }} позици{% if cart|length == 1 %}я{% elif cart|length < 5 %}и{% else %}й{% endif %}:
                                         </span>
                                         <span class="fw-bold fs-3 text-dark">
-                                            {{ cart.get_total_price }} ₽
+
+                                            {{ cart.get_total_price|floatformat:0 }} ₽
                                         </span>
                                     </div>
                                     <div class="d-grid gap-2">
