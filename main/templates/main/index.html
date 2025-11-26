@@ -3,55 +3,62 @@
 {% block content %}
 
 <main class="container text-dark pt-3 pb-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
-    <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center">
-        <div class="card p-4 shadow-lg mb-5" style="background-color: rgba(255, 255, 255, 0.9);">
-            <h2 class="card-title text-center mb-4">Найти запчасть по автомобилю</h2>
-
-            <form method="get" id="filter-form" action="{% url 'spare_parts:all_parts' %}" class="mb-5">
-                <div class="row g-3 align-items-end">
-                    <div class="col-md-3">
-                        <label for="id_make" class="form-label fw-bold">Марка:</label>
-                        <select data-name="make" id="id_make" class="form-select"
-                                data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
-                                data-load-generations-url="{% url 'spare_parts:ajax_load_car_generations' %}"
-                                data-car-model-list-url="{% url 'spare_parts:models_list' make_pk=0 %}"
-                                data-car-generation-list-url="{% url 'spare_parts:generations_list' make_pk=0 model_pk=0 %}"
-                                data-parts-by-generation-url="{% url 'spare_parts:parts_by_generation' make_pk=0 model_pk=0 generation_pk=0 %}"
-                                data-default-action="{% url 'spare_parts:all_parts' %}">
-                            <option value="">-- Выберите марку --</option>
-                            {% for make in car_makes %}
-                                <option value="{{ make.pk }}">{{ make.name }}</option>
-                            {% endfor %}
-                        </select>
+    <div class="row g-4 px-3 px-md-5 pb-5 pt-3">
+        <div class="col-12 ">
+            <div class="card p-4 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
+                <h2 class="card-title text-center mb-4">Найти запчасть по автомобилю</h2>
+                <form method="get" id="filter-form" action="{% url 'spare_parts:all_parts' %}" class="mb-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="id_make" class="form-label fw-bold">Марка:</label>
+                            <select data-name="make" id="id_make" class="form-select"
+                                    data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
+                                    data-load-generations-url="{% url 'spare_parts:ajax_load_car_generations' %}"
+                                    data-car-model-list-url="{% url 'spare_parts:models_list' make_pk=0 %}"
+                                    data-car-generation-list-url="{% url 'spare_parts:generations_list' make_pk=0 model_pk=0 %}"
+                                    data-parts-by-generation-url="{% url 'spare_parts:parts_by_generation' make_pk=0 model_pk=0 generation_pk=0 %}"
+                                    data-default-action="{% url 'spare_parts:all_parts' %}">
+                                <option value="">-- Выберите марку --</option>
+                                {% for make in car_makes %}
+                                    <option value="{{ make.pk }}">{{ make.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_model" class="form-label fw-bold">Модель:</label>
+                            <select data-name="model" id="id_model" class="form-select" disabled>
+                                <option value="">-- Сначала выберите марку --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_generation" class="form-label fw-bold">Модификация:</label>
+                            <select data-name="generation" id="id_generation" class="form-select" disabled>
+                                <option value="">-- Сначала выберите модель --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" id="submit-filter-btn" class="btn btn-outline-success w-100">Перейти</button>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="id_model" class="form-label fw-bold">Модель:</label>
-                        <select data-name="model" id="id_model" class="form-select" disabled>
-                            <option value="">-- Сначала выберите марку --</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="id_generation" class="form-label fw-bold">Модификация:</label>
-                        <select data-name="generation" id="id_generation" class="form-select" disabled>
-                            <option value="">-- Сначала выберите модель --</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <button type="submit" id="submit-filter-btn" class="btn btn-outline-success w-100">Перейти</button>
-                    </div>
-                </div>
-            </form>
-
-            <form class="d-flex" role="search" action="{% url 'spare_parts:search_by_number' %}" method="get">
-              <div class="input-group me-2 flex-grow-1">
-                <span class="input-group-text">Поиск по номеру запчасти:</span>
-                <input class="form-control" type="search" placeholder="Пример: 25739AA100" aria-label="Search" name="part_number"/>
-              </div>
-                <button class="btn btn-outline-success" type="submit">Поиск</button>
-            </form>
+                </form>
+            </div>
         </div>
-        <div class="product-device shadow-sm d-none d-md-block"></div>
-    </div>
+
+        <div class="col-12">
+            <div class="card p-3 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
+                <h2 class="card-title text-center mb-3">Поиск по номеру запчасти</h2>
+                <form class="row justify-content-center" action="{% url 'spare_parts:search_by_number' %}" method="get">
+                    <div class="col-12 col-md-9 mb-3 mb-md-0">
+                        <label for="part_number_input" class="form-label fw-bold visually-hidden">Номер запчасти:</label>
+                        <input id="part_number_input" class="form-control" type="search" placeholder="Введите оригинальный номер (Пример: 25739AA100)" aria-label="Search" name="part_number"/>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100 compact-search-btn" type="submit">Поиск</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
     <div class="mx-auto">
         <div class="row my-md-3 justify-content-center">
@@ -145,7 +152,7 @@
                     <div class="card-body d-flex flex-column text-center p-3">
                         <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="text-decoration-none">
                             <h3 class="card-title text-dark fs-5 fw-bold mb-1">{{ car.generation.model.make.name }} {{ car.generation.model.name }} {{ car.generation.name }}</h3>
-                            <p class="card-text text-muted small fw-bold mb-3">{{ car.title }}</p>
+                            <p class="card-text text-muted small fw-bold mb-3">{{ car.production_year }}</p>
                         </a>
                         <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="btn btn-sm btn-outline-success mt-auto rounded-pill">
                             Посмотреть все запчасти
