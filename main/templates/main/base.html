@@ -47,7 +47,7 @@
                                     </li>
                                         {% for category in all_categories %}
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.pk %}">
+                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.slug %}">
                                         {{ category.name }}
                                         </a>
                                     </li>

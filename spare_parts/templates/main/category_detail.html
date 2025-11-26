@@ -23,8 +23,8 @@
                         </div>
                         <div class="card-body collapse show" id="filter-auto-collapse">
                             <form id="sidebar-filter-form" action="." method="GET">
-                                {% if category.pk %}
-                                    <input type="hidden" name="category" value="{{ category.pk }}">
+                                {% if category.slug %}
+                                    <input type="hidden" name="category" value="{{ category.slug }}">
                                 {% elif request.GET.category %}
                                     <input type="hidden" name="category" value="{{ request.GET.category }}">
                                 {% endif %}
