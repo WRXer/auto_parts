@@ -152,32 +152,37 @@
                         {% if is_paginated %}
                             <nav aria-label="Page navigation" class="mt-4">
                                 {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
-                                    {% with filter_params="" %}
-                                        {% if request.GET.make %}{% with filter_params=filter_params|add:"&make="|add:request.GET.make %}{% endwith %}{% endif %}
-                                        {% if request.GET.model %}{% with filter_params=filter_params|add:"&model="|add:request.GET.model %}{% endwith %}{% endif %}
-                                        {% if request.GET.generation %}{% with filter_params=filter_params|add:"&generation="|add:request.GET.generation %}{% endwith %}{% endif %}
-                                        {% if request.GET.category %}{% with filter_params=filter_params|add:"&category="|add:request.GET.category %}{% endwith %}{% endif %}
-                                    {% endwith %}
-                                    {% with filter_params_macro=filter_params %}
-                                        <ul class="pagination justify-content-center">
-                                            {% if page_obj.has_previous %}
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                       href="?page={{ page_obj.previous_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
-                                                       aria-label="Предыдущая">
-                                                        &lsaquo;
-                                                    </a>
-                                                </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">&lsaquo;</span>
-                                                </li>
-                                            {% endif %}
 
-                                            {% comment %}
-                                                ЛОГИКА ПАГИНАЦИИ: [1] [..] [C-1] [C] [C+1] [..] [N]
-                                            {% endcomment %}
+                                    {% comment %}
+                                    Создаем общий префикс для всех фильтров (включая part_number),
+                                    чтобы не повторять их в каждой ссылке.
+                                    {% endcomment %}
+                                    {% with query_prefix="" %}
+                                        {% comment %} сохраняем part_number для этой страницы {% endcomment %}
+                                        {% if request.GET.part_number %}{% with query_prefix=query_prefix|add:"&part_number="|add:request.GET.part_number %}{% endwith %}{% endif %}
+                                        {% if request.GET.make %}{% with query_prefix=query_prefix|add:"&make="|add:request.GET.make %}{% endwith %}{% endif %}
+                                        {% if request.GET.model %}{% with query_prefix=query_prefix|add:"&model="|add:request.GET.model %}{% endwith %}{% endif %}
+                                        {% if request.GET.generation %}{% with query_prefix=query_prefix|add:"&generation="|add:request.GET.generation %}{% endwith %}{% endif %}
+                                        {% if request.GET.category %}{% with query_prefix=query_prefix|add:"&category="|add:request.GET.category %}{% endwith %}{% endif %}
 
+                                        <ul class="pagination justify-content-center" id="pagination-links">
+
+                                            {% comment %} Кнопка "Предыдущая" {% endcomment %}
+                                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                                <a class="page-link"
+                                                   {% if page_obj.has_previous %}
+                                                       data-page="{{ page_obj.previous_page_number }}"
+                                                       href="?page={{ page_obj.previous_page_number }}{{ query_prefix }}"
+                                                   {% else %}
+                                                       data-page="1"
+                                                       href="#"
+                                                   {% endif %}
+                                                   aria-label="Предыдущая">
+                                                    <span aria-hidden="true">&lsaquo;</span>
+                                                </a>
+                                            </li>
+
+                                            {% comment %} ЛОГИКА НОМЕРОВ СТРАНИЦ: [1] [..] [C-1] [C] [C+1] [..] [N] {% endcomment %}
                                             {% for p in page_obj.paginator.page_range %}
                                                 {% comment %} Условия для отображения: Первая (1), Последняя (N), или Центральный блок (C, C-1, C+1) {% endcomment %}
                                                 {% if p == 1 or p == total_pages or p == current_page or p == current_page|add:1 or current_page == p|add:1 %}
@@ -191,7 +196,8 @@
                                                     {% else %}
                                                         <li class="page-item">
                                                             <a class="page-link"
-                                                               href="?page={{ p }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                                                               data-page="{{ p }}"
+                                                               href="?page={{ p }}{{ query_prefix }}">
                                                                {{ p }}
                                                             </a>
                                                         </li>
@@ -212,19 +218,19 @@
                                                 {% endif %}
                                             {% endfor %}
                                             {% comment %} Кнопка "Следующая" {% endcomment %}
-                                            {% if page_obj.has_next %}
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                       href="?page={{ page_obj.next_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
-                                                       aria-label="Следующая">
-                                                        &rsaquo;
-                                                    </a>
-                                                </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <span class="page-link">&rsaquo;</span>
-                                                </li>
-                                            {% endif %}
+                                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                                <a class="page-link"
+                                                   {% if page_obj.has_next %}
+                                                       data-page="{{ page_obj.next_page_number }}"
+                                                       href="?page={{ page_obj.next_page_number }}{{ query_prefix }}"
+                                                   {% else %}
+                                                       data-page="{{ current_page }}"
+                                                       href="#"
+                                                   {% endif %}
+                                                   aria-label="Следующая">
+                                                    <span aria-hidden="true">&rsaquo;</span>
+                                                </a>
+                                            </li>
                                         </ul>
                                     {% endwith %}
                                 {% endwith %}
@@ -252,6 +258,7 @@
     </div>
 </div>
 
+<script src="{% static 'deps/js/search_in_pagination.js' %}"></script>
 <script src="{% static 'deps/js/filter_logic_new.js' %}"></script>
 <script src="{% static 'deps/js/part_modal.js' %}"></script>
 
