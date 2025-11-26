@@ -3,6 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
 
+from spare_parts.category_mapping import CATEGORY_SLUG_MAP
+
 NULLABLE = {'blank': True, 'null': True}
 
 
@@ -63,6 +65,26 @@ class Category(models.Model):
     """
     name = models.CharField(max_length=100, unique=True, verbose_name='Название категории')
     description = models.TextField(verbose_name='Описание', **NULLABLE)
+    slug = models.SlugField(max_length=100,blank=True, unique=True,null=True, verbose_name='URL-идентификатор')
+
+    def save(self, *args, **kwargs):
+        """
+        Автоматически генерирует slug
+        """
+        if not self.slug or self._state.adding:
+            name_normalized = self.name.upper().strip()
+            base_slug = None
+            base_slug = CATEGORY_SLUG_MAP.get(name_normalized)
+            if not base_slug:
+                base_slug = str(uuid.uuid4())[:8]
+            self.slug = base_slug
+            counter = 1
+            while Category.objects.filter(slug=self.slug).exists():
+                if self.pk is not None and Category.objects.get(pk=self.pk).slug == self.slug:
+                    break
+                self.slug = f"{base_slug}-{counter}"
+                counter += 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

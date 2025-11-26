@@ -64,7 +64,7 @@ class CarGenerationAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'slug')
     search_fields = ('name',)
 
     class Meta:

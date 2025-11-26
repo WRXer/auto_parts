@@ -9,7 +9,7 @@ from django.db import transaction
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
-from spare_parts.category_mapping import TRANSMISSION_MAP
+from spare_parts.category_mapping import TRANSMISSION_MAP, CATEGORY_SLUG_MAP
 from spare_parts.models import (CarMake, CarModel, CarGeneration, PartSubCategory,Part, DonorVehicle, Category, PartImage, DonorVehicleImage)
 
 
@@ -157,8 +157,23 @@ def import_parts():
                 except Exception as e:
                     print(f"Ошибка при поиске Донора ID {donor_vin_to_lookup} в строке {excel_row_num}: {e}")
 
-            cat_name = row.get('Категория', '').strip() or 'Прочие'
-            category_obj, _ = Category.objects.get_or_create(name=cat_name)
+            cat_name = row.get('Категория', '').strip()
+            cat_name_normalized = (cat_name if cat_name else 'Прочие запчасти').upper().strip()
+
+            try:
+                category_obj = Category.objects.get(name__iexact=cat_name_normalized)
+            except ObjectDoesNotExist:
+
+                base_cat_slug = CATEGORY_SLUG_MAP.get(cat_name_normalized, None)
+                if not base_cat_slug:
+                    base_cat_slug = str(uuid.uuid4())[:8]
+                cat_slug = base_cat_slug
+                cat_counter = 1
+                while Category.objects.filter(slug=cat_slug).exists():
+                    unique_suffix = f"-{cat_counter}" if cat_counter > 0 else ""
+                    cat_slug = f"{base_cat_slug}{unique_suffix}"
+                    cat_counter += 1
+                category_obj = Category.objects.create(name=cat_name_normalized, slug=cat_slug)
 
             subcat_name = str(row.get('Наименование', '')).strip() or f'Подкатегория_{uuid.uuid4().hex[:6]}'
             base_slug = slugify(subcat_name) or str(uuid.uuid4())[:8]

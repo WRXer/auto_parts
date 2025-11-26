@@ -234,3 +234,20 @@ TRANSMISSION_MAP = {
     'MANUAL:МКПП': 'MT',
     'VARIATOR:CVT': 'AT'
 }
+
+CATEGORY_SLUG_MAP = {
+    "ДВИГАТЕЛЬ": "engine",
+    "КУЗОВНЫЕ ДЕТАЛИ": "body-parts",
+    "ДЕТАЛИ САЛОНА": "interior-parts",
+    "ЭЛЕКТРООБОРУДОВАНИЕ": "electrical-equipment",
+    "ОТОПИТЕЛИ И КОНДИЦИОНИРОВАНИЕ": "hvac",
+    "ПОДВЕСКА": "suspension",
+    "ТОРМОЗНАЯ СИСТЕМА": "brake-system",
+    "ВЫПУСКНАЯ СИСТЕМА": "exhaust-system",
+    "ТОПЛИВНАЯ СИСТЕМА": "fuel-system",
+    "РУЛЕВОЕ УПРАВЛЕНИЕ": "steering",
+    "ТРАНСМИССИЯ": "transmission",
+    "АВТОМОБИЛИ В РАЗБОР": "donor-vehicles",
+    "ШИНЫ И ДИСКИ": "tires-and-wheels",
+    "ПРОЧИЕ ЗАПЧАСТИ": "others",
+}
