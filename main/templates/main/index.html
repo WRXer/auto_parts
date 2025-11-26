@@ -63,15 +63,26 @@
     <div class="mx-auto">
         <div class="row my-md-3 justify-content-center">
             <div class="col-md-6 mb-3">
-                <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between text-light" style="background-color: rgba(0, 0, 0, 0.75); min-height: 450px;">
-                    <div class="my-3 py-3">
-                        <h2 class="display-5">Двигатели</h2>
-                        <p class="lead">Комплектующие, навесное оборудование</p>
-                    </div>
-                    <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;">
-                        [Изображение двигателя]
-                    </div>
-                </div>
+                {% with target_slug='engine' %}
+                    {% for category in all_categories %}
+                        {% if category.slug == target_slug %}
+                            <a href="{% url 'spare_parts:category_detail' category_slug=category.slug %}" class="text-decoration-none d-block h-100">
+                            <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column text-light"
+                                 style="background-color: rgba(0, 0, 0, 0.75); min-height: 450px; transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                                 onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.5)'"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.1)'">
+                                <div class="my-1 py-1">
+                                    <h2 class="display-5">Двигатель</h2>
+                                    <p class="lead">Комплектующие, навесное оборудование</p>
+                                </div>
+                                <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 95%; height: 350px; border-radius: 21px 21px 0 0;">
+                                    <img src="{% static 'deps/images/engine.png' %}" alt="Изображение двигателя" style="width: 100%; height: 100%; object-fit: cover; border-radius: 21px 21px 0 0;"/>
+                                </div>
+                            </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
             </div>
             <div class="col-md-6 mb-3">
                 <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column justify-content-between text-dark" style="background-color: rgba(255, 255, 255, 0.75); min-height: 450px;">
