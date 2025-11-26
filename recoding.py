@@ -158,13 +158,13 @@ def import_parts():
                     print(f"Ошибка при поиске Донора ID {donor_vin_to_lookup} в строке {excel_row_num}: {e}")
 
             cat_name = row.get('Категория', '').strip()
-            cat_name_normalized = (cat_name if cat_name else 'Прочие запчасти').upper().strip()
+            cat_name_normalized = (cat_name if cat_name else 'Прочие запчасти').strip()
 
             try:
                 category_obj = Category.objects.get(name__iexact=cat_name_normalized)
             except ObjectDoesNotExist:
 
-                base_cat_slug = CATEGORY_SLUG_MAP.get(cat_name_normalized, None)
+                base_cat_slug = CATEGORY_SLUG_MAP.get(cat_name_normalized.upper(), None)
                 if not base_cat_slug:
                     base_cat_slug = str(uuid.uuid4())[:8]
                 cat_slug = base_cat_slug
