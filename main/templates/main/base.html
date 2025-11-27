@@ -142,8 +142,8 @@
 </main>
     <footer class="container py-5 bg-tertiary text-light">
     <div class="row pt-3 align-items-center mb-3">
-        <div class="col-12 col-md-6">
-             <ul class="list-unstyled d-flex gap-3 text-small">
+        <div class="col-12 col-md-3 d-flex justify-content-center justify-content-md-start">
+             <ul class="p-1 list-unstyled d-flex gap-3 border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
                  <li><a class="link-dark text-decoration-none" href="{% url 'contacts' %}">Контакты</a></li>
                  <li><a class="link-dark text-decoration-none" href="{% url 'about' %}">О нас</a></li>
                  <li><a class="link-dark text-decoration-none" href="{% url 'delivery' %}">Доставка</a></li>
@@ -152,14 +152,14 @@
         </div>
         <div class="col-12 col-md-6 ms-auto text-end">
             <div class="d-flex justify-content-end align-items-center ">
-                <a href="https://t.me" target="_blank" aria-label="Telegram" class="ms-1 me-1 " >
+                <a href="https://t.me" target="_blank" aria-label="Telegram" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
                     <img src="{% static 'deps/icons/social/telegram.svg' %}" alt="Telegram" width="32" height="32" style="vertical-align: middle;">
                 </a>
-                <a href="https://vk.com/" target="_blank" aria-label="VKontakte" class="ms-1 me-1">
+                <a href="https://vk.com/" target="_blank" aria-label="VKontakte" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
                     <img src="{% static 'deps/icons/social/vk.svg' %}" alt="VKontakte" width="32" height="32" style="vertical-align: middle;">
                 </a>
-                <a href="https://www.avito.ru" target="_blank" aria-label="Avito" class="ms-1 me-1">
-                    <img src="{% static 'deps/icons/social/avito.svg' %}" alt="Avito" width="52" height="52" style="vertical-align: middle;">
+                <a href="https://www.avito.ru" target="_blank" aria-label="Avito" class="p-1 border border-secondary border-opacity-25 rounded-3 bg-light bg-opacity-75 d-inline-block">
+                    <img src="{% static 'deps/icons/social/avito.svg' %}" alt="Avito" width="32" height="32" style="vertical-align: middle;">
                 </a>
             </div>
         </div>
