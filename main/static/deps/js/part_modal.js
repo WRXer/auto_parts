@@ -184,16 +184,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.success) {
                         // 🟢 УСПЕХ: Вставляем новый блок Статус + Кнопка оформления
                         buttonContainer.innerHTML = `
-                            <div class="row align-items-center w-100 g-0"> 
-                                <div class="col-3 text-left">
-                                    <strong class="text-secondary fs-7">
-                                        <i class="fas fa-check-circle"></i> Товар добавлен!
+                            <div class="row align-items-center g-0"> 
+                                <div class="col-12 col-md-5 text-center text-md-start mb-1 mb-md-0">
+                                    <strong class="text-secondary text-center fs-6">
+                                        <i class="fas fa-check-circle"></i> Товар&nbsp;добавлен!
                                     </strong>
                                 </div>
-                                
-                                <div class="col-9 text-end"> 
+                            
+                                <div class="col-12 col-md-7 text-center">
                                     <a href="${cartUrl}" class="btn btn-success btn-lg">
-                                        Перейти к оформлению
+                                        Перейти&nbsp;к&nbsp;оформлению
                                     </a>
                                 </div>
                             </div>

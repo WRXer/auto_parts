@@ -131,33 +131,39 @@
 
                     <strong class="fs-2 text-dark d-block mb-3">{{ part.price|floatformat:0 }} ₽</strong>
                     {% if not is_part_in_cart %}
-                        <div class="d-flex justify-content-end mb-4">
-                            <form action="{% url 'carts:cart_add' part.pk %}"
-                                method="post"
-                                class="d-flex align-items-center"
-                                id="add-to-cart-form"
-                                data-cart-url="{% url 'carts:cart_detail' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="quantity" value="1">
-                                {{ cart_add_form.override }}
-                                <div id="add-to-cart-button-container">
-                                    <button type="submit" class="btn btn-outline-success btn-lg ms-2">
-                                        Добавить в корзину
-                                    </button>
+
+                        <form action="{% url 'carts:cart_add' part.pk %}"
+                            method="post"
+                            id="add-to-cart-form"
+                            data-cart-url="{% url 'carts:cart_detail' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            {{ cart_add_form.override }}
+                            <div class="row align-items-center mb-4 g-0">
+                                <div class="col-12 col-md-12 text-center text-md-start mb-md-0">
+                                    <div id="add-to-cart-button-container">
+                                    <div class="d-flex w-100 justify-content-center">
+                                        <button type="submit" class="btn btn-outline-success btn-lg ms-md-auto ms-2">
+                                            Добавить в корзину
+                                        </button>
+                                    </div>
+                                    </div>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
+
                     {% else %}
                         <div class="row align-items-center mb-4 g-0">
-                            <div class="col-5">
-                                <strong class="text-secondary text-center fs-6">
-                                    <i class="fas fa-check-circle"></i> Товар уже в корзине!
-                                </strong>
+                            <div class="col-12 col-md-5 text-center text-md-start mb-2 mb-md-0">
+                            <strong class="text-secondary text-center fs-6">
+                                <i class="fas fa-check-circle"></i> Товар уже в корзине!
+                            </strong>
                             </div>
-                            <div class="col-7 text-end">
-                                <a href="{% url 'carts:cart_detail' %}" class="btn btn-success btn-lg">
-                                    Перейти к оформлению
-                                </a>
+
+                            <div class="col-12 col-md-7 text-center">
+                            <a href="{% url 'carts:cart_detail' %}" class="btn btn-success btn-lg">
+                                Перейти к оформлению
+                            </a>
                             </div>
                         </div>
                     {% endif %}
