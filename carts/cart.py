@@ -56,7 +56,7 @@ class Cart:
             cart[str(part.id)]['part'] = part    #Добавляем объект Part под ключом 'part'
 
         for item in cart.values():
-            item['price'] = item['price']
+            item['price'] = float(item['price'])
             item['total_price'] = item['price'] * item['quantity']
             yield item
 
@@ -82,7 +82,7 @@ class Cart:
         """
         Вычисляет общую стоимость всех товаров.
         """
-        total = sum(item['price'] * item['quantity']
+        total = sum(int(float(item['price'])) * item['quantity']
                     for item in self.cart.values())
         return total
 
