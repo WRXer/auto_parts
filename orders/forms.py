@@ -1,5 +1,9 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from .models import Order
+
+
+User = get_user_model()
 
 
 class CreateOrderForm(forms.ModelForm):
@@ -7,6 +11,12 @@ class CreateOrderForm(forms.ModelForm):
     Форма для создания нового заказа.
     Используется для сбора контактной информации и деталей доставки от пользователя.
     """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Динамически делаем delivery_address необязательным при инициализации
+        self.fields['delivery_address'].required = False
+
+
     class Meta:
         model = Order
         fields = (
@@ -40,7 +50,7 @@ class CreateOrderForm(forms.ModelForm):
                 'placeholder': 'Город, улица, дом, квартира'
             }),
             'requires_delivery': forms.CheckboxInput(attrs={
-                'class': 'form-check-input mt-1',
+                'class': 'form-check-input mt-1 requires-delivery-toggle',
                 'id': 'id_requires_delivery'
             }),
         }
@@ -63,9 +73,29 @@ class CreateOrderForm(forms.ModelForm):
         delivery_address = self.cleaned_data.get('delivery_address')
 
         if requires_delivery and not delivery_address:
-            raise forms.ValidationError("Пожалуйста, укажите адрес доставки, так как вы выбрали доставку.")
-
-        if not requires_delivery and delivery_address:    #Очищаем поле адреса, если доставка не требуется
+            raise forms.ValidationError("Пожалуйста, укажите адрес доставки, так как вы выбрали доставку.")    #Убеждаемся, что адрес обязателен, если выбрана доставка
+        if not requires_delivery and delivery_address:
             return ""
-
         return delivery_address
+
+    def save(self, commit=True):
+        """
+        Переопределение метода save:
+        1. Создает экземпляр Order (без сохранения в БД).
+        2. Проверяет, существует ли пользователь с введенным email.
+        3. Если найден, привязывает этого пользователя к заказу (order.user).
+        4. Сохраняет заказ, если commit=True.
+        """
+        order = super().save(commit=False)
+        email = self.cleaned_data.get('email')
+
+        if email:
+            try:
+                user = User.objects.get(email__iexact=email)    #Поиск зарегистрированного пользователя по email
+                order.user = user
+            except User.DoesNotExist:
+                pass    #Если пользователь не найден, order.user останется None (или значением по умолчанию)
+        if commit:
+            order.save()
+        return order
+
