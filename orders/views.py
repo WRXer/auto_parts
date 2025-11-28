@@ -1,34 +1,56 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import CreateOrderForm
+from carts.cart import Cart
+from .models import Order, OrderItem
 
 
-def order_history(request):
-    """Представление для отображения истории заказов пользователя."""
-    return HttpResponse("Orders Application: Order History Placeholder")
-
-
-def checkout(request):
-    """Представление оформления заказа."""
-    return HttpResponse("Orders Application: Checkout Placeholder")
-
-
-# ИСПРАВЛЕННАЯ ФУНКЦИЯ create_order
 def create_order(request):
-    """Обрабатывает отображение формы заказа (GET) и отправку заказа (POST)."""
+    """
+    Обрабатывает отображение формы заказа (GET) и создание заказа (POST),
+    используя стандартный полный рендеринг страницы.
+    """
+    cart = Cart(request)
+    if not cart:
+        messages.error(request, "Ваша корзина пуста. Невозможно оформить заказ.")
+        return redirect('carts:cart_detail')
 
     if request.method == 'POST':
-        # Здесь должна быть логика обработки формы, валидации и сохранения заказа
+        form = CreateOrderForm(request.POST)
+        if form.is_valid():
+            try:
+                order = form.save()
+                for item in cart:
+                    OrderItem.objects.create(
+                        order=order,
+                        part=item['part'],
+                        price=item['price'],
+                        quantity=item['quantity']
+                    )
+                cart.clear()
+                messages.success(request, f"Заказ №{order.id} успешно оформлен!")
+                return redirect('orders:order_success', order_id=order.id)
 
-        # Пример: имитация успешного оформления заказа
-        # return redirect('orders:order_confirmation')
-        return HttpResponse("Заказ успешно оформлен! Спасибо.")
+            except Exception as e:
+                error_message = f"Критическая ошибка при оформлении заказа. Детали: {e}"
+                messages.error(request, error_message)
+                print(f"ERROR: Order creation failed - {e}")    #В случае ошибки базы данных или других сбоев
+                return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем страницу с формой и ошибкой
+        else:
+            messages.error(request, "Пожалуйста, исправьте ошибки в форме.")    #Невалидная форма (ошибки валидации)
+            return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем страницу с формой и ошибками
+    else:
+        form = CreateOrderForm()
+        return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем полный шаблон формы
 
-    # Обработка GET-запроса: отображение формы.
-    # Третий аргумент должен быть словарем контекста (даже если он пустой).
+def order_success(request, order_id):
+    """
+    Отображает страницу с подтверждением заказа.
+    """
+    order = get_object_or_404(Order, id=order_id)
+    items = order.items.all()
     context = {
-        # 'cart_items': current_cart.items, # Здесь вы будете передавать данные корзины
-        'current_user': request.user,
+        'order': order,
+        'items': items,
     }
-
-    # ИСПРАВЛЕНИЕ: Вместо return render(request, '...', request)
-    return render(request, 'orders/create_order.html', context)
+    return render(request, 'orders/success.html', context)
