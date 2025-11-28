@@ -86,7 +86,7 @@
 
                     <div class="d-grid gap-2 pt-4">
                         <button type="submit" class="btn btn-success btn-lg">
-                            Подтвердить и оформить заказ ({{ cart.get_total_price|floatformat:0 }} ₽)
+                            Подтвердить и оформить заказ ({{ cart.get_total_price}} ₽)
                         </button>
                         <a href="{% url 'carts:cart_detail' %}" class="btn btn-outline-secondary">
                             Назад в корзину
