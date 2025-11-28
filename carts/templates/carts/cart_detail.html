@@ -3,6 +3,10 @@
 
 {% block content %}
 
+
+<link rel="stylesheet" href="{% static 'deps/css/modal_styles.css' %}">
+
+
 <main class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -89,15 +93,10 @@
                                     </div>
                                     <div class="d-grid gap-2">
                                         <a href="{% url 'index' %}" class="btn btn-outline-secondary">Продолжить покупки</a>
-
-                                        <button type="button"
-                                                class="btn btn-success btn-lg"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#orderModal"
-                                                id="open-order-modal-btn"
-                                                data-load-url="{% url 'orders:create_order' %}">
+                                        <a href="{% url 'orders:create_order' %}"
+                                           class="btn btn-success btn-lg">
                                             Оформить заказ
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -109,145 +108,5 @@
     </div>
 </main>
 
-<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderModalLabel">Оформление заказа</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <!-- Контент будет загружаться сюда -->
-            <div class="modal-body" id="order-modal-content">
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Загрузка данных заказа...</p>
-                </div>
-            </div>
-            <!-- Футер, если нужен, можно оставить пустым или удалить -->
-            <div class="modal-footer d-none">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const orderModal = document.getElementById('orderModal');
-        const modalContentArea = document.getElementById('order-modal-content');
-        const openModalBtn = document.getElementById('open-order-modal-btn');
-        const orderUrl = openModalBtn ? openModalBtn.getAttribute('data-load-url') : null;
-
-        if (!orderModal || !orderUrl) {
-            console.error("Не найдены необходимые элементы DOM или URL для оформления заказа.");
-            return;
-        }
-
-        // 1. Загрузка формы при открытии модального окна
-        orderModal.addEventListener('show.bs.modal', function (event) {
-            // Устанавливаем состояние загрузки
-            modalContentArea.innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Загрузка...</span></div>
-                    <p class="mt-2 text-muted">Загрузка данных заказа...</p>
-                </div>
-            `;
-
-            // Выполняем AJAX GET-запрос для получения содержимого формы
-            fetch(orderUrl, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Ошибка сети или сервера при загрузке формы.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.modal_html) {
-                    modalContentArea.innerHTML = data.modal_html;
-                    // После загрузки контента, прикрепляем обработчик отправки формы
-                    attachFormSubmitHandler();
-                } else if (data.error) {
-                    modalContentArea.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error("Ошибка при загрузке модального окна:", error);
-                modalContentArea.innerHTML = `<div class="alert alert-danger">Не удалось загрузить форму заказа. ${error.message}</div>`;
-            });
-        });
-
-        // 2. Обработка отправки формы внутри модального окна (AJAX POST)
-        function attachFormSubmitHandler() {
-            const form = document.getElementById('order-form-modal');
-            const submitBtn = document.getElementById('submit-order-btn');
-
-            if (!form || !submitBtn) return;
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Включаем индикатор загрузки
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Оформление...';
-
-                // Сбор данных формы
-                const formData = new FormData(form);
-                const csrfToken = formData.get('csrfmiddlewaretoken');
-
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': csrfToken // Передаем токен вручную
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    // Обработка успешного ответа (200 OK) или ошибки (400 Bad Request)
-                    return response.json().then(data => ({
-                        status: response.status,
-                        body: data
-                    }));
-                })
-                .then(({ status, body }) => {
-                    if (status === 200 && body.success && body.redirect_url) {
-                        // Успешное оформление: редирект
-                        window.location.href = body.redirect_url;
-                    } else if (status === 400 && body.modal_html) {
-                        // Ошибки валидации: перерисовываем модальное окно с ошибками
-                        modalContentArea.innerHTML = body.modal_html;
-                        // Повторно прикрепляем обработчик к новой форме
-                        attachFormSubmitHandler();
-                    } else {
-                        // Прочие ошибки
-                         throw new Error(body.error || 'Неизвестная ошибка при оформлении заказа.');
-                    }
-                })
-                .catch(error => {
-                    console.error("Ошибка при отправке заказа:", error);
-                    // Выводим общую ошибку
-                    document.getElementById('form-errors-alert').innerHTML = `<div class="alert alert-danger mt-3">${error.message}</div>`;
-                })
-                .finally(() => {
-                    // Сбрасываем состояние кнопки, если не было редиректа
-                    if (submitBtn.disabled) {
-                         submitBtn.disabled = false;
-                         submitBtn.innerHTML = 'Подтвердить и оформить';
-                    }
-                });
-            });
-        }
-    });
-
-</script>
 <script src="{% static 'deps/js/part_modal.js' %}"></script>
 {% endblock content %}

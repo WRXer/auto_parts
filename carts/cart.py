@@ -1,4 +1,3 @@
-from decimal import Decimal
 from django.conf import settings
 from spare_parts.models import Part
 
@@ -35,7 +34,6 @@ class Cart:
         """
         Помечает сессию как измененную для сохранения.
         """
-        self.session[settings.CART_SESSION_ID] = self.cart
         self.session.modified = True
 
     def remove(self, part):
@@ -58,7 +56,7 @@ class Cart:
             cart[str(part.id)]['part'] = part    #Добавляем объект Part под ключом 'part'
 
         for item in cart.values():
-            item['price'] = Decimal(item['price'])
+            item['price'] = item['price']
             item['total_price'] = item['price'] * item['quantity']
             yield item
 
@@ -72,18 +70,26 @@ class Cart:
         """
         Возвращает общее количество товаров (сумму всех quantity).
         """
-        return sum(item['quantity'] for item in self.cart.values())
+        return self.__len__()
+
+    def get_unique_count(self):
+        """
+        Возвращает количество уникальных товарных позиций (строк) в корзине.
+        """
+        return len(self.cart)
 
     def get_total_price(self):
         """
         Вычисляет общую стоимость всех товаров.
         """
-        return sum(Decimal(item['price']) * item['quantity']
-                   for item in self.cart.values())
+        total = sum(item['price'] * item['quantity']
+                    for item in self.cart.values())
+        return total
 
     def clear(self):
         """
         Очищает корзину.
         """
-        del self.session[settings.CART_SESSION_ID]
-        self.save()
+        if settings.CART_SESSION_ID in self.session:
+            del self.session[settings.CART_SESSION_ID]
+            self.session.modified = True
