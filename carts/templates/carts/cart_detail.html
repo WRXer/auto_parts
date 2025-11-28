@@ -93,10 +93,12 @@
                                     </div>
                                     <div class="d-grid gap-2">
                                         <a href="{% url 'index' %}" class="btn btn-outline-secondary">Продолжить покупки</a>
-                                        <a href="{% url 'orders:create_order' %}"
-                                           class="btn btn-success btn-lg">
+                                        <button type="button"
+                                                class="btn btn-success btn-lg"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#orderModal">
                                             Оформить заказ
-                                        </a>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -108,5 +110,12 @@
     </div>
 </main>
 
+{% include 'orders/create_order_modal.html' %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+
+<script src="{% static 'deps/js/validation_address_order.js' %}"></script>
 <script src="{% static 'deps/js/part_modal.js' %}"></script>
+
 {% endblock content %}

@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from orders.forms import CreateOrderForm
 from spare_parts.models import Part
 from .cart import Cart
 from .forms import CartAddPartForm
@@ -49,6 +50,9 @@ def cart_detail(request):
     """
     Отображает содержимое корзины.
     """
-    cart = Cart(request)
+    context = {
+        'cart': Cart(request),
+        'form': CreateOrderForm(),
+    }
 
-    return render(request, 'carts/cart_detail.html', {'cart': cart})
+    return render(request, 'carts/cart_detail.html', context)

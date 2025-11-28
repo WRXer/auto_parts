@@ -3,6 +3,7 @@ from django.contrib import messages
 from .forms import CreateOrderForm
 from carts.cart import Cart
 from .models import Order, OrderItem
+from django.http import JsonResponse
 
 
 def create_order(request):
@@ -28,20 +29,22 @@ def create_order(request):
                         quantity=item['quantity']
                     )
                 cart.clear()
-                messages.success(request, f"Заказ №{order.id} успешно оформлен!")
-                return redirect('orders:order_success', order_id=order.id)
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': f'/orders/success/{order.id}/'  # Или используйте reverse в коде
+                })
 
             except Exception as e:
-                error_message = f"Критическая ошибка при оформлении заказа. Детали: {e}"
-                messages.error(request, error_message)
-                print(f"ERROR: Order creation failed - {e}")    #В случае ошибки базы данных или других сбоев
-                return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем страницу с формой и ошибкой
+                return JsonResponse({
+                    'success': False,
+                    'error_message': f'Ошибка создания заказа: {str(e)}'
+                })
         else:
-            messages.error(request, "Пожалуйста, исправьте ошибки в форме.")    #Невалидная форма (ошибки валидации)
-            return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем страницу с формой и ошибками
-    else:
-        form = CreateOrderForm()
-        return render(request, 'orders/create_order.html', {'cart': cart, 'form': form})    #Возвращаем полный шаблон формы
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            })
+    return redirect('carts:cart_detail')
 
 def order_success(request, order_id):
     """

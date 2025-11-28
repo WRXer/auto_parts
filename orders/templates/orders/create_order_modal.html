@@ -1,0 +1,93 @@
+{% load static %}
+
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0">
+            <div class="modal-header border-0 pb-0">
+                <h1 class="modal-title fs-4 fw-bold" id="orderModalLabel">Оформление заказа</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="container-fluid">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <h5 class="text-dark border-bottom pb-2 mb-3">Данные покупателя</h5>
+
+                            <form id="order-form-modal" action="{% url 'orders:create_order' %}" method="post">
+                                {% csrf_token %}
+
+                                <div id="modal-global-errors" class="alert alert-danger d-none"></div>
+
+                                {% for field in form %}
+                                    {% if field.name == 'requires_delivery' %}
+                                        <div class="mb-3 form-check">
+                                            {{ field }}
+                                            <label class="form-check-label" for="{{ field.id_for_label }}">
+                                                {{ field.label }}
+                                            </label>
+                                            <div class="invalid-feedback" id="error-{{ field.name }}"></div>
+                                        </div>
+                                    {% else %}
+                                        <div class="mb-3" id="container-{{ field.name }}">
+                                            <label for="{{ field.id_for_label }}" class="form-label fw-bold small text-muted">
+                                                {{ field.label }}
+                                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                            </label>
+
+                                            {{ field }}
+
+                                            {% if field.help_text %}
+                                                <div class="form-text">{{ field.help_text }}</div>
+                                            {% endif %}
+
+                                            <div class="invalid-feedback" id="error-{{ field.name }}"></div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </form>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <h5 class="text-dark border-bottom pb-2 mb-3">Ваш заказ</h5>
+                            <div class="list-group list-group-flush border rounded-3 overflow-auto shadow-sm" style="max-height: 400px;">
+                                {% for item in cart %}
+                                    {% with part=item.part %}
+                                        <div class="list-group-item d-flex align-items-center justify-content-between p-3">
+                                            <div class="d-flex align-items-center">
+                                                {% with image=part.get_main_image_source %}
+                                                    <img src="{% if image %}{{ image }}{% else %}{% static 'deps/images/default_part_image.png' %}{% endif %}"
+                                                         alt="{{ part.title }}"
+                                                         class="rounded me-3 border"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% endwith %}
+                                                <div>
+                                                    <div class="fw-bold text-truncate" style="max-width: 200px;">{{ part.title }}</div>
+                                                    <div class="text-muted small">
+                                                        {{ item.quantity }} шт. x {{ item.price|floatformat:0 }} ₽
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="fw-bold text-end text-dark">{{ item.total_price|floatformat:0 }} ₽</span>
+                                        </div>
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center p-3 mt-3 bg-light rounded-3 shadow-sm">
+                                <span class="fw-bold fs-5">Итого:</span>
+                                <span class="fw-bolder fs-3 text-dark">{{ cart.get_total_price }} ₽</span>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="button" class="btn btn-success btn-lg shadow-sm" id="submit-order-btn">
+                                    Подтвердить и оформить заказ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
