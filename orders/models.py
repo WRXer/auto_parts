@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from spare_parts.models import Part
-from decimal import Decimal
 
 
 User = get_user_model()
@@ -10,7 +9,7 @@ User = get_user_model()
 
 class OrderItemQueryset(models.QuerySet):
     def total_price(self):
-        return sum(Decimal(item['price']) * item['quantity']
+        return sum(item['price'] * item['quantity']
                    for item in self.cart.values())
 
     def total_quantity(self):
@@ -52,6 +51,12 @@ class Order(models.Model):
         verbose_name_plural = "Заказы"
         ordering = ('-created_timestamp',)
 
+    def get_total_price(self):
+        """
+        Суммирует стоимость всех позиций в заказе.
+        """
+        return sum(item.price * item.quantity for item in self.items.all())
+
     def __str__(self):
         return f"Заказ №{self.pk} от {self.first_name}{self.last_name} ({self.status})"
 
@@ -75,4 +80,4 @@ class OrderItem(models.Model):
     objects = OrderItemQueryset.as_manager()
 
     def __str__(self):
-        return f"{self.product_name} ({self.quantity} шт.) в Заказе №{self.order.pk}"
+        return f"{self.name} ({self.quantity} шт.) в Заказе №{self.order.pk}"
