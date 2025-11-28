@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.template.loader import render_to_string
 from .forms import CreateOrderForm
 from carts.cart import Cart
 from .models import Order, OrderItem
@@ -29,9 +30,15 @@ def create_order(request):
                         quantity=item['quantity']
                     )
                 cart.clear()
+
+                success_modal_html = render_to_string(
+                    'orders/success_order_modal.html',
+                    {'order': order},
+                    request=request
+                )
                 return JsonResponse({
                     'success': True,
-                    'redirect_url': f'/orders/success/{order.id}/'  # Или используйте reverse в коде
+                    'modal_html': success_modal_html    #Отправляем HTML клиенту
                 })
 
             except Exception as e:

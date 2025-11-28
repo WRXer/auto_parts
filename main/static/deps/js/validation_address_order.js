@@ -38,7 +38,28 @@ $(document).ready(function () {
             data: data,
             success: function(response) {
                 if (response.success) {
-                    window.location.href = response.redirect_url;
+
+                    // 1. Закрываем модальное окно оформления заказа
+                    $('#orderModal').modal('hide');
+
+                    // 2. Удаляем старое модальное окно успеха, если оно вдруг есть (чтобы не дублировать)
+                    $('#orderSuccessModal').remove();
+
+                    // 3. Вставляем полученный HTML в конец body
+                    $('body').append(response.modal_html);
+
+                    // 4. Инициализируем и показываем новое модальное окно
+                    var successModal = new bootstrap.Modal(document.getElementById('orderSuccessModal'));
+                    successModal.show();
+
+                    // 5. ОПЦИОНАЛЬНО: Когда пользователь закроет окно успеха или перейдет на главную,
+                    // корзина на фоне должна обновиться (стать пустой).
+                    // Самый простой способ - перезагрузить страницу при закрытии модалки:
+                    var modalEl = document.getElementById('orderSuccessModal');
+                    modalEl.addEventListener('hidden.bs.modal', function (event) {
+                         window.location.reload(); // или window.location.href = "{% url 'index' %}";
+                    });
+
                 } else {
                     // Ошибки полей
                     if (response.errors) {
