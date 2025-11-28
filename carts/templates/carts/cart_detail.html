@@ -10,7 +10,7 @@
 <main class="container py-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="p-4 rounded-4 shadow-lg" style="background-color: rgba(211, 211, 211, 0.95);">
+            <div class="p-1 p-lg-4 rounded-4 shadow-lg" style="background-color: rgba(211, 211, 211, 0.95);">
                 <h1 class="mb-4 text-dark">Ваша корзина</h1>
 
                 {% if not cart %}
@@ -62,7 +62,7 @@
                                                 </div>
                                             </div>
                                             <div class="text-end ms-3">
-                                                <div class="fw-bold fs-5">{{ item.total_price|floatformat:0 }} ₽</div>
+                                                <div class="fw-bold fs-5">{{ item.total_price|floatformat:0 }}&nbsp;₽</div>
                                                 <form action="{% url 'carts:cart_remove' part.pk %}" method="post" class="mt-2">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить товар">
