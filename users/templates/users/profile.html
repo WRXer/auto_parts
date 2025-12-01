@@ -47,28 +47,6 @@
                                     {% endif %}
                                 </h4>
 
-                                {% if mode == 'edit' %}
-                                    <form method="post" enctype="multipart/form-data">
-                                        {% csrf_token %}
-
-                                        {% if form %}
-                                            {{ form.as_p }}
-                                        {% else %}
-                                            <div class="alert alert-danger" role="alert">
-                                                Ошибка: Форма профиля не была инициализирована.
-                                            </div>
-                                        {% endif %}
-
-                                        <button type="submit" class="btn btn-success mt-3 w-100">
-                                            <i class="fas fa-save me-1"></i> Сохранить изменения
-                                        </button>
-                                        <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary mt-2 w-100">
-                                            Отмена
-                                        </a>
-                                    </form>
-
-                                {% else %}
-
                                     <dl class="row">
                                         <dt class="col-sm-4 text-muted">Имя:</dt>
                                         <dd class="col-sm-8">{{ user.first_name|default:"Не указано" }}</dd>
@@ -88,7 +66,6 @@
                                             <i class="fas fa-edit me-1"></i> Редактировать
                                         </a>
                                     </div>
-                                {% endif %}
 
                             </div>
                         </div>
