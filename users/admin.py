@@ -13,7 +13,7 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ('is_active', 'role', 'is_staff')
 
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'phone')}),
+        (None, {'fields': ('email', 'phone')}),
         ('Персональная информация', {'fields': ('first_name', 'last_name', 'role', 'image')}),
         ('Права доступа', {'fields': ('is_active', 'is_staff', 'groups', 'user_permissions')}),
         ('Важные даты', {'fields': ('last_login', 'date_joined')}),
@@ -22,7 +22,7 @@ class CustomUserAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone', 'first_name', 'last_name', 'password1', 'password2', 'role', 'is_staff', 'is_active'),
+            'fields': ('email', 'phone', 'first_name', 'last_name',  'role', 'is_staff', 'is_active'),
         }),
     )
 
