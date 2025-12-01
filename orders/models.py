@@ -22,13 +22,16 @@ class OrderItemQueryset(models.QuerySet):
 class Order(models.Model):
     STATUS_NEW = 'NEW'
     STATUS_PROCESSING = 'PRC'
+    STATUS_PAY = 'PAY'
     STATUS_SHIPPED = 'SHP'
     STATUS_COMPLETED = 'CMP'
     STATUS_CANCELED = 'CNC'
 
+
     STATUS_CHOICES = [
         (STATUS_NEW, 'Новый'),
         (STATUS_PROCESSING, 'В обработке'),
+        (STATUS_PAY, 'Ожидает оплаты'),
         (STATUS_SHIPPED, 'Отправлен'),
         (STATUS_COMPLETED, 'Выполнен'),
         (STATUS_CANCELED, 'Отменен'),
