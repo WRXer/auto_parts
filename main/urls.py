@@ -20,6 +20,6 @@ urlpatterns = [
     path('', IndexListView.as_view(), name='index'),
     path('about/', views.about, name='about'),
     path('contacts/', views.contacts, name='contacts'),
-    path('delivery/', views.contacts, name='delivery'),
+    path('delivery/', views.delivery, name='delivery'),
     path('payment/', views.contacts, name='payment'),
     ]
