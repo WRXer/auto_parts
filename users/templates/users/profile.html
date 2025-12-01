@@ -1,39 +1,193 @@
 {% extends 'main/base.html' %}
-
-
+{% load static %}
 
 {% block content %}
-<main class="container py-5">
+
+<link rel="stylesheet" href="{% static 'deps/css/profile_styles.css' %}">
+
+<main class="container text-dark py-5 rounded-4 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-lg-10 col-xl-12">
             <h2 class="text-center mb-4">Личный кабинет</h2>
-            
-            <div class="card p-4">
-                <h4 class="card-title">Ваши данные</h4>
-                
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
 
-                    {% if user.image %}
-                    <div class="mb-3 text-center">
-                        <img src="{{ user.image.url }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <ul class="nav nav-pills flex-column shadow-sm p-3 rounded-3 bg-light" id="profileTabs" role="tablist">
+
+                        <li class="nav-item mb-2" role="presentation">
+                            <button class="nav-link active w-100 text-start" id="data-tab" data-bs-toggle="tab" data-bs-target="#data-content" type="button" role="tab" aria-controls="data-content" aria-selected="true">
+                                <i class="fas fa-user me-2"></i> Мои данные
+                            </button>
+                        </li>
+
+                        <li class="nav-item mb-2" role="presentation">
+                            <button class="nav-link w-100 text-start" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders-content" type="button" role="tab" aria-controls="orders-content" aria-selected="false">
+                                <i class="fas fa-box-open me-2"></i> Мои заказы
+                            </button>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a href="{% url 'users:password_change' %}" class="nav-link w-100 text-start" aria-label="Изменить пароль">
+                                <i class="fas fa-key me-2"></i> Пароль
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="tab-content" id="profileTabsContent">
+
+                        <div class="tab-pane fade show active" id="data-content" role="tabpanel" aria-labelledby="data-tab">
+                            <div class="card p-4 shadow-sm">
+                                <h4 class="card-title mb-3">
+                                    {% if mode == 'edit' %}
+                                        Редактирование профиля
+                                    {% else %}
+                                        Просмотр данных
+                                    {% endif %}
+                                </h4>
+
+                                {% if mode == 'edit' %}
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+
+                                        {% if form %}
+                                            {{ form.as_p }}
+                                        {% else %}
+                                            <div class="alert alert-danger" role="alert">
+                                                Ошибка: Форма профиля не была инициализирована.
+                                            </div>
+                                        {% endif %}
+
+                                        <button type="submit" class="btn btn-success mt-3 w-100">
+                                            <i class="fas fa-save me-1"></i> Сохранить изменения
+                                        </button>
+                                        <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary mt-2 w-100">
+                                            Отмена
+                                        </a>
+                                    </form>
+
+                                {% else %}
+
+                                    <dl class="row">
+                                        <dt class="col-sm-4 text-muted">Имя:</dt>
+                                        <dd class="col-sm-8">{{ user.first_name|default:"Не указано" }}</dd>
+
+                                        <dt class="col-sm-4 text-muted">Фамилия:</dt>
+                                        <dd class="col-sm-8">{{ user.last_name|default:"Не указано" }}</dd>
+
+                                        <dt class="col-sm-4 text-muted">Email:</dt>
+                                        <dd class="col-sm-8">{{ user.email|default:"Не указано" }}</dd>
+
+                                        <dt class="col-sm-4 text-muted">Телефон:</dt>
+                                        <dd class="col-sm-8">{{ user.phone|default:"Не указано" }}</dd>
+                                    </dl>
+
+                                    <div class="d-flex justify-content-end">
+                                        <a href="{% url 'users:profile_edit' %}" class="btn btn-success mt-3">
+                                            <i class="fas fa-edit me-1"></i> Редактировать
+                                        </a>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="orders-content" role="tabpanel" aria-labelledby="orders-tab">
+                            <div class="card p-4 shadow-sm">
+                                <h4 class="card-title mb-3">Список заказов</h4>
+
+                                {% if orders %}
+                                    <div class="accordion" id="ordersAccordion">
+                                        {% for order in orders %}
+                                            <div class="accordion-item mb-3 rounded-3 shadow-sm border">
+                                                <h2 class="accordion-header" id="heading-{{ order.id }}">
+                                                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} p-3"
+                                                            type="button"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#collapse-{{ order.id }}"
+                                                            aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                                                            aria-controls="collapse-{{ order.id }}">
+
+                                                        <div class="d-flex justify-content-between w-100 pe-3">
+                                                            <div class="fw-bold text-dark me-4">
+                                                                #{{ order.id }} &middot;
+                                                                {% if order.delivery_address %}
+                                                                    {{ order.delivery_address }}
+                                                                {% else %}
+                                                                    Самовывоз
+                                                                {% endif %}
+                                                            </div>
+
+                                                            <div class="d-flex align-items-center">
+                                                                <span class="fw-bold text-dark me-4">{{ order.get_total_price|floatformat:0 }} ₽</span>
+                                                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                </h2>
+
+                                                <div id="collapse-{{ order.id }}"
+                                                     class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                                                     aria-labelledby="heading-{{ order.id }}"
+                                                     data-bs-parent="#ordersAccordion">
+
+                                                    <div class="accordion-body p-3">
+                                                        <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
+
+                                                        <ul class="list-unstyled">
+                                                            {% for item in order.items.all %}
+                                                                <li class="d-flex align-items-center mb-2 pb-2 border-bottom">
+
+                                                                    {% with image_url=item.part.get_main_image_source %}
+                                                                        {% if item.part and image_url %}
+                                                                            <img src="{{ image_url }}" alt="{{ item.name }}"
+                                                                                 class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                        {% else %}
+                                                                            <i class="fas fa-box-open fa-2x me-3 text-secondary" style="width: 50px; height: 50px;"></i>
+                                                                        {% endif %}
+                                                                    {% endwith %}
+
+                                                                    <div class="d-flex flex-column flex-grow-1 me-3">
+                                                                        <div class="d-flex justify-content-between align-items-center">
+                                                                            <a href="#"
+                                                                               data-url="{% url 'spare_parts:part_detail_modal_in_cart' item.part.pk %}"
+                                                                               class="text-dark fw-bold text-decoration-none js-open-part-modal me-2"
+                                                                               style="cursor: pointer;">
+                                                                                {{ item.name|default:"Название не указано" }}
+                                                                            </a>
+                                                                            <div class="fw-normal text-muted text-end fs-7 flex-shrink-0">
+                                                                                {{ item.quantity }}&nbsp;шт. &times; {{ item.price|floatformat:0 }} ₽
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning text-center" role="alert">
+                                        У вас пока нет активных или завершенных заказов.
+                                    </div>
+                                {% endif %}
+
+                                <div class="mt-3 text-center">
+                                     <a href="{% url 'index' %}" class="btn btn-success">Перейти к покупкам</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    {% endif %}
+                </div>
 
-                    {{ form.as_p }}
-                    
-                    <button type="submit" class="btn btn-success mt-3 w-100">Сохранить изменения</button>
-                </form>
             </div>
-
-            <div class="card p-4 mt-4">
-                <h4 class="card-title">Пароль</h4>
-                <p>
-                    <a href="{% url 'users:password_change' %}" class="btn btn-outline-secondary">Изменить пароль</a>
-                </p>
-            </div>
-            
         </div>
     </div>
 </main>
+
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
+
 {% endblock %}

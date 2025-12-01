@@ -11,4 +11,10 @@ class CustomUserCreationForm(UserCreationForm):
 class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
-        fields = ('email', 'phone', 'first_name', 'last_name', 'role', 'is_active', 'is_staff')
+        fields = ('phone', 'first_name', 'last_name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Если поле 'password' присутствует в self.fields, удаляем его
+        if 'password' in self.fields:
+            del self.fields['password']
