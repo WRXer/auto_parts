@@ -1,0 +1,103 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'deps/css/profile_styles.css' %}">
+
+<main class="container text-dark py-5 rounded-4 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-12">
+            <h2 class="text-center mb-4">Личный кабинет</h2>
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <ul class="nav nav-pills flex-column shadow-sm p-3 rounded-3 bg-light" id="profileTabs" role="tablist">
+
+                        <li class="nav-item mb-2" role="presentation">
+                            <a href="{% url 'users:profile' %}" class="nav-link active w-100 text-start" aria-label="Мои данные">
+                                <i class="fas fa-user me-2"></i> Мои данные
+                            </a>
+                        </li>
+
+                        <li class="nav-item mb-2" role="presentation">
+                            <a href="{% url 'users:profile' %}#tab=orders" class="nav-link w-100 text-start" aria-label="Мои заказы">
+                                <i class="fas fa-box-open me-2"></i> Мои заказы
+                            </a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a href="{% url 'users:password_change' %}" class="nav-link w-100 text-start" aria-label="Изменить пароль">
+                                <i class="fas fa-key me-2"></i> Пароль
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="card-title mb-5">Редактирование профиля</h4>
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% if form %}
+
+                                <div class="row g-3">
+
+                                    <div class="col-12 form-group row mb-4">
+                                        <label for="{{ form.first_name.id_for_label }}" class="col-sm-4 col-form-label text-md-end text-start fw-bold">Имя:</label>
+                                        <div class="col-sm-8">
+                                            {{ form.first_name }}
+                                            {% if form.first_name.errors %}{{ form.first_name.errors }}{% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 form-group row mb-4">
+                                        <label for="{{ form.last_name.id_for_label }}" class="col-sm-4 col-form-label text-md-end text-start fw-bold">Фамилия:</label>
+                                        <div class="col-sm-8">
+                                            {{ form.last_name }}
+                                            {% if form.last_name.errors %}{{ form.last_name.errors }}{% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 form-group row mb-4">
+                                        <label for="{{ form.phone.id_for_label }}" class="col-sm-4 col-form-label text-md-end text-start fw-bold">Телефон:</label>
+                                        <div class="col-sm-8">
+                                            {{ form.phone }}
+                                            {% if form.phone.errors %}{{ form.phone.errors }}{% endif %}
+                                            {% if form.phone.help_text %}<small class="text-muted">{{ form.phone.help_text }}</small>{% endif %}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                {% else %}
+                                <div class="alert alert-danger" role="alert">
+                                    Ошибка: Форма профиля не была передана для редактирования.
+                                </div>
+                            {% endif %}
+
+                            {% if form.non_field_errors %}
+                                <div class="alert alert-danger mt-3">
+                                    {{ form.non_field_errors }}
+                                </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-success mt-3 w-100">
+                                <i class="fas fa-save me-1"></i> Сохранить изменения
+                            </button>
+                            <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary mt-2 w-100">
+                                Отмена
+                            </a>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

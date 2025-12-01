@@ -1,4 +1,5 @@
 from django.contrib.messages import get_messages
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.sites.shortcuts import get_current_site
@@ -8,7 +9,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import login
 from django.contrib import messages
 from config import settings
-from .forms import CustomUserCreationForm
+from orders.models import Order
+from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import User
 
 
@@ -63,12 +65,55 @@ class ProfileView(View):
         if not request.user.is_authenticated:
             return redirect('users:login')
 
+        user = request.user
+        user_email = user.email
+        orders = Order.objects.filter(
+            Q(user=user) | Q(email=user_email)
+        ).distinct().order_by('-created_timestamp')
         context = {
-            'user': request.user,
+            'user': user,
+            'orders': orders,
             'title': 'Мой профиль'
         }
         return render(request, 'users/profile.html', context)
 
+
+class ProfileEditView(View):
+    """
+    Профиль Редактирование данных.
+    """
+    def get(self, request):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+
+        user = request.user
+        form = CustomUserChangeForm(instance=user)
+        context = {
+            'user': user,
+            'form': form,
+            'title': 'Редактирование профиля'
+        }
+        return render(request, 'users/profile_edit.html', context)  # ❗ Новый шаблон!
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return redirect('users:login')
+
+        user = request.user
+        form = CustomUserChangeForm(request.POST, request.FILES, instance=user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Данные профиля успешно обновлены!')
+            return redirect('users:profile')    #Перенаправляем обратно на просмотр
+
+        messages.error(request, 'Пожалуйста, проверьте ошибки в форме.')
+        context = {
+            'user': user,
+            'form': form,
+            'title': 'Редактирование профиля'
+        }
+        return render(request, 'users/profile_edit.html', context)
 
 class ActivateView(View):
     def get(self, request, uidb64, token):
