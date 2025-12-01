@@ -28,3 +28,6 @@ def contacts(request):
 
 def delivery(request):
     return render(request, 'main/delivery.html')
+
+def payment(request):
+    pass
