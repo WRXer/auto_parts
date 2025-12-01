@@ -1,7 +1,88 @@
 {% extends 'main/base.html' %}
 {% load static %}
+
 {% block content %}
 
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
 
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+                <h1 class="card-title text-center mb-4 fw-bold text-dark">
+                    <i class="fas fa-car-alt me-2"></i> Контакты CheapAutoParts 64
+                </h1>
+
+                <p class="lead text-center mb-5 text-muted">
+                    Мы всегда рады помочь вам в поиске нужных запчастей и решении других автомобильных вопросов. Свяжитесь с нами любым удобным способом!
+                </p>
+
+                <hr class="mb-4">
+
+                <section class="mb-5">
+                    <h2 class="h5 fw-bold mb-3 text-dark text-center">
+                        <i class="fas fa-map-marker-alt me-2 text-danger"></i> Адрес нашего склада
+                    </h2>
+                    <div class="d-flex justify-content-center">
+                        <iframe
+                            src="https://yandex.ru/map-widget/v1/?um=constructor%3A6b505a81e85bb3f777cee104dc8d6535293e4d2e9f7a1f94ad80a600eac97241&amp;source=constructor"
+                            width="800"
+                            height="400"
+                            frameborder="0"
+                            style="max-width: 100%;" >
+                        </iframe>
+                    </div>
+                    <p class="mb-0 fs-5">
+                        Саратовская область, г. Энгельс, поселок Новопушкинское, бульвар Вавилова, 4
+                    </p>
+                    <a href="https://yandex.ru/maps/11145/engels/?ll=46.100913%2C51.493922&mode=routes&rtext=~Саратовская+область%2C+г.+Энгельс%2C+поселок+Новопушкинское%2C+бульвар+Вавилова%2C+4&rtt=auto&ruri=~ymaps%3A%2F%2Fgeo%3Fll%3D46.100%2C51.493%26spn%3D0.1%2C0.1%26text%3D%25D0%25A1%25D0%25B0%25D1%2580%25D0%25B0%25D1%2582%25D0%25BE%25D0%25B2%25D1%2581%25D0%25BA%25D0%25B0%25D1%258F%2520%25D0%25BE%25D0%25B1%25D0%25BB%25D0%25B0%25D1%2581%25D1%2582%25D1%258C%252C%2520%25D0%25B3.%2520%25D0%25AD%25D0%25BD%25D0%25B3%25D0%25B5%25D0%25BB%25D1%258C%25D1%2581%252C%2520%25D0%25BF%25D0%25BE%25D1%2581%25D0%25B5%25D0%25BB%25D0%25BE%25D0%25BA%2520%25D0%259D%25D0%25BE%25D0%25B2%25D0%25BE%25D0%25BF%25D1%2583%25D1%2588%25D0%25BA%25D0%25B8%25D0%25BD%25D1%2581%25D0%25BA%25D0%25BE%25D0%25B5%252C%2520%25D0%25B1%25D1%2583%25D0%25BB%25D1%258C%25D0%25B2%25D0%25B0%25D1%2580%2520%25D0%2592%25D0%25B0%25D0%25B2%25D0%25B8%25D0%25BB%25D0%25BE%25D0%25B2%25D0%25B0%252C%25204&z=17"
+                       target="_blank"
+                       class="btn btn-success btn-sm mt-3 mb-3 d-block d-md-inline-block">
+                       <i class="fas fa-route me-2"></i> Проложить маршрут
+                    </a>
+                    <small class="text-muted d-block mt-2 text-end">
+                        <strong class="text-danger ">*</strong>Пожалуйста, согласуйте время визита заранее.
+                    </small>
+                </section>
+
+                <hr class="mb-4">
+
+                <section class="mb-5">
+                    <h2 class="h5 fw-bold mb-3 text-dark">
+                        <i class="fas fa-phone me-2 text-success"></i> Телефоны для связи
+                    </h2>
+
+                    <div class="mb-4 ps-3 border-start border-3 border-success">
+                        <h3 class="h6 fw-bold text-success mb-1">Отдел запчастей:</h3>
+                        <ul class="list-unstyled mb-0">
+                            <li>Илья: <a href="tel:+79950946791" class="text-decoration-none fw-semibold text-dark">+7 (995) 094-67-91</a></li>
+                            <li>Валерий: <a href="tel:+79271196777" class="text-decoration-none fw-semibold text-dark">+7 (927) 119-67-77</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4 ps-3 border-start border-3 border-success">
+                        <h3 class="h6 fw-bold text-success mb-1">Выкуп битых автомобилей (по всей России):</h3>
+                        <p class="mb-0">
+                            Валерий: <a href="tel:+79271615839" class="text-decoration-none fw-semibold text-dark">+7 (927) 161-58-39</a>
+                        </p>
+                    </div>
+
+                    <div class="mb-0 ps-3 border-start border-3 border-success">
+                        <h3 class="h6 fw-bold text-success mb-1">Услуги эвакуатора (по Саратовской области):</h3>
+                        <p class="mb-0">
+                            Александр: <a href="tel:+79271015725" class="text-decoration-none fw-semibold text-dark">+7 (927) 101-57-25</a>
+                        </p>
+                    </div>
+                </section>
+
+                <hr class="mt-4 mb-4">
+
+                <p class="text-end text-muted">
+                    С уважением,<br>
+                    Команда CheapAutoParts 64
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
 
 {% endblock content %}
