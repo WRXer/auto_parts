@@ -1,7 +1,8 @@
-from django.http import HttpResponse
+import json
+import os
+from django.conf import settings
 from django.shortcuts import render
-from django.views.generic import TemplateView, ListView
-
+from django.views.generic import ListView
 from spare_parts.models import CarMake, DonorVehicle
 
 
@@ -19,6 +20,7 @@ class IndexListView(ListView):  # Или ваш существующий кла�
         return context
 
 def about(request):
+
     return render(request, 'main/about.html')
 
 def contacts(request):
