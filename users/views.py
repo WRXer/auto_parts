@@ -1,6 +1,7 @@
 from django.contrib.messages import get_messages
 from django.db.models import Q
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -8,6 +9,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import login
 from django.contrib import messages
+from django.views.decorators.http import require_http_methods
 from config import settings
 from orders.models import Order
 from .forms import CustomUserCreationForm, CustomUserChangeForm
@@ -71,13 +73,16 @@ class ProfileView(View):
             Q(user=user) | Q(email=user_email)
         ).distinct().order_by('-created_timestamp')
         all_orders = None
+        all_users = None
         if user.is_superuser:
             all_orders = Order.objects.all().order_by('-created_timestamp').select_related('user').prefetch_related(
                 'items')
+            all_users = User.objects.all().order_by('id')
         context = {
             'user': user,
             'orders': orders,
             'all_orders': all_orders,
+            'all_users': all_users,
             'title': 'Мой профиль'
         }
         return render(request, 'users/profile.html', context)
@@ -146,3 +151,25 @@ class ActivateView(View):
             # Если токен невалиден или просрочен
             messages.error(request, 'Ссылка активации недействительна или устарела.')
             return redirect('users:registration')  # Или на страницу с ошибкой
+
+
+@require_http_methods(["POST"])
+def update_user_status(request, user_id):
+    """
+    Обрабатывает AJAX-запрос на изменение статуса активности пользователя.
+    Требуется соответствующий URL-маршрут в users/urls.py.
+    """
+    if not request.user.is_superuser:    #Проверка прав администратора
+        return JsonResponse({'success': False, 'error': 'Доступ запрещен'}, status=403)
+    user_to_update = get_object_or_404(User, pk=user_id)
+
+    if user_to_update.is_superuser:     #Защита от блокировки самого себя
+        return JsonResponse({'success': False, 'error': 'Нельзя изменить статус суперпользователя.'}, status=400)
+    is_active_str = request.POST.get('is_active')
+    if is_active_str is None:
+        return JsonResponse({'success': False, 'error': 'Неверные данные'}, status=400)
+
+    new_status = is_active_str == 'True'
+    user_to_update.is_active = new_status    #Обновление статуса
+    user_to_update.save()
+    return JsonResponse({'success': True, 'is_active': new_status})

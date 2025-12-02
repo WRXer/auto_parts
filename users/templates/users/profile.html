@@ -32,6 +32,11 @@
                                 <i class="fas fa-clipboard-list me-2"></i> Обработка заказов
                             </button>
                         </li>
+                        <li class="nav-item mb-2" role="presentation">
+                            <button class="nav-link w-100 text-start" id="all-users-tab" data-bs-toggle="tab" data-bs-target="#all-users-content" type="button" role="tab" aria-controls="all-users-content" aria-selected="false">
+                                <i class="fas fa-users me-2"></i> Управление пользователями
+                            </button>
+                        </li>
                         {% endif %}
 
                         <li class="nav-item" role="presentation">
@@ -241,8 +246,7 @@
                                                                 {% if order.is_paid %} Оплачен{% else %} Не оплачен{% endif %}
                                                             </p>
 
-                                                            <div class="accordion-body p-3">
-                                                                <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
+                                                            <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
 
                                                                 <ul class="list-unstyled">
                                                                     {% for item in order.items.all %}
@@ -273,7 +277,6 @@
                                                                         </li>
                                                                     {% endfor %}
                                                                 </ul>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -286,7 +289,62 @@
                                     {% endif %}
                                 </div>
                             </div>
+
+                            <div class="tab-pane fade" id="all-users-content" role="tabpanel" aria-labelledby="all-users-tab">
+                                <div class="card p-4 shadow-sm">
+                                    <h4 class="card-title mb-3">Управление пользователями</h4>
+                                    {% if all_users %}
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-sm">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Email</th>
+                                                        <th>Имя</th>
+                                                        <th>Роль</th>
+                                                        <th>Активен</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for u in all_users %}
+                                                        <tr>
+                                                            <td class="align-middle">{{ u.id }}</td>
+                                                            <td class="align-middle">{{ u.email }}</td>
+                                                            <td class="align-middle">{{ u.get_full_name|default:"Не указано" }}</td>
+                                                            <td class="align-middle">
+                                                                {% if u.is_superuser %}
+                                                                    <span class="badge bg-danger">Администратор</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-success">Пользователь</span>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td class="align-middle">
+                                                                {% if not u.is_superuser %}
+                                                                    <form action="{% url 'users:update_user_status' u.id %}" method="post" class="d-inline admin-user-status-form">
+                                                                        {% csrf_token %}
+                                                                        <select name="is_active" class="form-select form-select-sm" data-user-id="{{ u.id }}">
+                                                                            <option value="True" {% if u.is_active %}selected{% endif %}>Активен</option>
+                                                                            <option value="False" {% if not u.is_active %}selected{% endif %}>Неактивен</option>
+                                                                        </select>
+                                                                    </form>
+                                                                {% else %}
+                                                                    <span class="badge bg-success">Система</span>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning text-center" role="alert">
+                                            Пользователи не найдены.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
                         {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -296,5 +354,6 @@
 
 <script src="{% static 'deps/js/part_modal.js' %}"></script>
 <script src="{% static 'deps/js/order_processing.js' %}"></script>
+<script src="{% static 'deps/js/user_management.js' %}"></script>
 
 {% endblock %}
