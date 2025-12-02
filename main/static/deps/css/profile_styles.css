@@ -59,3 +59,17 @@
 #ordersAccordion .accordion-button:not(.collapsed)::after {
     filter: brightness(0) invert(1);
 }
+
+/* Стиль для активного (открытого) заказа в админке */
+.accordion-item.order-active {
+    border-color: #198754 !important; /* Зеленая рамка */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+.accordion-item.order-active .accordion-button {
+    background-color: #d1e7dd; /* Светло-зеленый фон (bg-success-subtle) */
+    color: #0f5132; /* Темно-зеленый текст */
+    font-weight: bold;
+}
+.accordion-item.order-active .accordion-button:not(.collapsed) {
+    background-color: #c0f2d4; /* Чуть темнее для открытого состояния */
+}

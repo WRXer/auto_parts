@@ -70,9 +70,14 @@ class ProfileView(View):
         orders = Order.objects.filter(
             Q(user=user) | Q(email=user_email)
         ).distinct().order_by('-created_timestamp')
+        all_orders = None
+        if user.is_superuser:
+            all_orders = Order.objects.all().order_by('-created_timestamp').select_related('user').prefetch_related(
+                'items')
         context = {
             'user': user,
             'orders': orders,
+            'all_orders': all_orders,
             'title': 'Мой профиль'
         }
         return render(request, 'users/profile.html', context)

@@ -21,4 +21,6 @@ app_name = 'orders'
 urlpatterns = [
     path('create-order/', views.create_order, name='create_order'),
     path('success/<int:order_id>/', views.order_success, name='order_success'),
+    path('update_status/<int:order_id>/', views.update_order_status, name='update_status'),
+    path('update_paid_status/<int:order_id>/', views.update_paid_status, name='update_paid_status'),
 ]

@@ -26,6 +26,14 @@
                             </button>
                         </li>
 
+                        {% if user.is_superuser %}
+                        <li class="nav-item mb-2" role="presentation">
+                            <button class="nav-link w-100 text-start" id="all-orders-tab" data-bs-toggle="tab" data-bs-target="#all-orders-content" type="button" role="tab" aria-controls="all-orders-content" aria-selected="false">
+                                <i class="fas fa-clipboard-list me-2"></i> Обработка заказов
+                            </button>
+                        </li>
+                        {% endif %}
+
                         <li class="nav-item" role="presentation">
                             <a href="{% url 'users:password_change' %}" class="nav-link w-100 text-start" aria-label="Изменить пароль">
                                 <i class="fas fa-key me-2"></i> Пароль
@@ -157,14 +165,136 @@
                                 </div>
                             </div>
                         </div>
+
+                        {% if user.is_superuser %}
+                            <div class="tab-pane fade" id="all-orders-content" role="tabpanel" aria-labelledby="all-orders-tab">
+                                <div class="card p-4 shadow-sm">
+                                    <h4 class="card-title mb-3">Все заказы системы</h4>
+                                    {% if all_orders %}
+                                        <div class="accordion" id="adminOrdersAccordion">
+                                            {% for order in all_orders %}
+                                                <div class="accordion-item mb-3 rounded-3 shadow-sm border">
+                                                    <h2 class="accordion-header d-flex justify-content-between align-items-center p-0" id="admin-heading-{{ order.id }}">
+                                                        <button class="accordion-button collapsed p-3 flex-grow-1"
+                                                                type="button"
+                                                                data-bs-toggle="collapse"
+                                                                data-bs-target="#admin-collapse-{{ order.id }}"
+                                                                aria-expanded="false"
+                                                                aria-controls="admin-collapse-{{ order.id }}"
+                                                                style="width: auto;">
+
+                                                            <div class="d-flex flex-column me-4 text-start">
+                                                                <div class="fw-bold text-dark">
+                                                                    #{{ order.id }} &middot; {{ order.first_name }} {{ order.last_name }}
+                                                                </div>
+                                                                <small class="text-muted">
+                                                                    Клиент: {% if order.user %}{{ order.user.email }}{% else %} Гость ({{ order.email }}){% endif %}
+                                                                </small>
+                                                            </div>
+                                                            <span class="fw-bold text-dark flex-shrink-0 ms-auto">{{ order.get_total_price|floatformat:0 }}₽</span>
+
+                                                        </button>
+
+                                                        <div class="d-flex align-items-center flex-shrink-0 me-3 ms-2">
+
+                                                            <form action="{% url 'orders:update_paid_status' order.id %}" method="post" class="d-inline admin-paid-form me-2">
+                                                                {% csrf_token %}
+                                                                <select name="is_paid" class="form-select form-select-sm" data-order-id="{{ order.id }}">
+                                                                    <option value="False" {% if not order.is_paid %}selected{% endif %}>Не оплачен</option>
+                                                                    <option value="True" {% if order.is_paid %}selected{% endif %}>Оплачен</option>
+                                                                </select>
+                                                            </form>
+
+                                                            <form action="{% url 'orders:update_status' order.id %}" method="post" class="d-inline admin-status-form">
+                                                                {% csrf_token %}
+                                                                <select name="status" class="form-select form-select-sm" data-order-id="{{ order.id }}">
+                                                                    {% for status_val, status_display in order.STATUS_CHOICES %}
+                                                                        <option value="{{ status_val }}" {% if order.status == status_val %}selected{% endif %}>
+                                                                            {{ status_display }}
+                                                                        </option>
+                                                                    {% endfor %}
+                                                                </select>
+                                                            </form>
+                                                        </div>
+                                                    </h2>
+
+                                                    <div id="admin-collapse-{{ order.id }}"
+                                                         class="accordion-collapse collapse"
+                                                         aria-labelledby="admin-heading-{{ order.id }}"
+                                                         data-bs-parent="#adminOrdersAccordion">
+
+                                                        <div class="accordion-body p-3">
+                                                            <p class="mb-1">
+                                                                <span class="fw-bold">Адрес доставки:</span>
+                                                                {% if order.requires_delivery %}{{ order.delivery_address }}{% else %} Самовывоз{% endif %}
+                                                            </p>
+                                                            <p class="mb-1">
+                                                                <span class="fw-bold">Дата заказа:</span>
+                                                                {{ order.created_timestamp|date:"d.m.Y H:i" }}
+                                                            </p>
+                                                            <p class="mb-1">
+                                                                <span class="fw-bold">Телефон клиента:</span>
+                                                                {{ order.phone }}
+                                                            </p>
+                                                            <p class="mb-1" id="paid-status-{{ order.id }}">
+                                                                <span class="fw-bold">Оплата:</span>
+                                                                {% if order.is_paid %} Оплачен{% else %} Не оплачен{% endif %}
+                                                            </p>
+
+                                                            <div class="accordion-body p-3">
+                                                                <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
+
+                                                                <ul class="list-unstyled">
+                                                                    {% for item in order.items.all %}
+                                                                        <li class="d-flex align-items-center mb-2 pb-2 border-bottom">
+
+                                                                            {% with image_url=item.part.get_main_image_source %}
+                                                                                {% if item.part and image_url %}
+                                                                                    <img src="{{ image_url }}" alt="{{ item.name }}"
+                                                                                         class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                                {% else %}
+                                                                                    <i class="fas fa-box-open fa-2x me-3 text-secondary" style="width: 50px; height: 50px;"></i>
+                                                                                {% endif %}
+                                                                            {% endwith %}
+
+                                                                            <div class="d-flex flex-column flex-grow-1 me-3">
+                                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                                    <a href="#"
+                                                                                       data-url="{% url 'spare_parts:part_detail_modal_in_cart' item.part.pk %}"
+                                                                                       class="text-dark fw-bold text-decoration-none js-open-part-modal me-2"
+                                                                                       style="cursor: pointer;">
+                                                                                        {{ item.name|default:"Название не указано" }}
+                                                                                    </a>
+                                                                                    <div class="fw-normal text-muted text-end fs-7 flex-shrink-0">
+                                                                                        {{ item.quantity }}&nbsp;шт. &times; {{ item.price|floatformat:0 }} ₽
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-info text-center" role="alert">
+                                            В системе пока нет заказов.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </main>
 
 <script src="{% static 'deps/js/part_modal.js' %}"></script>
+<script src="{% static 'deps/js/order_processing.js' %}"></script>
 
 {% endblock %}
