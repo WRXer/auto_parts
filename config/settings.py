@@ -30,10 +30,10 @@ SECRET_KEY = 'django-insecure-r4_&g^aie7cji=z=xh)lz)!kypxf-o$34s4=jbq*-1ejp%3-)y
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
     'localhost',
     '127.0.0.1',
     '.cloudpub.ru',  # Добавляем все поддомены CloudPub
-    'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
 ]
 
 
@@ -105,6 +105,17 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_SSL = True
+
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SITE_ID = 1
+
+
 AUTHENTICATION_BACKENDS = [
     'users.backends.EmailOrPhoneBackend', # Ваш кастомный бэкенд - ПЕРВЫЙ
     'django.contrib.auth.backends.ModelBackend',
@@ -163,7 +174,7 @@ LOGOUT_REDIRECT_URL = 'index'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-SITE_ID = 1
+SITE_ID = 2
 CART_SESSION_ID = 'carts'
 
 SESSION_COOKIE_SECURE = True

@@ -1,7 +1,9 @@
 from django.contrib.messages import get_messages
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.views import View
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -43,13 +45,31 @@ class RegistrationView(View):
             current_site = get_current_site(request)
             uid = urlsafe_base64_encode(force_bytes(user.pk))   #Кодируем ID пользователя (primary key)
             token = default_token_generator.make_token(user)    #Создаем токен (уникальный для этого пользователя и момента)
-            activation_link = f"http://{current_site.domain}/activate/{uid}/{token}/"
+            activation_link = f"https://{current_site.domain}/activate/{uid}/{token}/"
 
-            """ВЫВОД ССЫЛКИ В ТЕРМИНАЛ (вместо отправки Email)"""
-            print("-" * 50)
-            print(f"📧 Ссылка активации для пользователя {user.email}:")
-            print(activation_link)
-            print("-" * 50)
+            email_context = {
+                'user': user,
+                'activation_link': activation_link,
+                'domain': current_site.domain,
+                'uid': uid,
+                'token': token,
+            }
+
+            html_message = render_to_string('users/email/activation_body.html', email_context)
+            subject = render_to_string('users/email/activation_subject.txt', email_context).strip()
+
+            try:
+                send_mail(
+                    subject,
+                    'Пожалуйста, активируйте ваш аккаунт, перейдя по ссылке.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],    #Получатель
+                    html_message=html_message,    #Отправляем HTML-версию
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Ошибка при отправке Email: {e}")
+                messages.error(request, "Ошибка при отправке письма активации. Проверьте настройки почты.")
 
             context = {
                 'registration_successful': True,    #Флаг для JS
