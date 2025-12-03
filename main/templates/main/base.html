@@ -1,4 +1,5 @@
 {% load static %}
+{% load cache %}
 <!doctype html>
 <html lang="ru" data-bs-theme="light">
 <head>
@@ -45,6 +46,7 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+                                {% cache 300 categories_categories %}
                                         {% for category in all_categories %}
                                     <li>
                                         <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.slug %}">
@@ -52,6 +54,7 @@
                                         </a>
                                     </li>
                                         {% endfor %}
+                                {% endcache %}
                                 </ul>
                         </li>
                     </ul>
@@ -136,12 +139,12 @@
                  <li><a class="link-dark text-decoration-none" href="{% url 'contacts' %}">Контакты</a></li>
                  <li><a class="link-dark text-decoration-none" href="{% url 'about' %}">О нас</a></li>
                  <li><a class="link-dark text-decoration-none" href="{% url 'delivery' %}">Доставка</a></li>
-                 <li><a class="link-dark text-decoration-none" href="">Оплата</a></li>
+                 <li><a class="link-dark text-decoration-none" href="{%  url 'payment' %}">Оплата</a></li>
              </ul>
         </div>
         <div class="col-12 col-md-6 ms-auto text-end">
             <div class="d-flex justify-content-end align-items-center ">
-                <a href="https://t.me/cheap_auto_parts64" target="_blank" aria-label="Telegram" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
+                <a href="https://t.me/FBCAP64" target="_blank" aria-label="Telegram" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
                     <img src="{% static 'deps/icons/social/telegram.svg' %}" alt="Telegram" width="32" height="32" style="vertical-align: middle;">
                 </a>
                 <a href="https://vk.com/" target="_blank" aria-label="VKontakte" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
