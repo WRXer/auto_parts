@@ -30,4 +30,4 @@ def delivery(request):
     return render(request, 'main/delivery.html')
 
 def payment(request):
-    pass
+    return render(request, 'main/payment_info.html')
