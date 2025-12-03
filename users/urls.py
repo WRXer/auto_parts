@@ -11,7 +11,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.urls import path, reverse_lazy
 from users.apps import UsersConfig
 from users.views import RegistrationView, ProfileView, ActivateView, ProfileEditView, update_user_status
 from django.contrib.auth import views as auth_views
@@ -24,7 +24,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/edit/', ProfileEditView.as_view(), name='profile_edit'),
-    path('password/change/', auth_views.PasswordChangeView.as_view(template_name='users/password_change_form.html'), name='password_change'),
+    path('password/change/', auth_views.PasswordChangeView.as_view(template_name='users/password_change_form.html', success_url=reverse_lazy('users:password_change_done')), name='password_change'),
     path('password/change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='users/password_change_done.html'), name='password_change_done'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('update_user_status/<int:user_id>/', update_user_status, name='update_user_status'),
