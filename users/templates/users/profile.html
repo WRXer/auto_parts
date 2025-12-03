@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load cache %}
 
 {% block content %}
 
@@ -89,6 +90,7 @@
 
                                 {% if orders %}
                                     <div class="accordion" id="ordersAccordion">
+                                    {% cache 60 userorders user.id %}
                                         {% for order in orders %}
                                             <div class="accordion-item mb-3 rounded-3 shadow-sm border">
                                                 <h2 class="accordion-header" id="heading-{{ order.id }}">
@@ -158,6 +160,7 @@
                                                 </div>
                                             </div>
                                         {% endfor %}
+                                    {% endcache %}
                                     </div>
                                 {% else %}
                                     <div class="alert alert-warning text-center" role="alert">
