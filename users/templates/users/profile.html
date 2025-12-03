@@ -90,7 +90,7 @@
 
                                 {% if orders %}
                                     <div class="accordion" id="ordersAccordion">
-                                    {% cache 60 userorders user.id %}
+                                        {% cache 60 userorders user.id %}
                                         {% for order in orders %}
                                             <div class="accordion-item mb-3 rounded-3 shadow-sm border">
                                                 <h2 class="accordion-header" id="heading-{{ order.id }}">
@@ -100,20 +100,13 @@
                                                             data-bs-target="#collapse-{{ order.id }}"
                                                             aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
                                                             aria-controls="collapse-{{ order.id }}">
-
                                                         <div class="d-flex justify-content-between w-100 pe-3">
                                                             <div class="fw-bold text-dark me-4">
-                                                                #{{ order.id }} &middot;
-                                                                {% if order.delivery_address %}
-                                                                    {{ order.delivery_address }}
-                                                                {% else %}
-                                                                    Самовывоз
-                                                                {% endif %}
+                                                                Заказ #{{ order.id }}
+                                                            <span class="badge bg-secondary">{{ order.get_status_display }}</span>
                                                             </div>
-
                                                             <div class="d-flex align-items-center">
-                                                                <span class="fw-bold text-dark me-4">{{ order.get_total_price|floatformat:0 }} ₽</span>
-                                                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                                                <span class="fw-bold text-dark me-4">{{ order.get_total_price|floatformat:0 }}&nbsp;₽</span>
                                                             </div>
                                                         </div>
                                                     </button>
@@ -125,6 +118,13 @@
                                                      data-bs-parent="#ordersAccordion">
 
                                                     <div class="accordion-body p-3">
+                                                        <div class="fw-bold text-dark me-4">
+                                                            {% if order.delivery_address %}
+                                                                {{ order.delivery_address }}
+                                                                    {% else %}
+                                                                        Самовывоз
+                                                            {% endif %}
+                                                        </div>
                                                         <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
 
                                                         <ul class="list-unstyled">
@@ -160,7 +160,7 @@
                                                 </div>
                                             </div>
                                         {% endfor %}
-                                    {% endcache %}
+                                        {% endcache %}
                                     </div>
                                 {% else %}
                                     <div class="alert alert-warning text-center" role="alert">
@@ -193,7 +193,7 @@
 
                                                             <div class="d-flex flex-column me-4 text-start">
                                                                 <div class="fw-bold text-dark">
-                                                                    #{{ order.id }} &middot; {{ order.first_name }} {{ order.last_name }}
+                                                                    Заказ #{{ order.id }}
                                                                 </div>
                                                                 <small class="text-muted">
                                                                     Клиент: {% if order.user %}{{ order.user.email }}{% else %} Гость ({{ order.email }}){% endif %}
@@ -202,36 +202,50 @@
                                                             <span class="fw-bold text-dark flex-shrink-0 ms-auto">{{ order.get_total_price|floatformat:0 }}₽</span>
 
                                                         </button>
-
-                                                        <div class="d-flex align-items-center flex-shrink-0 me-3 ms-2">
-
-                                                            <form action="{% url 'orders:update_paid_status' order.id %}" method="post" class="d-inline admin-paid-form me-2">
-                                                                {% csrf_token %}
-                                                                <select name="is_paid" class="form-select form-select-sm" data-order-id="{{ order.id }}">
-                                                                    <option value="False" {% if not order.is_paid %}selected{% endif %}>Не оплачен</option>
-                                                                    <option value="True" {% if order.is_paid %}selected{% endif %}>Оплачен</option>
-                                                                </select>
-                                                            </form>
-
-                                                            <form action="{% url 'orders:update_status' order.id %}" method="post" class="d-inline admin-status-form">
-                                                                {% csrf_token %}
-                                                                <select name="status" class="form-select form-select-sm" data-order-id="{{ order.id }}">
-                                                                    {% for status_val, status_display in order.STATUS_CHOICES %}
-                                                                        <option value="{{ status_val }}" {% if order.status == status_val %}selected{% endif %}>
-                                                                            {{ status_display }}
-                                                                        </option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            </form>
-                                                        </div>
                                                     </h2>
 
                                                     <div id="admin-collapse-{{ order.id }}"
                                                          class="accordion-collapse collapse"
                                                          aria-labelledby="admin-heading-{{ order.id }}"
                                                          data-bs-parent="#adminOrdersAccordion">
-
                                                         <div class="accordion-body p-3">
+                                                        <div class="row g-2 mb-3 border-bottom pb-3">
+
+                                                                {# Статус оплаты (col-12 на мобильных) #}
+                                                                <div class="col-12 col-md-6">
+                                                                    <form action="{% url 'orders:update_paid_status' order.id %}" method="post" class="admin-paid-form">
+                                                                        {% csrf_token %}
+                                                                        <div class="input-group input-group-sm order-status-input">
+                                                                            <span class="input-group-text bg-light fw-bold text-muted">Оплата</span>
+                                                                            <select name="is_paid" class="form-select" data-order-id="{{ order.id }}">
+                                                                                <option value="False" {% if not order.is_paid %}selected{% endif %}>Не оплачен</option>
+                                                                                <option value="True" {% if order.is_paid %}selected{% endif %}>Оплачен</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+
+                                                                {# Статус заказа #}
+                                                                <div class="col-12 col-md-6">
+                                                                    <form action="{% url 'orders:update_status' order.id %}" method="post" class="admin-status-form">
+                                                                        {% csrf_token %}
+                                                                        <div class="input-group input-group-sm order-status-input">
+                                                                            <span class="input-group-text bg-light fw-bold text-muted">Статус</span>
+                                                                            <select name="status" class="form-select" data-order-id="{{ order.id }}">
+                                                                                {% for status_val, status_display in order.STATUS_CHOICES %}
+                                                                                    <option value="{{ status_val }}" {% if order.status == status_val %}selected{% endif %}>
+                                                                                        {{ status_display }}
+                                                                                    </option>
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                            <p class="mb-1">
+                                                                <span class="fw-bold">Имя:</span>
+                                                                {{ order.first_name }} {{ order.last_name }}
+                                                            </p>
                                                             <p class="mb-1">
                                                                 <span class="fw-bold">Адрес доставки:</span>
                                                                 {% if order.requires_delivery %}{{ order.delivery_address }}{% else %} Самовывоз{% endif %}
@@ -248,38 +262,37 @@
                                                                 <span class="fw-bold">Оплата:</span>
                                                                 {% if order.is_paid %} Оплачен{% else %} Не оплачен{% endif %}
                                                             </p>
+                                                            <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:
+                                                            </p>
+                                                            <ul class="list-unstyled">
+                                                                {% for item in order.items.all %}
+                                                                    <li class="d-flex align-items-center mb-2 pb-2 border-bottom">
 
-                                                            <p class="fw-bold text-muted mb-2 border-bottom pb-1">Состав заказа:</p>
+                                                                        {% with image_url=item.part.get_main_image_source %}
+                                                                            {% if item.part and image_url %}
+                                                                                <img src="{{ image_url }}" alt="{{ item.name }}"
+                                                                                     class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                            {% else %}
+                                                                                <i class="fas fa-box-open fa-2x me-3 text-secondary" style="width: 50px; height: 50px;"></i>
+                                                                            {% endif %}
+                                                                        {% endwith %}
 
-                                                                <ul class="list-unstyled">
-                                                                    {% for item in order.items.all %}
-                                                                        <li class="d-flex align-items-center mb-2 pb-2 border-bottom">
-
-                                                                            {% with image_url=item.part.get_main_image_source %}
-                                                                                {% if item.part and image_url %}
-                                                                                    <img src="{{ image_url }}" alt="{{ item.name }}"
-                                                                                         class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
-                                                                                {% else %}
-                                                                                    <i class="fas fa-box-open fa-2x me-3 text-secondary" style="width: 50px; height: 50px;"></i>
-                                                                                {% endif %}
-                                                                            {% endwith %}
-
-                                                                            <div class="d-flex flex-column flex-grow-1 me-3">
-                                                                                <div class="d-flex justify-content-between align-items-center">
-                                                                                    <a href="#"
-                                                                                       data-url="{% url 'spare_parts:part_detail_modal_in_cart' item.part.pk %}"
-                                                                                       class="text-dark fw-bold text-decoration-none js-open-part-modal me-2"
-                                                                                       style="cursor: pointer;">
-                                                                                        {{ item.name|default:"Название не указано" }}
-                                                                                    </a>
-                                                                                    <div class="fw-normal text-muted text-end fs-7 flex-shrink-0">
-                                                                                        {{ item.quantity }}&nbsp;шт. &times; {{ item.price|floatformat:0 }} ₽
-                                                                                    </div>
+                                                                        <div class="d-flex flex-column flex-grow-1 me-3">
+                                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                                <a href="#"
+                                                                                   data-url="{% url 'spare_parts:part_detail_modal_in_cart' item.part.pk %}"
+                                                                                   class="text-dark fw-bold text-decoration-none js-open-part-modal me-2"
+                                                                                   style="cursor: pointer;">
+                                                                                    {{ item.name|default:"Название не указано" }}
+                                                                                </a>
+                                                                                <div class="fw-normal text-muted text-end fs-7 flex-shrink-0">
+                                                                                    {{ item.quantity }}&nbsp;шт. &times; {{ item.price|floatformat:0 }} ₽
                                                                                 </div>
                                                                             </div>
-                                                                        </li>
-                                                                    {% endfor %}
-                                                                </ul>
+                                                                        </div>
+                                                                    </li>
+                                                                {% endfor %}
+                                                            </ul>
                                                         </div>
                                                     </div>
                                                 </div>

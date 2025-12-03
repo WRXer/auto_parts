@@ -73,3 +73,19 @@
 .accordion-item.order-active .accordion-button:not(.collapsed) {
     background-color: #c0f2d4; /* Чуть темнее для открытого состояния */
 }
+
+
+/* Правила для экранов >= 768px (MD и выше) */
+@media (min-width: 200px) {
+    /* * Устанавливаем фиксированную ширину для input-group-text (плашек "Оплата" и "Статус"),
+     * чтобы они занимали одинаковое место, заставляя селекторы (form-select)
+     * также иметь одинаковую ширину.
+     */
+    .order-status-input .input-group-text {
+        min-width: 90px; /* Выберите подходящее значение */
+        text-align: center;
+        justify-content: center;
+        /* Если вы хотите, чтобы текст был слева, удалите center, но min-width
+           обязательно для выравнивания */
+    }
+}
