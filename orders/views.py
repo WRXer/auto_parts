@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.template.loader import render_to_string
+from orders.telegram_notifier import send_telegram_notification
 from .forms import CreateOrderForm
 from carts.cart import Cart
 from .models import Order, OrderItem
@@ -34,6 +35,16 @@ def create_order(request):
                         quantity=item['quantity']
                     )
                 cart.clear()
+
+                message = (
+                    f"🎉 <b>НОВЫЙ ЗАКАЗ # {order.id}</b>\n\n"
+                    f"👤 Клиент: {order.first_name} {order.last_name}\n"
+                    f"📞 Телефон: {order.phone or 'Не указан'}\n"
+                    f"📧 Email: {order.email or 'Не указан'}\n\n"
+                    
+                    f"🔗 <a href='https://drably-lenient-avocet.cloudpub.ru/profile/'>Посмотреть заказ </a>"
+                )
+                send_telegram_notification(message)    #Вызов функции рассылки
 
                 success_modal_html = render_to_string(
                     'orders/success_order_modal.html',

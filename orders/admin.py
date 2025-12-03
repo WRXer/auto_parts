@@ -1,7 +1,6 @@
 from django.contrib import admin
 from decimal import Decimal
-from .models import Order, OrderItem
-
+from .models import Order, OrderItem, TelegramAdmin
 
 
 class OrderItemInline(admin.TabularInline):
@@ -70,3 +69,10 @@ class OrderAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         form.base_fields['user'].required = False
         return form
+
+
+@admin.register(TelegramAdmin)
+class TelegramAdminAdmin(admin.ModelAdmin):
+    list_display = ('name', 'chat_id', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('name', 'chat_id')

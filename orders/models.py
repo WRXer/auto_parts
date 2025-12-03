@@ -86,3 +86,29 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.quantity} шт.) в Заказе №{self.order.pk}"
+
+
+class TelegramAdmin(models.Model):
+    """
+    Модель для хранения Telegram Chat ID администраторов/менеджеров,
+    получающих уведомления о заказах.
+    """
+    name = models.CharField(
+        max_length=100,
+        verbose_name="Имя получателя (для идентификации)"
+    )
+    chat_id = models.BigIntegerField(
+        unique=True,
+        verbose_name="Chat ID Telegram"
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Активен"
+    )
+
+    class Meta:
+        verbose_name = "Администратор Telegram"
+        verbose_name_plural = "Администраторы Telegram"
+
+    def __str__(self):
+        return f"{self.name} (ID: {self.chat_id})"
