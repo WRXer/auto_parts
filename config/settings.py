@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'phonenumber_field',
+    'widget_tweaks',
 
     'users',
     'main',
