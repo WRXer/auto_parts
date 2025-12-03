@@ -1,9 +1,10 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load cache%}
 
 {% block content %}
 
-
+{% cache 300 cache_about %}
 <link rel="stylesheet" href="{% static 'deps/css/carousel_about.css' %}">
 
 
@@ -125,7 +126,7 @@
                 </section>
                 <p class="text-muted text-center small mt-4">
                     Следите за постоянными обновлениями прайса и поступлениями новых деталей в нашем Telegram-канале.
-                    <a href="https://t.me/cheap_auto_parts64" target="_blank" aria-label="Telegram" class="p-1 bg-light bg-opacity-75 d-inline-block">
+                    <a href="https://t.me/cheap_auto_parts64" target="_blank" aria-label="Telegram" class="p-1  bg-opacity-75 d-inline-block">
                         <img src="{% static 'deps/icons/social/telegram.svg' %}" alt="Telegram" width="32" height="32" style="vertical-align: middle;">
                     </a>
                 </p>
@@ -136,5 +137,6 @@
 
 
 <script src="{% static 'deps/js/carousel_about.js' %}"></script>
+{% endcache %}
 
 {% endblock content %}
