@@ -1,8 +1,9 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load cache %}
 {% block content %}
 
-
+{% cache 300 cache_models_list %}
 <main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
   <h1 class="mb-4 text-center text-dark">
     {% if current_make %}
@@ -42,4 +43,6 @@
     }
   </style>
 </main>
+{% endcache %}
+
 {% endblock content %}

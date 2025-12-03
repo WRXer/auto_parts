@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% load static %}
+{% load cache %}
 {% block content %}
 
 <main class="container text-dark pt-3 pb-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
@@ -59,7 +60,7 @@
             </div>
         </div>
 
-
+    {% cache 500 cache_carts_index %}
     <div class="mx-auto">
         <div class="row my-md-3 justify-content-center">
             <div class="col-md-6 mb-3">
@@ -155,6 +156,8 @@
             </div>
         </div>
     </div>
+    {% endcache %}
+
     {% if new_arrivals %}
     <div class="container px-4 pt-4 pb-2">
         <h2 class="pb-3  text-center mb-2 text-dark">Последние поступления в разбор</h2>
