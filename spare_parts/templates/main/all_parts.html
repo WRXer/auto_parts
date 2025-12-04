@@ -145,7 +145,7 @@
                                             {% if part.donor_generation %}
                                                 <p class="card-text small text-dark">
                                                     {{ part.donor_generation.model.make.name }}
-                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                    {{ part.donor_generation.model.name }} {{ part.donor_generation.name }} GEN
                                                 </p>
                                             {% else %}
                                                 <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
