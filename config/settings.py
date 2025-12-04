@@ -191,3 +191,18 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_ADMINS_FILE = BASE_DIR / 'telegram_admins.json'
+
+
+# Настройки Celery
+# URL брокера сообщений (если используете Redis)
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+#Бэкенд для хранения результатов задач (тоже Redis)
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+#Сериализация данных (JSON — самый универсальный)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Часовой пояс (важно для планировщика задач)
+CELERY_TIMEZONE = 'Europe/Moscow' # Или ваш часовой пояс
