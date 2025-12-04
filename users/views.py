@@ -1,7 +1,6 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.messages import get_messages
 from django.core.mail import send_mail
-from django.core.management import call_command
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -18,6 +17,7 @@ from config import settings
 from orders.models import Order
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import User
+from spare_parts.tasks import update_catalog_task
 
 
 class RegistrationView(View):
@@ -203,9 +203,13 @@ def is_superuser(user):
 
 @user_passes_test(is_superuser)
 def update_catalog_view(request):
+    """
+        Запускает обновление каталога в фоне через Celery.
+        """
     try:
-        call_command('update_catalog')
-        messages.success(request, '✅ Обновление каталога успешно завершено!')
+        task = update_catalog_task.delay()     #ИСПОЛЬЗУЕМ .delay() для неблокирующего запуска
+        messages.success(request, f'✅ Обновление каталога запущено в фоновом режиме! ID задачи: {task.id}')     #Сообщение пользователю, что задача запущена (и ID для отслеживания)
     except Exception as e:
-        messages.error(request, f'❌ Критическая ошибка при обновлении каталога: {e}')
+        messages.error(request, f'❌ Ошибка при попытке запуска фоновой задачи: {e}')
+
     return redirect('users:profile')

@@ -1,8 +1,4 @@
-# spare_parts/management/commands/update_catalog.py
-
 from django.core.management.base import BaseCommand
-
-# 🔑 Импортируем модули из разных файлов
 from spare_parts.management.fetch_prepare_donors import fetch_and_prepare_donors
 from spare_parts.management.fetch_prepare_parts import fetch_and_prepare_parts
 from spare_parts.management.import_to_db import import_donors_to_db, import_parts_to_db

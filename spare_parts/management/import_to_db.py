@@ -12,7 +12,7 @@ NEW_MODEL_COLUMN_NAME = 'Модель_Базовая'
 NEW_GENERATION_COLUMN_NAME = 'Поколение_Число'
 
 
-def import_donors_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVehicle, DonorVehicleImage,
+def import_donors_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, DonorVehicleImage,
                         TRANSMISSION_MAP):
     """
     Импорт донорских автомобилей из Excel в БД.
@@ -20,7 +20,7 @@ def import_donors_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVe
     try:
         df = pd.read_excel(DONOR_FILE)    #Импорт доноров из предыдущего ответа, использующая DONOR_FILE
     except FileNotFoundError:
-        stdout.write(style.ERROR(f"❌ Ошибка: Файл доноров не найден по пути {DONOR_FILE}. Пропуск импорта."))
+        stdout.write(f"❌ Ошибка: Файл доноров не найден по пути {DONOR_FILE}. Пропуск импорта.")
         return
     donors_created = 0
     for idx, row in df.iterrows():
@@ -67,12 +67,11 @@ def import_donors_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVe
 
         except Exception as e:
             stdout.write(
-                style.ERROR(f"❌ Критическая ошибка при импорте Донора {donor_id_source} (строка {excel_row_num}): {e}"))
+                f"❌ Критическая ошибка при импорте Донора {donor_id_source} (строка {excel_row_num}): {e}")
+    stdout.write(f"Импорт донорских автомобилей в БД завершён! Создано новых: {donors_created}")
 
-    stdout.write(style.SUCCESS(f"Импорт донорских автомобилей в БД завершён! Создано новых: {donors_created}"))
 
-
-def import_parts_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVehicle, Category, PartSubCategory, Part,
+def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, Category, PartSubCategory, Part,
                        PartImage, CATEGORY_SLUG_MAP):
     """
     Импорт запчастей из Excel в БД.
@@ -80,7 +79,7 @@ def import_parts_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVeh
     try:
         df = pd.read_excel(PARTS_FILE)    #Импорт запчастей из предыдущего ответа, использующая PARTS_FILE
     except FileNotFoundError:
-        stdout.write(style.ERROR(f"❌ Ошибка: Файл запчастей не найден по пути {PARTS_FILE}. Пропуск импорта."))
+        stdout.write(f"❌ Ошибка: Файл запчастей не найден по пути {PARTS_FILE}. Пропуск импорта.")
         return
     parts_created = 0
     parts_updated = 0
@@ -167,9 +166,9 @@ def import_parts_to_db(stdout, style, CarMake, CarModel, CarGeneration, DonorVeh
 
         except Exception as e:
             stdout.write(
-                style.ERROR(f"❌ Критическая ошибка при обработке строки {excel_row_num} (ID: {part_unique_id}): {e}"))
+                f"❌ Критическая ошибка при обработке строки {excel_row_num} (ID: {part_unique_id}): {e}")
             pass
 
-    stdout.write(style.SUCCESS("Импорт завершён!"))
+    stdout.write("Импорт завершён!")
     stdout.write(f"Создано новых запчастей: {parts_created}")
     stdout.write(f"Обновлено существующих запчастей: {parts_updated}")

@@ -27,7 +27,7 @@ def _get_flat_category_mapping(CATEGORY_MAPPING):
     return FLAT_MAPPING
 
 
-def fetch_and_prepare_parts(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS):
+def fetch_and_prepare_parts(stdout, CATEGORY_MAPPING, GENERATION_MODELS):
     """
     Скачивает, обрабатывает и сохраняет файл запчастей.
     """
@@ -56,7 +56,7 @@ def fetch_and_prepare_parts(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS):
             os.remove(PARTS_FILE)
             stdout.write(f"🗑️ Старый файл '{PARTS_FILE}' удален.")
         except OSError as e:
-            stdout.write(style.ERROR(f"❌ Ошибка при удалении файла '{PARTS_FILE}': {e}"))
+            stdout.write(f"❌ Ошибка при удалении файла '{PARTS_FILE}': {e}")
             return
 
     stdout.write(f"Скачиваю файл с запчастями с {PARTS_URL}...")
@@ -90,7 +90,7 @@ def fetch_and_prepare_parts(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS):
         df['Категория'] = df['Наименование'].apply(lambda x: get_category_info(x)[1])
 
         df.to_excel(PARTS_FILE, index=False)
-        stdout.write(style.SUCCESS(f"✅ Файл запчастей сохранен как: {PARTS_FILE}"))
+        stdout.write(f"✅ Файл запчастей сохранен как: {PARTS_FILE}")
 
     except Exception as e:
-        stdout.write(style.ERROR(f"❌ ОШИБКА при обработке запчастей: {e}"))
+        stdout.write(f"❌ ОШИБКА при обработке запчастей: {e}")

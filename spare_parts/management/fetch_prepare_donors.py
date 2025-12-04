@@ -26,7 +26,7 @@ def _get_flat_category_mapping(CATEGORY_MAPPING):
     return FLAT_MAPPING
 
 
-def fetch_and_prepare_donors(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS):
+def fetch_and_prepare_donors(stdout, CATEGORY_MAPPING, GENERATION_MODELS):
     """
     Скачивает, обрабатывает и сохраняет файл донорских автомобилей.
     """
@@ -55,7 +55,7 @@ def fetch_and_prepare_donors(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS)
             os.remove(DONOR_FILE)
             stdout.write(f"🗑️ Старый файл '{DONOR_FILE}' удален.")
         except OSError as e:
-            stdout.write(style.ERROR(f"❌ Ошибка при удалении файла '{DONOR_FILE}': {e}"))
+            stdout.write(f"❌ Ошибка при удалении файла '{DONOR_FILE}': {e}")
             return
 
     stdout.write(f"Скачиваю файл с донорскими автомобилями с {DONOR_URL}...")
@@ -95,7 +95,7 @@ def fetch_and_prepare_donors(stdout, style, CATEGORY_MAPPING, GENERATION_MODELS)
             df['Категория'] = df['Наименование'].apply(lambda x: get_category_info(x)[1])
 
         df.to_excel(DONOR_FILE, index=False)
-        stdout.write(style.SUCCESS(f"✅ Файл доноров сохранен как: {DONOR_FILE}"))
+        stdout.write(f"✅ Файл доноров сохранен как: {DONOR_FILE}")
 
     except Exception as e:
-        stdout.write(style.ERROR(f"❌ ОШИБКА при обработке доноров: {e}"))
+        stdout.write(f"❌ ОШИБКА при обработке доноров: {e}")
