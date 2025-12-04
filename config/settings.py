@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'phonenumber_field',
     'widget_tweaks',
+    'django_celery_beat',
 
     'users',
     'main',
@@ -205,4 +207,5 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 # Часовой пояс (важно для планировщика задач)
-CELERY_TIMEZONE = 'Europe/Moscow' # Или ваш часовой пояс
+CELERY_TIMEZONE = 'Europe/Moscow'
+
