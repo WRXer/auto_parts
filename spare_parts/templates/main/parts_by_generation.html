@@ -9,7 +9,7 @@
 <main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="container py-1">
         <h1 class="mb-4 text-center">
-            Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} ({{ current_generation.name }})
+            Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} {{ current_generation.name }} GEN
         </h1>
         <div class="row g-4">
             <div class="col-12 col-lg-3 custom-filter-width">
@@ -42,42 +42,53 @@
                 </div>
             </div>
             <div class="col-12 col-lg-9">
-                <div class="row g-4">
+                <div id="parts-container">
+                    <div class="row g-4 justify-content">
+                        {% for part in parts_list %}
+                            <div class="col-12 col-md-8 col-xl-6">
+                                <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
+                                    <div class="d-flex p-3 flex-grow-1">
+                                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                            {% with image=part.get_main_image_source %}
+                                                {% if image%}
+                                                    <img src="{{ image }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
+                                            <p class="card-text text-muted mb-1">
+                                                Артикул: {% if part.part_number and part.part_number|lower != 'nan' %}
+                                                    {{ part.part_number }}
+                                                {% else %}
+                                                    Отсутствует
+                                                {% endif %}
+                                            </p>
 
-                    {% for part in parts_list %}
-                        <div class="col-12 col-md-6 col-xl-6">
-                            <div class="card h-100 shadow-lg bg-light text-dark card-height-range">
-                                <div class="d-flex p-3">
-                                    <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
-                                        {% with image=part.get_main_image_source %}
-                                            {% if image%}
-                                                <img src="{{ image }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                            {% if part.donor_generation %}
+                                                <p class="card-text small text-dark">
+                                                    {{ part.donor_generation.model.make.name }}
+                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                </p>
                                             {% else %}
-                                                <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
                                             {% endif %}
-                                        {% endwith %}
+
+                                        </div>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
-                                        <p class="card-text text-muted mb-1">Артикул:
-                                            {% if part.part_number and part.part_number|lower != 'nan' %}
-                                                {{ part.part_number }}
-                                            {% else %}
-                                                Отсутствует
-                                            {% endif %}
-                                        </p>
+
+                                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                        <strong class="fs-4 text-dark">{{ part.price|floatformat:0 }} ₽</strong>
+                                        <a href="#"
+                                        data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
+                                           class="btn btn-outline-success js-open-part-modal">
+                                            Подробнее
+                                        </a>
                                     </div>
-                                </div>
-                                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
-                                    <strong class="fs-4 text-dark">{{ part.price|floatformat:0 }} ₽</strong>
-                                    <a href="#"
-                                    data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
-                                       class="btn btn-outline-success js-open-part-modal">
-                                        Подробнее
-                                    </a>
                                 </div>
                             </div>
-                        </div>
                     {% empty %}
                         <div class="col-12">
                             <div class="alert alert-warning" role="alert">
