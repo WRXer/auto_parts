@@ -13,7 +13,8 @@ Including another URLconf
 """
 from django.urls import path, reverse_lazy
 from users.apps import UsersConfig
-from users.views import RegistrationView, ProfileView, ActivateView, ProfileEditView, update_user_status
+from users.views import RegistrationView, ProfileView, ActivateView, ProfileEditView, update_user_status, \
+    update_catalog_view
 from django.contrib.auth import views as auth_views
 
 app_name = UsersConfig.name
@@ -39,5 +40,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('update_user_status/<int:user_id>/', update_user_status, name='update_user_status'),
     path('activate/<str:uidb64>/<str:token>/', ActivateView.as_view(), name='activate'),
+
+    path('profile/update-catalog/', update_catalog_view, name='update_catalog'),
 
 ]

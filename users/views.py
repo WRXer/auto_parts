@@ -1,5 +1,7 @@
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.messages import get_messages
 from django.core.mail import send_mail
+from django.core.management import call_command
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -145,6 +147,7 @@ class ProfileEditView(View):
         }
         return render(request, 'users/profile_edit.html', context)
 
+
 class ActivateView(View):
     def get(self, request, uidb64, token):
         try:
@@ -193,3 +196,16 @@ def update_user_status(request, user_id):
     user_to_update.is_active = new_status    #Обновление статуса
     user_to_update.save()
     return JsonResponse({'success': True, 'is_active': new_status})
+
+
+def is_superuser(user):
+    return user.is_superuser
+
+@user_passes_test(is_superuser)
+def update_catalog_view(request):
+    try:
+        call_command('update_catalog')
+        messages.success(request, '✅ Обновление каталога успешно завершено!')
+    except Exception as e:
+        messages.error(request, f'❌ Критическая ошибка при обновлении каталога: {e}')
+    return redirect('users:profile')
