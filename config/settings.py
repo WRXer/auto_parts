@@ -30,6 +30,7 @@ SECRET_KEY = 'django-insecure-r4_&g^aie7cji=z=xh)lz)!kypxf-o$34s4=jbq*-1ejp%3-)y
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'cheapautoparts.ru',
     'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
     'localhost',
     '127.0.0.1',
