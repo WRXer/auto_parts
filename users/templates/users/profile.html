@@ -191,16 +191,23 @@
                                                                 aria-controls="admin-collapse-{{ order.id }}"
                                                                 style="width: auto;">
 
-                                                            <div class="d-flex flex-column me-4 text-start">
-                                                                <div class="fw-bold text-dark">
-                                                                    Заказ #{{ order.id }}
-                                                                </div>
-                                                                <small class="text-muted">
-                                                                    Клиент: {% if order.user %}{{ order.user.email }}{% else %} Гость ({{ order.email }}){% endif %}
-                                                                </small>
-                                                            </div>
-                                                            <span class="fw-bold text-dark flex-shrink-0 ms-auto">{{ order.get_total_price|floatformat:0 }}₽</span>
+                                                            <div class="d-flex justify-content-between align-items-center w-100 pe-3">
 
+                                                                {# 1. Блок текста (Имя клиента) #}
+                                                                <div class="d-flex flex-column me-4 text-start">
+                                                                    <div class="fw-bold text-dark">
+                                                                        Заказ #{{ order.id }}
+                                                                    </div>
+                                                                    <small class="text-muted">
+                                                                        Клиент: {% if order.user %}{{ order.user.email }}{% else %} Гость ({{ order.email }}){% endif %}
+                                                                    </small>
+                                                                </div>
+
+                                                                {# 2. Блок суммы (Выталкивается вправо классом justify-content-between) #}
+                                                                <span class="fw-bold text-dark flex-shrink-0">
+                                                                    {{ order.get_total_price|floatformat:0 }}&nbsp;₽
+                                                                </span>
+                                                            </div>
                                                         </button>
                                                     </h2>
 
