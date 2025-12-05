@@ -50,9 +50,19 @@ def cart_detail(request):
     """
     Отображает содержимое корзины.
     """
+    cart = Cart(request)
+    initial_data = {}
+    if request.user.is_authenticated:
+        user = request.user
+        initial_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'phone': getattr(user, 'phone', ''),
+        }
+    order_form = CreateOrderForm(initial=initial_data, user=request.user)    #Создаем заполненную форму заказа
     context = {
-        'cart': Cart(request),
-        'form': CreateOrderForm(),
+        'cart': cart,
+        'form': order_form,    #Теперь форма доступна в контексте
     }
-
-    return render(request, 'carts/cart_detail.html', context)
+    return render(request, 'carts/cart_detail.html', context)    #Убедитесь, что имя шаблона верное

@@ -11,10 +11,14 @@ class CreateOrderForm(forms.ModelForm):
     Форма для создания нового заказа.
     Используется для сбора контактной информации и деталей доставки от пользователя.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         # Динамически делаем delivery_address необязательным при инициализации
         self.fields['delivery_address'].required = False
+
+        if user and user.is_authenticated:
+            self.fields['email'].widget.attrs['readonly'] = True    #Делаем email и phone только для чтения, чтобы пользователь их не менял
+            self.fields['phone'].widget.attrs['readonly'] = True
 
 
     class Meta:

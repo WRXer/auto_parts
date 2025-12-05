@@ -66,7 +66,24 @@ def create_order(request):
                 'success': False,
                 'errors': form.errors
             })
-    return redirect('carts:cart_detail')
+
+    initial_data = {}
+    if request.user.is_authenticated:   #Подставляем данные из профиля авторизованного пользователя
+        user = request.user
+        initial_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'phone': user.phone,
+        }
+
+    form = CreateOrderForm(initial=initial_data, user=request.user)    #Создаем форму, используя initial_data
+    modal_html = render_to_string(
+        'orders/create_order_modal.html',
+        {'form': form, 'cart': cart},    #Передаем заполненную форму и корзину
+        request=request
+    )
+    return JsonResponse({'success': True, 'modal_html': modal_html})
 
 def order_success(request, order_id):
     """
