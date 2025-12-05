@@ -27,7 +27,7 @@
                             </button>
                         </li>
 
-                        {% if user.is_superuser %}
+                        {% if user.is_staff %}
                         <li class="nav-item mb-2" role="presentation">
                             <button class="nav-link w-100 text-start" id="all-orders-tab" data-bs-toggle="tab" data-bs-target="#all-orders-content" type="button" role="tab" aria-controls="all-orders-content" aria-selected="false">
                                 <i class="fas fa-clipboard-list me-2"></i> Обработка заказов
