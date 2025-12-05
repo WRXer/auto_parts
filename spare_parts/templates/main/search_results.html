@@ -1,0 +1,257 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'deps/css/pagination_styles.css' %}">
+
+
+<main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="position-relative p-3 p-md-2 m-md-3 text-center">
+        <div class="card p-4 shadow-lg mb-1" style="background-color: rgba(255, 255, 255, 0.9);">
+            <form class="d-flex" role="search" action="{% url 'spare_parts:search_by_number' %}" method="get">
+                <div class="input-group me-2 flex-grow-1">
+                    <span class="input-group-text">Поиск по номеру запчасти:</span>
+                    <input class="form-control"
+                           type="search"
+                           placeholder="Пример: 25739AA100"
+                           aria-label="Search"
+                           name="part_number"
+                           value="{{ part_number|default:'' }}"/>
+                </div>
+                <button class="btn btn-outline-success" type="submit">Поиск</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container py-1">
+        <h1 class="mb-4 text-center">
+            {% if search_query %}
+                Результаты поиска по номеру: "{{ search_query }}"
+            {% else %}
+                Результаты поиска
+            {% endif %}
+        </h1>
+        <div class="row g-4">
+            <div class="col-12 col-lg-3 custom-filter-width">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow-sm rounded-2">
+                        <div class="card-header bg-light text-dark">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleFilterBody()">
+                                Фильтр <i id="filter-arrow" class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="sidebar-filter-form" action="{% url 'spare_parts:search_by_number' %}" method="GET">
+                                <input type="hidden" name="part_number" value="{{ part_number|default:'' }}">
+                                {% if request.GET.category %}
+                                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label for="id_make_sidebar" class="form-label">Марка:</label>
+                                    <select name="make" id="id_make_sidebar" class="form-select" onchange="filterChange(this)">
+                                        <option value="">-- Все марки --</option>
+                                        {% for make in car_makes %}
+                                            <option value="{{ make.pk }}" {% if request.GET.make == make.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ make.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_model_sidebar" class="form-label">Модель:</label>
+                                    <select name="model" id="id_model_sidebar" class="form-select" {% if not car_models %}disabled{% endif %} onchange="filterChange(this)">
+                                        <option value="">-- Все модели --</option>
+                                        {% for model in car_models %}
+                                            <option value="{{ model.pk }}" {% if request.GET.model == model.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ model.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="id_generation_sidebar" class="form-label">Модификация:</label>
+                                    <select name="generation" id="id_generation_sidebar" class="form-select" {% if not car_generations %}disabled{% endif %} onchange="filterChange(this)">
+                                        <option value="">-- Все модификации --</option>
+                                        {% for gen in car_generations %}
+                                            <option value="{{ gen.pk }}" {% if request.GET.generation == gen.pk|stringformat:"s" %}selected{% endif %}>
+                                                {{ gen.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <a href="{% url 'spare_parts:search_by_number' %}?part_number={{ part_number|default:'' }}" class="btn btn-outline-success w-100 mt-2">
+                                    Сбросить
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                    {% if all_parts %}
+                        <div class="col-12 text-center mt-3">
+                            <p>Найдено позиций: {{ page_obj.paginator.count }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-lg-9">
+                <div id="parts-container">
+                    <div class="row g-4 justify-content">
+                        {% for part in all_parts %}
+                            <div class="col-12 col-md-8 col-xl-6">
+                                <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
+                                    <div class="d-flex p-3 flex-grow-1">
+                                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                            {% with image=part.get_main_image_source %}
+                                                {% if image%}
+                                                    <img src="{{ image }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
+                                            <p class="card-text text-muted mb-1">
+                                                Артикул: {% if part.part_number and part.part_number|lower != 'nan' %}
+                                                    {{ part.part_number }}
+                                                {% else %}
+                                                    Отсутствует
+                                                {% endif %}
+                                            </p>
+
+                                            {% if part.donor_generation %}
+                                                <p class="card-text small text-dark">
+                                                    {{ part.donor_generation.model.make.name }}
+                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                </p>
+                                            {% else %}
+                                                <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                        <strong class="fs-4 text-dark">{{ part.price|floatformat:0 }} ₽</strong>
+                                        <a href="#"
+                                        data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
+                                           class="btn btn-outline-success js-open-part-modal">
+                                            Подробнее
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% empty %}
+                            <div class="col-10">
+                                <div class="alert alert-warning" role="alert">
+                                    В данный момент запчастей по этому фильтру нет. Попробуйте изменить критерии поиска.
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% if is_paginated %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
+
+                                    {% comment %}
+                                    Создаем общий префикс для всех фильтров (включая part_number),
+                                    чтобы не повторять их в каждой ссылке.
+                                    {% endcomment %}
+                                    {% with query_prefix="" %}
+                                        {% comment %} сохраняем part_number для этой страницы {% endcomment %}
+                                        {% if request.GET.part_number %}{% with query_prefix=query_prefix|add:"&part_number="|add:request.GET.part_number %}{% endwith %}{% endif %}
+                                        {% if request.GET.make %}{% with query_prefix=query_prefix|add:"&make="|add:request.GET.make %}{% endwith %}{% endif %}
+                                        {% if request.GET.model %}{% with query_prefix=query_prefix|add:"&model="|add:request.GET.model %}{% endwith %}{% endif %}
+                                        {% if request.GET.generation %}{% with query_prefix=query_prefix|add:"&generation="|add:request.GET.generation %}{% endwith %}{% endif %}
+                                        {% if request.GET.category %}{% with query_prefix=query_prefix|add:"&category="|add:request.GET.category %}{% endwith %}{% endif %}
+
+                                        <ul class="pagination justify-content-center" id="pagination-links">
+
+                                            {% comment %} Кнопка "Предыдущая" {% endcomment %}
+                                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                                <a class="page-link"
+                                                   {% if page_obj.has_previous %}
+                                                       data-page="{{ page_obj.previous_page_number }}"
+                                                       href="?page={{ page_obj.previous_page_number }}{{ query_prefix }}"
+                                                   {% else %}
+                                                       data-page="1"
+                                                       href="#"
+                                                   {% endif %}
+                                                   aria-label="Предыдущая">
+                                                    <span aria-hidden="true">&lsaquo;</span>
+                                                </a>
+                                            </li>
+
+                                            {% comment %} ЛОГИКА НОМЕРОВ СТРАНИЦ: [1] [..] [C-1] [C] [C+1] [..] [N] {% endcomment %}
+                                            {% for p in page_obj.paginator.page_range %}
+                                                {% comment %} Условия для отображения: Первая (1), Последняя (N), или Центральный блок (C, C-1, C+1) {% endcomment %}
+                                                {% if p == 1 or p == total_pages or p == current_page or p == current_page|add:1 or current_page == p|add:1 %}
+                                                    {# Активная страница (C) #}
+                                                    {% if p == current_page %}
+                                                        <li class="page-item active" aria-current="page">
+                                                            <span class="page-link fw-bold"
+                                                                style="min-width: 44px; display: flex; align-items: center; justify-content: center;">{{ p }}</span>
+                                                        </li>
+                                                    {# Обычная ссылка #}
+                                                    {% else %}
+                                                        <li class="page-item">
+                                                            <a class="page-link"
+                                                               data-page="{{ p }}"
+                                                               href="?page={{ p }}{{ query_prefix }}">
+                                                               {{ p }}
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% comment %} Условия для многоточия {% endcomment %}
+                                                {% else %}
+                                                    {# Многоточие после 1-й страницы: показываем, если p=2 и текущая страница дальше, чем 3. #}
+                                                    {% if p == 2 and current_page > 3 %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {# Многоточие перед последней страницей: показываем, если p=N-1 (total_pages == p+1) и текущая страница далеко от N. #}
+                                                    {% elif total_pages == p|add:1 and current_page|add:2 < total_pages %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% comment %} Кнопка "Следующая" {% endcomment %}
+                                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                                <a class="page-link"
+                                                   {% if page_obj.has_next %}
+                                                       data-page="{{ page_obj.next_page_number }}"
+                                                       href="?page={{ page_obj.next_page_number }}{{ query_prefix }}"
+                                                   {% else %}
+                                                       data-page="{{ current_page }}"
+                                                       href="#"
+                                                   {% endif %}
+                                                   aria-label="Следующая">
+                                                    <span aria-hidden="true">&rsaquo;</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    {% endwith %}
+                                {% endwith %}
+                            </nav>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="{% static 'deps/js/search_in_pagination.js' %}"></script>
+<script src="{% static 'deps/js/filter_logic_new.js' %}"></script>
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
+
+{% endblock content %}

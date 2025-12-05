@@ -1,0 +1,58 @@
+{% extends 'main/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Вход в личный кабинет – Маркет Запчастей CheapAutoParts64{% endblock %}
+{% block content %}
+<main class="container text-dark py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg p-4 rounded-4" style="background-color: rgba(255, 255, 255, 0.95);">
+                <h2 class="text-center card-title mb-4">Вход в аккаунт</h2>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+
+                            {# Применяем класс Bootstrap ко всем полям #}
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                <div class="form-check">
+                                    {{ field }}
+                                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                </div>
+                            {% else %}
+                                {{ field|add_class:"form-control" }}
+                            {% endif %}
+
+                            {% if field.errors %}
+                                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger mb-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                        {# Ссылка на восстановление пароля #}
+                        <a href="{% url 'users:password_reset' %}" class="btn btn-outline-secondary flex-grow-1 me-3" aria-label="Восстановление пароля">
+                            Забыли пароль?
+                        </a>
+
+                        <button type="submit" class="btn btn-success flex-grow-1 me-3">Войти</button>
+                </div>
+                </form>
+
+                <div class="text-center mt-3 pt-3 border-top">
+                    <p class="mb-2">Нет аккаунта?</p>
+                    <a href="{% url 'users:registration_page' %}" class="btn btn-outline-success w-100">Зарегистрироваться</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

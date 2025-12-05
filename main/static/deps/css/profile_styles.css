@@ -1,0 +1,91 @@
+/* CSS для кастомизации nav-pills */
+
+#profileTabs .nav-link {
+    color: var(--bs-dark) !important;
+    transition: all 0.2s ease;
+}
+
+#profileTabs .nav-link.active {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-white) !important;
+}
+
+#profileTabs .nav-link i {
+    color: var(--bs-dark);
+}
+
+#profileTabs .nav-link.active {
+    background-color: var(--bs-success) !important;
+    color: var(--bs-white) !important;
+}
+
+#profileTabs .nav-link.active i {
+    color: var(--bs-white) !important;
+}
+
+/* Добавляем стили для корректного отображения режима просмотра */
+.dl-horizontal dt {
+    float: left;
+    width: 160px; /* Фиксированная ширина для левой колонки */
+    overflow: hidden;
+    clear: left;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.dl-horizontal dd {
+    margin-left: 170px;
+}
+
+/* 🎨 Стили для активной кнопки заказа в Аккордеоне */
+#ordersAccordion .accordion-button:not(.collapsed) {
+    background-color: var(--bs-success);
+    color: var(--bs-white); /* Основной текст кнопки (например, хэш #) */
+}
+
+/* ❗ ПЕРЕОПРЕДЕЛЕНИЕ ЦВЕТОВ ВНУТРЕННИХ ЭЛЕМЕНТОВ (ID/Адрес и Сумма/Статус) */
+
+/* 1. Делаем ID заказа и адрес белыми (перекрываем text-dark) */
+#ordersAccordion .accordion-button:not(.collapsed) .text-dark {
+    color: var(--bs-white) !important;
+}
+
+/* 2. Делаем сумму белой (перекрываем text-success) */
+#ordersAccordion .accordion-button:not(.collapsed) .text-success {
+    color: var(--bs-white) !important;
+}
+
+/* Стили для стрелки/иконки (делаем ее белой) */
+#ordersAccordion .accordion-button:not(.collapsed)::after {
+    filter: brightness(0) invert(1);
+}
+
+/* Стиль для активного (открытого) заказа в админке */
+.accordion-item.order-active {
+    border-color: #198754 !important; /* Зеленая рамка */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+.accordion-item.order-active .accordion-button {
+    background-color: #d1e7dd; /* Светло-зеленый фон (bg-success-subtle) */
+    color: #0f5132; /* Темно-зеленый текст */
+    font-weight: bold;
+}
+.accordion-item.order-active .accordion-button:not(.collapsed) {
+    background-color: #c0f2d4; /* Чуть темнее для открытого состояния */
+}
+
+
+/* Правила для экранов >= 768px (MD и выше) */
+@media (min-width: 200px) {
+    /* * Устанавливаем фиксированную ширину для input-group-text (плашек "Оплата" и "Статус"),
+     * чтобы они занимали одинаковое место, заставляя селекторы (form-select)
+     * также иметь одинаковую ширину.
+     */
+    .order-status-input .input-group-text {
+        min-width: 90px; /* Выберите подходящее значение */
+        text-align: center;
+        justify-content: center;
+        /* Если вы хотите, чтобы текст был слева, удалите center, но min-width
+           обязательно для выравнивания */
+    }
+}

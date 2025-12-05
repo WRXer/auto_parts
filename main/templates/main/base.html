@@ -1,0 +1,221 @@
+{% load static %}
+{% load cache %}
+<!doctype html>
+<html lang="ru" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="{% static 'deps/icons/head/favicon.ico' %}">
+    <title>{% block title %}Маркет Запчастей CheapAutoParts64{% endblock %}</title>    <link rel="stylesheet" href="{% static 'deps/css/main_styles.css' %}">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous"
+    >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+          integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'deps/css/image_styles.css' %}">
+
+    <link rel="stylesheet" href="{% static 'deps/css/my_css.css' %}">
+    <link rel="stylesheet" href="{% static 'deps/css/custom_styles.css' %}">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg " style="position: relative; z-index: 1060;">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}" aria-label="Product">
+                    <img src="{% static 'deps/icons/head/cap_main.svg' %}" alt="Car Part" width="150" height="150" class="me-2 align-text-bottom">
+            </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle" id="catalogDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Каталог 🛠️
+                            </button>
+                                <ul class="dropdown-menu" aria-labelledby="catalogDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'spare_parts:all_parts' %}">
+                                        Все запчасти
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                {% cache 300 categories_categories %}
+                                        {% for category in all_categories %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'spare_parts:category_detail' category.slug %}">
+                                        {{ category.name }}
+                                        </a>
+                                    </li>
+                                        {% endfor %}
+                                {% endcache %}
+                                </ul>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item me-2">
+                            <a class="nav-link btn btn-outline-dark position-relative"
+                               href="{% url 'carts:cart_detail' %}"
+                               title="Корзина">
+                                Корзина 🛒
+                                <span id="cart-total-count" class="badge bg-danger rounded-pill" style="{% if not cart.get_total_quantity %}display: none;{% endif %}">
+                                    {{ cart.get_total_quantity|default:0 }}
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ">
+                        <li class="nav-item dropdown">
+
+                            {% if user.is_authenticated %}
+                                <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Личный кабинет 💼
+                                </a>
+
+                                <ul class="dropdown-menu dropdown-menu-tertiary dropdown-menu-end p-3" style="min-width: 200px;" aria-labelledby="accountDropdown">
+                                    <li>
+                                        <div class="px-2 py-1 text-center">
+                                            Добро пожаловать, {{ user.email }}
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item btn btn-tertiary w-100" href="{% url 'users:profile' %}">
+                                            Мой профиль
+                                        </a>
+                                    </li>
+                                    {% if user.is_staff %}
+                                    <li>
+                                        <a class="dropdown-item btn btn-tertiary w-100" href="{% url 'admin:index' %}">
+                                            Админка ⚙️
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    <li>
+                                        <hr class="dropdown-divider bg-tertiary">
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item btn btn-tertiary w-100 text-start">
+                                                Выход 🚪
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+
+                            {% else %}
+
+                                <button class="nav-link btn btn-outline-secondary"
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    Личный кабинет 💼
+                                </button>
+
+                            {% endif %}
+
+                        </li>
+                    </ul>
+                </div>
+        </div>
+    </nav>
+<main>
+    {% block content %}
+    {% endblock content %}
+</main>
+    <footer class="container py-5 bg-tertiary text-light">
+    <div class="row pt-3 align-items-center mb-3">
+        <div class="col-12 col-md-3 d-flex justify-content-center justify-content-md-start">
+             <ul class="p-1 list-unstyled d-flex gap-3 border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
+                 <li><a class="link-dark text-decoration-none" href="{% url 'contacts' %}">Контакты</a></li>
+                 <li><a class="link-dark text-decoration-none" href="{% url 'about' %}">О нас</a></li>
+                 <li><a class="link-dark text-decoration-none" href="{% url 'delivery' %}">Доставка</a></li>
+                 <li><a class="link-dark text-decoration-none" href="{%  url 'payment' %}">Оплата</a></li>
+             </ul>
+        </div>
+        <div class="col-12 col-md-6 ms-auto text-end">
+            <div class="d-flex justify-content-end align-items-center ">
+                <a href="https://t.me/FBCAP64" target="_blank" aria-label="Telegram" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
+                    <img src="{% static 'deps/icons/social/telegram.svg' %}" alt="Telegram" width="32" height="32" style="vertical-align: middle;">
+                </a>
+                <a href="https://vk.com/cheapautoparts64" target="_blank" aria-label="VKontakte" class="p-1 border border-secondary border-opacity-25 rounded-2 bg-light bg-opacity-75 d-inline-block">
+                    <img src="{% static 'deps/icons/social/vk.svg' %}" alt="VKontakte" width="32" height="32" style="vertical-align: middle;">
+                </a>
+                <a href="https://www.avito.ru/brands/cheapautoparts64/all?sellerId=452acbba7db122340ccf95092f8253b0" target="_blank" aria-label="Avito" class="p-1 border border-secondary border-opacity-25 rounded-3 bg-light bg-opacity-75 d-inline-block">
+                    <img src="{% static 'deps/icons/social/avito.svg' %}" alt="Avito" width="32" height="32" style="vertical-align: middle;">
+                </a>
+            </div>
+        </div>
+    </div>
+    <hr class="border-dark mt-4">
+    <div class="row pt-2">
+        <div class="col-12">
+            <small class="d-block text-dark">&copy; 2010-2025 CheapAutoParts64</small>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="partDetailModal" tabindex="-1" aria-labelledby="partDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partDetailModalLabel">Загрузка...</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Загрузка данных...
+            </div>
+        </div>
+    </div>
+</div>
+
+{# МОДАЛЬНОЕ ОКНО ДЛЯ ВХОДА #}
+{% if not user.is_authenticated %}
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Вход в Личный кабинет</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'users:login' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="modal_id_email_input" class="form-label">Емейл</label>
+                        <input type="text" class="form-control" name="username" id="modal_id_email_input" placeholder="example@mail.ru" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_id_password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" name="password" id="modal_id_password" placeholder="Пароль" required/>
+                    </div>
+                    <button type="submit" class="btn btn-outline-success w-100">Войти</button>
+                    <input type="hidden" name="next" value="{% url 'users:profile' %}">
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center flex-column">
+                 <p class="text-center mb-2">Ещё нет аккаунта?</p>
+                 <a href="{% url 'users:registration_page' %}" class="btn btn-sm btn-outline-success w-100">Зарегистрироваться</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous">
+</script>
+
+</body>
+</html>

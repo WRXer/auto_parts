@@ -1,0 +1,220 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% load cache %}
+{% block content %}
+
+<main class="container text-dark pt-3 pb-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="row g-4 px-3 px-md-5 pb-5 pt-3">
+        <div class="col-12 ">
+            <div class="card p-4 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
+                <h2 class="card-title text-center mb-4">Найти запчасть по автомобилю</h2>
+                <form method="get" id="filter-form" action="{% url 'spare_parts:all_parts' %}" class="mb-3">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="id_make" class="form-label fw-bold">Марка:</label>
+                            <select data-name="make" id="id_make" class="form-select"
+                                    data-load-models-url="{% url 'spare_parts:ajax_load_car_models' %}"
+                                    data-load-generations-url="{% url 'spare_parts:ajax_load_car_generations' %}"
+                                    data-car-model-list-url="{% url 'spare_parts:models_list' make_pk=0 %}"
+                                    data-car-generation-list-url="{% url 'spare_parts:generations_list' make_pk=0 model_pk=0 %}"
+                                    data-parts-by-generation-url="{% url 'spare_parts:parts_by_generation' make_pk=0 model_pk=0 generation_pk=0 %}"
+                                    data-default-action="{% url 'spare_parts:all_parts' %}">
+                                <option value="">-- Выберите марку --</option>
+                                {% for make in car_makes %}
+                                    <option value="{{ make.pk }}">{{ make.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_model" class="form-label fw-bold">Модель:</label>
+                            <select data-name="model" id="id_model" class="form-select" disabled>
+                                <option value="">-- Сначала выберите марку --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="id_generation" class="form-label fw-bold">Модификация:</label>
+                            <select data-name="generation" id="id_generation" class="form-select" disabled>
+                                <option value="">-- Сначала выберите модель --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 align-self-end">
+                            <button type="submit" id="submit-filter-btn" class="btn btn-outline-success w-100">Перейти</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card p-3 shadow-lg" style="background-color: rgba(255, 255, 255, 0.9);">
+                <h2 class="card-title text-center mb-3">Поиск по номеру запчасти</h2>
+                <form class="row justify-content-center" action="{% url 'spare_parts:search_by_number' %}" method="get">
+                    <div class="col-12 col-md-9 mb-3 mb-md-0">
+                        <label for="part_number_input" class="form-label fw-bold visually-hidden">Номер запчасти:</label>
+                        <input id="part_number_input" class="form-control" type="search" placeholder="Введите оригинальный номер (Пример: 25739AA100)" aria-label="Search" name="part_number"/>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-outline-success w-100 compact-search-btn" type="submit">Поиск</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    {% cache 500 cache_carts_index %}
+    <div class="mx-auto">
+        <div class="row my-md-3 justify-content-center">
+            <div class="col-md-6 mb-3">
+                {% with target_slug='engine' %}
+                    {% for category in all_categories %}
+                        {% if category.slug == target_slug %}
+                            <a href="{% url 'spare_parts:category_detail' category_slug=category.slug %}" class="text-decoration-none d-block h-100">
+                                <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column text-light"
+                                     style="background-color: rgba(0, 0, 0, 0.75); min-height: 450px; transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.5)'"
+                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.1)'">
+                                    <div class="my-1 py-1">
+                                        <h2 class="display-5">Двигатель</h2>
+                                        <p class="lead">Комплектующие, навесное оборудование</p>
+                                    </div>
+                                    <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 95%; height: 350px; border-radius: 21px 21px 0 0;">
+                                        <img src="{% static 'deps/images/engine.png' %}" alt="Изображение двигателя" style="width: 100%; height: 100%; object-fit: cover; border-radius: 21px 21px 0 0;"/>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {% with target_slug='body-parts' %}
+                    {% for category in all_categories %}
+                        {% if category.slug == target_slug %}
+                            <a href="{% url 'spare_parts:category_detail' category_slug=category.slug %}" class="text-decoration-none d-block h-100">
+                                <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column text-dark"
+                                    style="background-color: rgba(255, 255, 255, 0.75); min-height: 450px; transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                                    onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.5)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.1)'">
+                                    <div class="my-1 py-1">
+                                        <h2 class="display-5">Кузов</h2>
+                                        <p class="lead">Бамперы, крылья, двери</p>
+                                    </div>
+                                    <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 95%; height: 350px; border-radius: 21px 21px 0 0;">
+                                        <img src="{% static 'deps/images/body-parts.png' %}" alt="Изображение кузова" style="width: 100%; height: 100%; object-fit: cover; border-radius: 21px 21px 0 0;"/>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="row my-md-3 justify-content-center">
+            <div class="col-md-6 mb-3">
+                {% with target_slug='brake-system' %}
+                    {% for category in all_categories %}
+                        {% if category.slug == target_slug %}
+                            <a href="{% url 'spare_parts:category_detail' category_slug=category.slug %}" class="text-decoration-none d-block h-100">
+                                <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column text-dark"
+                                    style="background-color: rgba(255, 255, 255, 0.75); min-height: 450px; transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                                    onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.5)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.1)'">
+                                    <div class="my-1 py-1">
+                                        <h2 class="display-5">Тормозная система</h2>
+                                        <p class="lead">Диски, суппорты, колодки</p>
+                                    </div>
+                                    <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 95%; height: 350px; border-radius: 21px 21px 0 0;">
+                                        <img src="{% static 'deps/images/brake-system.png' %}" alt="Изображение тормозных дисков" style="width: 100%; height: 100%; object-fit: cover; border-radius: 21px 21px 0 0;"/>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+            <div class="col-md-6 mb-3">
+                {% with target_slug='suspension' %}
+                    {% for category in all_categories %}
+                        {% if category.slug == target_slug %}
+                            <a href="{% url 'spare_parts:category_detail' category_slug=category.slug %}" class="text-decoration-none d-block h-100">
+                                <div class="pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden shadow-lg rounded-5 h-100 d-flex flex-column text-dark"
+                                     style="background-color: rgba(108, 117, 125, 0.75); min-height: 450px;transition: transform 0.3s ease, box-shadow 0.3s ease;"
+                                        onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.5)'"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1rem 3rem rgba(0,0,0,.1)'">
+                                    <div class="my-1 py-1">
+                                        <h2 class="display-5">Подвеска</h2>
+                                        <p class="lead">Пружины, ступицы, рычаги, стойки</p>
+                                    </div>
+                                    <div class="bg-body-tertiary shadow-sm mx-auto mt-auto" style="width: 95%; height: 350px; border-radius: 21px 21px 0 0;">
+                                        <img src="{% static 'deps/images/suspension.png' %}" alt="Изображение подвески" style="width: 100%; height: 100%; object-fit: cover; border-radius: 21px 21px 0 0;"/>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    {% endcache %}
+
+    {% if new_arrivals %}
+    <div class="container px-4 pt-4 pb-2">
+        <h2 class="pb-3  text-center mb-2 text-dark">Последние поступления в разбор</h2>
+        <div class="row g-4 justify-content-center">
+
+            {% for car in new_arrivals %}
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow h-100 text-decoration-none text-dark border-0 rounded-4 overflow-hidden" style="background-color: rgba(255, 255, 255, 0.9);">
+
+                    <div id="donor-carousel-{{ car.pk }}" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-inner" style="height: 200px;">
+
+                            {% for image in car.images.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="d-block">
+                                    <img src="{{ image.get_image_source }}" class="d-block w-100" alt="Фото {{ forloop.counter }}" style="height: 200px; object-fit: cover;">
+                                </a>
+                            </div>
+                            {% empty %}
+                            <div class="carousel-item active">
+                                <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="d-block">
+                                    <img src="{% static 'deps/images/default_car_image.png' %}" class="d-block w-100" alt="Фото отсутствует" style="height: 200px; object-fit: cover; background-color: #e9ecef;">
+                                </a>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                        <!--Кнопки управления изображениями в блоке поступивших авто -->
+                        <button class="carousel-control-prev" type="button" data-bs-target="#donor-carousel-{{ car.pk }}" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Предыдущее</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#donor-carousel-{{ car.pk }}" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Следующее</span>
+                        </button>
+                    </div>
+
+                    <div class="card-body d-flex flex-column text-center p-3">
+                        <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="text-decoration-none">
+                            <h3 class="card-title text-dark fs-5 fw-bold mb-1">{{ car.generation.model.make.name }} {{ car.generation.model.name }} {{ car.generation.name }}</h3>
+                            <p class="card-text text-muted small fw-bold mb-3">{{ car.production_year }}</p>
+                        </a>
+                        <a href="{% url 'spare_parts:donor_detail' car.pk %}" class="btn btn-sm btn-outline-success mt-auto rounded-pill">
+                            Посмотреть все запчасти
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    {% endif %}
+
+</main>
+
+<script src="{% static 'deps/js/filter_logic.js' %}"></script>
+
+{% endblock content %}

@@ -1,0 +1,43 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Выбор поколения – Маркет Запчастей CheapAutoParts64{% endblock %}
+{% block content %}
+
+
+<main class="container text-dark py-5 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <h1 class="mb-4 text-center text-dark">
+        Поколения для {{ current_make.name }} {{ current_model.name }}
+    </h1>
+
+    <div class="row g-4 justify-content-center">
+        {% for generation in generations_list %}
+            <div class="col-12 col-md-4">
+                    <div class="card h-100 shadow-sm transition-hover text-center">
+                        <div class="card-body">
+                            <h5 class="card-title ">{{ generation.name }}</h5>
+                            <a href="{% url 'spare_parts:parts_by_generation' make_pk=current_make.pk model_pk=current_model.pk generation_pk=generation.pk %}" class="btn btn-outline-success">Посмотреть запчасти</a>
+                        </div>
+                    </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    Поколения для этой модели не найдены.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+ <style>
+    .transition-hover {
+      transition: all 0.2s ease-in-out;
+    }
+    .transition-hover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+  </style>
+</main>
+
+
+{% endblock content %}

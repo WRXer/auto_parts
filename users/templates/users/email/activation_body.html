@@ -1,0 +1,33 @@
+{% load i18n %}{% autoescape off %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Активация аккаунта</title>
+    <style>
+        .button {
+            background-color: #198754;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <p>Здравствуйте, {{ user.email }}!</p>
+    <p>Спасибо за регистрацию на сайте CheapAutoParts64.</p>
+    <p>Пожалуйста, нажмите на кнопку ниже, чтобы активировать ваш аккаунт и завершить регистрацию:</p>
+
+    <a href="{{ activation_link }}" class="button text-dark">Активировать аккаунт</a>
+
+    <p>Если кнопка не работает, скопируйте и вставьте следующую ссылку в адресную строку браузера:</p>
+    <p>{{ activation_link }}</p>
+    <p>С уважением,</p>
+    <p>Команда CheapAutoParts64.</p>
+</body>
+</html>
+
+{% endautoescape %}

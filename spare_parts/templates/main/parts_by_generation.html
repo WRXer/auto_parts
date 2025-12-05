@@ -1,0 +1,192 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} {{ current_generation.name }} GEN – Маркет Запчастей CheapAutoParts64{% endblock %}
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'deps/css/pagination_styles.css' %}">
+
+
+<main class="container text-dark py-1 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="container py-1">
+        <h1 class="mb-4 text-center">
+            Запчасти для {{ current_generation.model.make.name }} {{ current_generation.model.name }} {{ current_generation.name }} GEN
+        </h1>
+        <div class="row g-4">
+            <div class="col-12 col-lg-3 custom-filter-width">
+                <div class="sticky-top" style="top: 20px;">
+                    <div class="card shadow-sm rounded-2">
+                        <div class="card-header bg-light text-dark" data-bs-toggle="collapse" data-bs-target="#categories-collapse" aria-expanded="false" aria-controls="categories-collapse" style="cursor: pointer;">
+                            <h5 class="mb-0 d-flex justify-content-between align-items-center">
+                                Категории
+                                <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                            </h5>
+                        </div>
+
+                        <div class="collapse show" id="categories-collapse">
+                            <div class="card-body p-0">
+                                <div class="list-group list-group-flush rounded-bottom-2">
+                                    {% url 'parts_by_generation' make_pk=current_generation.model.make.pk model_pk=current_generation.model.pk generation_pk=current_generation.pk as base_url %}
+                                    <a href="{{ base_url }}" onclick="clearCategoryFilter(event)" class="list-group-item list-group-item-action {% if not request.GET.category %}active{% endif %}">Все категории</a>
+                                    {% for category in categories %}
+                                        <a href="{{ base_url }}?category={{ category.pk }}" class="list-group-item list-group-item-action {% if request.GET.category|safe == category.pk|slugify or request.GET.category|safe == category.pk|stringformat:"s" %}active{% endif %}">{{ category.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if parts_list %}
+                        <div class="col-12 text-center mt-3">
+                            <p>Найдено позиций: {{ page_obj.paginator.count }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 col-lg-9">
+                <div id="parts-container">
+                    <div class="row g-4 justify-content">
+                        {% for part in parts_list %}
+                            <div class="col-12 col-md-8 col-xl-6">
+                                <div class="card shadow-lg bg-light text-dark d-flex flex-column card-height-range">
+                                    <div class="d-flex p-3 flex-grow-1">
+                                        <div class="me-3 flex-shrink-0" style="width: 200px; height: 200px; overflow: hidden; border-radius: 6px;">
+                                            {% with image=part.get_main_image_source %}
+                                                {% if image%}
+                                                    <img src="{{ image }}" alt="{{ part.title|default:'Запчасть' }}" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{% static 'deps/images/default_part_image.png' %}" alt="Изображение отсутствует" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title text-dark">{{ part.title|truncatewords:5 }}</h5>
+                                            <p class="card-text text-muted mb-1">
+                                                Артикул: {% if part.part_number and part.part_number|lower != 'nan' %}
+                                                    {{ part.part_number }}
+                                                {% else %}
+                                                    Отсутствует
+                                                {% endif %}
+                                            </p>
+
+                                            {% if part.donor_generation %}
+                                                <p class="card-text small text-dark">
+                                                    {{ part.donor_generation.model.make.name }}
+                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                </p>
+                                            {% else %}
+                                                <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+
+                                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                                        <strong class="fs-4 text-dark">{{ part.price|floatformat:0 }} ₽</strong>
+                                        <a href="#"
+                                        data-url="{% url 'spare_parts:part_detail_modal' part.pk %}"
+                                           class="btn btn-outline-success js-open-part-modal">
+                                            Подробнее
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-warning" role="alert">
+                                В данный момент запчастей в этой категории нет.
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    {% if is_paginated %}
+                            <nav aria-label="Page navigation" class="mt-4">
+                                {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
+                                    {% with filter_params="" %}
+                                        {% if request.GET.make %}{% with filter_params=filter_params|add:"&make="|add:request.GET.make %}{% endwith %}{% endif %}
+                                        {% if request.GET.model %}{% with filter_params=filter_params|add:"&model="|add:request.GET.model %}{% endwith %}{% endif %}
+                                        {% if request.GET.generation %}{% with filter_params=filter_params|add:"&generation="|add:request.GET.generation %}{% endwith %}{% endif %}
+                                        {% if request.GET.category %}{% with filter_params=filter_params|add:"&category="|add:request.GET.category %}{% endwith %}{% endif %}
+                                    {% endwith %}
+                                    {% with filter_params_macro=filter_params %}
+                                        <ul class="pagination justify-content-center">
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ page_obj.previous_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                                                       aria-label="Предыдущая">
+                                                        &lsaquo;
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&lsaquo;</span>
+                                                </li>
+                                            {% endif %}
+
+                                            {% comment %}
+                                                ЛОГИКА ПАГИНАЦИИ: [1] [..] [C-1] [C] [C+1] [..] [N]
+                                            {% endcomment %}
+
+                                            {% for p in page_obj.paginator.page_range %}
+                                                {% comment %} Условия для отображения: Первая (1), Последняя (N), или Центральный блок (C, C-1, C+1) {% endcomment %}
+                                                {% if p == 1 or p == total_pages or p == current_page or p == current_page|add:1 or current_page == p|add:1 %}
+                                                    {# Активная страница (C) #}
+                                                    {% if p == current_page %}
+                                                        <li class="page-item active" aria-current="page">
+                                                            <span class="page-link fw-bold"
+                                                                style="min-width: 44px; display: flex; align-items: center; justify-content: center;">{{ p }}</span>
+                                                        </li>
+                                                    {# Обычная ссылка #}
+                                                    {% else %}
+                                                        <li class="page-item">
+                                                            <a class="page-link"
+                                                               href="?page={{ p }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">
+                                                               {{ p }}
+                                                            </a>
+                                                        </li>
+                                                    {% endif %}
+                                                {% comment %} Условия для многоточия {% endcomment %}
+                                                {% else %}
+                                                    {# Многоточие после 1-й страницы: показываем, если p=2 и текущая страница дальше, чем 3. #}
+                                                    {% if p == 2 and current_page > 3 %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {# Многоточие перед последней страницей: показываем, если p=N-1 (total_pages == p+1) и текущая страница далеко от N. #}
+                                                    {% elif total_pages == p|add:1 and current_page|add:2 < total_pages %}
+                                                        <li class="page-item disabled">
+                                                            <span class="page-link">...</span>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% comment %} Кнопка "Следующая" {% endcomment %}
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ page_obj.next_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                                                       aria-label="Следующая">
+                                                        &rsaquo;
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">&rsaquo;</span>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    {% endwith %}
+                                {% endwith %}
+                            </nav>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="{% static 'deps/js/filter_parts.js' %}"></script>
+<script src="{% static 'deps/js/part_modal.js' %}"></script>
+
+{% endblock content %}

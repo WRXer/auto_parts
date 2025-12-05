@@ -9,13 +9,16 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
+from datetime import timedelta
 from pathlib import Path
+from dotenv import load_dotenv
 
 from django.conf.global_settings import AUTH_USER_MODEL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,11 +26,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-r4_&g^aie7cji=z=xh)lz)!kypxf-o$34s4=jbq*-1ejp%3-)y'
-
+SECRET_ADMIN_PATH = os.getenv("ADMIN_URL", "admin/")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'cheapautoparts.ru',
+    'www.cheapautoparts.ru',
+    'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
+    'localhost',
+    '127.0.0.1',
+    '.cloudpub.ru',  # Добавляем все поддомены CloudPub
+]
 
 
 # Application definition
@@ -39,9 +49,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     'rest_framework',
+    'phonenumber_field',
+    'widget_tweaks',
+    'django_celery_beat',
+    'django.contrib.sitemaps',
+
     'users',
+    'main',
+    'spare_parts',
+    'carts',
+    'orders'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +88,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'spare_parts.context_processors.all_categories',
+                'carts.context_processors.carts',
             ],
         },
     },
@@ -82,12 +104,38 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'auto_parts',
-        'USER': 'postgres',
-        'PASSWORD': '777nokia',
+        'NAME': os.getenv('NAME_DB'),
+        'USER': os.getenv('USER_DB'),
+        'PASSWORD': os.getenv('PASSWORD_DB'),
+        'HOST': 'db'
     }
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": BASE_DIR / "cache" ,
+    }
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_SSL = True
+
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+SITE_ID = 1
+
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.EmailOrPhoneBackend', # Ваш кастомный бэкенд - ПЕРВЫЙ
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://cheapautoparts.ru'] # Добавьте свой хост
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -111,9 +159,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -124,6 +172,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_collected')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -132,3 +181,44 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 AUTH_USER_MODEL = 'users.User'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'index'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+SITE_ID = 2
+CART_SESSION_ID = 'carts'
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True       # Перенаправлять весь HTTP-трафик на HTTPS
+SECURE_HSTS_SECONDS = 31536000   # Активировать HSTS на 1 год
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+TELEGRAM_ADMINS_FILE = BASE_DIR / 'telegram_admins.json'
+
+
+# Настройки Celery
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
+# URL брокера сообщений (если используете Redis)
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+#Бэкенд для хранения результатов задач (тоже Redis)
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+#CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+#Бэкенд для хранения результатов задач (тоже Redis)
+#CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+
+#Сериализация данных (JSON — самый универсальный)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Часовой пояс (важно для планировщика задач)
+CELERY_TIMEZONE = 'Europe/Moscow'
+

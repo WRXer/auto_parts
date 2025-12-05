@@ -1,0 +1,94 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Регистрация аккаунта – Маркет Запчастей CheapAutoParts64{% endblock %}
+{% block content %}
+<main class="container py-4 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
+    <div class="row justify-content-center">
+        <div class="col-md-8 p-4 bg-white rounded shadow">
+
+            <h2 class="text-center text-dark">Регистрация</h2>
+
+            {% if messages %}
+                <div class="container mt-2">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div
+                id="registration-data"
+                data-successful="{% if registration_successful %}true{% else %}false{% endif %}"
+                data-user-email="{{ user_email|default:'' }}"
+                data-redirect-url="/"
+                style="display: none;"
+            ></div>
+
+            <form method="POST" id="registration-form">
+                {% csrf_token %}
+
+                <div class="row justify-content-center mt-4">
+                    <div class="col-12 col-sm-10 col-md-10"> {% for field in form.visible_fields %}
+                            <div class="mb-3 row align-items-center">
+
+                                <label for="{{ field.id_for_label }}" class="col-4 col-form-label text-end text-dark fw-bold">
+                                    {{ field.label }}
+                                </label>
+
+                                <div class="col-8">
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1 text-start">{{ field.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                    <div class="mb-3 d-flex justify-content-center">
+                        <div class="alert alert-danger" style="width: 50%;">
+                            {{ form.non_field_errors }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="mb-3 d-flex justify-content-center mt-4">
+                    <button type="submit" id="register-btn" class="btn btn-success" style="width: 30%;">
+                        Завершить регистрацию
+                    </button>
+                 </div>
+            </form>
+        </div>
+        </div>
+</main>
+
+<div class="modal fade" id="activationModal" tabindex="-1" aria-labelledby="activationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="activationModalLabel">🎉 Регистрация завершена!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Ваш аккаунт создан и ожидает активации.</p>
+        <p>Для завершения активации, пожалуйста, перейдите по ссылке, отправленной на <span id="modal-email"></span>.</p>      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="modal-ok-button">ОК</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static '/deps/js/registration.js' %}"></script>
+
+{% endblock %}

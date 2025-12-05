@@ -1,0 +1,70 @@
+version: '3.8'
+
+
+services:
+  # СЕРВИС БАЗЫ ДАННЫХ (POSTGRESQL)
+  db:
+    image: postgres:15-alpine
+    container_name: django_db
+    volumes:
+      # Постоянное хранение данных (чтобы данные не терялись при перезапуске)
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      # Переменные окружения для подключения (должны совпадать с settings.py)
+      POSTGRES_DB: ${NAME_DB}
+      POSTGRES_USER: ${USER_DB}
+      POSTGRES_PASSWORD: ${PASSWORD_DB}
+    restart: always
+    healthcheck: # Проверка готовности базы данных
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # СЕРВИС БРОКЕРА СООБЩЕНИЙ (REDIS)
+  redis:
+    image: redis:7-alpine
+    container_name: django_redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    restart: always
+
+  # СЕРВИС ПРИЛОЖЕНИЯ DJANGO (GUNICORN)
+  app:
+    build: . # Использовать Dockerfile в текущей директории
+    container_name: django_app
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy # Ждать, пока БД будет готова
+      redis:
+        condition: service_started
+    restart: always
+
+  # СЕРВИС CELERY WORKER
+  celery_worker:
+    build: . # Использовать тот же Dockerfile, что и для app
+    container_name: django_celery_worker
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - app
+      - redis
+    restart: always
+
+volumes:
+  postgres_data:

@@ -14,9 +14,35 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.contrib.sitemaps.views import sitemap
+from django.urls import include, path
+from django.views.generic import RedirectView
+from sitemaps import StaticSitemap, PartSitemap, CategorySitemap
+
+
+sitemaps = {
+    'static': StaticSitemap,
+    'parts': PartSitemap,
+    'categories': CategorySitemap,
+}
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(settings.SECRET_ADMIN_PATH, admin.site.urls),
+    path('', include('main.urls')),
+    path('', include('spare_parts.urls', namespace='spare_parts')),
+    path('', include('users.urls')),
+    path('carts/', include('carts.urls')),
+    path('orders/', include('orders.urls', namespace='orders')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', RedirectView.as_view(url=settings.STATIC_URL + 'robots.txt', permanent=True), name='robots_file'),
 ]
+
+if settings.DEBUG:
+    #  Этот блок заставляет Django/Gunicorn обслуживать статику
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

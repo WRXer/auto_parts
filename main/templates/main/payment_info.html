@@ -1,0 +1,61 @@
+{% extends 'main/base.html' %}
+{% load cache %}
+
+{% block content %}
+
+{% cache 300 cache_payment %}
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-4 p-4 p-md-5">
+                <h1 class="text-center mb-4 fw-bold text-dark">💰 Варианты оплаты</h1>
+                <p class="lead text-center mb-5 text-muted">Мы предлагаем несколько удобных способов оплаты:</p>
+                <div class="row g-4">
+
+                    {# Оплата через СБП #}
+                    <div class="col-12">
+                        <div class="card h-100 border-success border-2 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-success fw-bold">1. Оплата через СБП</h5>
+                                <p class="card-text">Система быстрых платежей. Самый быстрый способ оплатить заказ, сканируя QR-код в приложении вашего банка.</p>
+                                <ul>
+                                    <li>Мгновенное зачисление.</li>
+                                    <li>Без комиссии.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Перевод по номеру телефона #}
+                    <div class="col-12">
+                        <div class="card h-100 border-primary border-2 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary fw-bold">2. Банковский перевод по номеру</h5>
+                                <p class="card-text">Вы можете перевести сумму заказа нашему менеджеру по номеру телефона через мобильное банковское приложение.</p>
+                                <div class="alert alert-warning py-2 my-2 small">
+                                    Важно: Укажите номер заказа в комментарии к платежу.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Наличными при самовывозе #}
+                    <div class="col-12">
+                        <div class="card h-100 border-warning border-2 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning fw-bold">3. Наличными при Самовывозе</h5>
+                                <p class="card-text">Оплата производится в момент получения товара в нашем пункте выдачи.</p>
+                                <ul>
+                                    <li>Доступно для заказов с типом доставки "Самовывоз".</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endcache %}
+
+{% endblock %}
