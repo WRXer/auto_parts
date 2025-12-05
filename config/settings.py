@@ -32,6 +32,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'cheapautoparts.ru',
+    'www.cheapautoparts.ru',
     'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
     'localhost',
     '127.0.0.1',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'widget_tweaks',
     'django_celery_beat',
+    'django.contrib.sitemaps',
 
     'users',
     'main',
@@ -105,6 +107,7 @@ DATABASES = {
         'NAME': os.getenv('NAME_DB'),
         'USER': os.getenv('USER_DB'),
         'PASSWORD': os.getenv('PASSWORD_DB'),
+        #'HOST': 'db'
     }
 }
 
@@ -132,7 +135,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000'] # Добавьте свой хост
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://cheapautoparts.ru'] # Добавьте свой хост
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -169,6 +172,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_collected')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -190,16 +194,25 @@ CART_SESSION_ID = 'carts'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True       # Перенаправлять весь HTTP-трафик на HTTPS
+SECURE_HSTS_SECONDS = 31536000   # Активировать HSTS на 1 год
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_ADMINS_FILE = BASE_DIR / 'telegram_admins.json'
 
 
 # Настройки Celery
+REDIS_HOST = os.getenv('REDIS_HOST')
+REDIS_PORT = os.getenv('REDIS_PORT')
 # URL брокера сообщений (если используете Redis)
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 #Бэкенд для хранения результатов задач (тоже Redis)
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+#CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+#Бэкенд для хранения результатов задач (тоже Redis)
+#CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 
 #Сериализация данных (JSON — самый универсальный)
 CELERY_ACCEPT_CONTENT = ['json']
