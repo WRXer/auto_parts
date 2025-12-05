@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /static/
+Disallow: /users/
+Sitemap: https://cheapautoparts.ru/sitemap.xml
