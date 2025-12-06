@@ -1,70 +1,78 @@
-version: '3.8'
-
 
 services:
-  # СЕРВИС БАЗЫ ДАННЫХ (POSTGRESQL)
-  db:
-    image: postgres:15-alpine
-    container_name: django_db
+  # 1. СЕРВИС ПРИЛОЖЕНИЯ DJANGO / GUNICORN
+  web:
+    # Укажите путь к вашему Dockerfile
+    build: .
+    # Устанавливаем переменные окружения из файла .env
+    env_file:
+      - .env
+    # Команда запуска Gunicorn
+    # 'config.wsgi:application' - замените 'config' на имя вашей папки с wsgi.py
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    # Подключение к сети
+    depends_on:
+      - db
+      - redis
+    # Монтирование тома для медиафайлов
     volumes:
-      # Постоянное хранение данных (чтобы данные не терялись при перезапуске)
-      - postgres_data:/var/lib/postgresql/data/
+      - static_data:/vol/web/static
+      - media_data:/vol/web/media
+    expose:
+      # Nginx будет обращаться к этому порту
+      - 8000
+    restart: always
+
+  # 2. СЕРВИС БАЗЫ ДАННЫХ POSTGRESQL
+  db:
+    image: postgres:16-alpine
+    # Устанавливаем переменные окружения, которые использует Django settings.py
     environment:
-      # Переменные окружения для подключения (должны совпадать с settings.py)
       POSTGRES_DB: ${NAME_DB}
       POSTGRES_USER: ${USER_DB}
       POSTGRES_PASSWORD: ${PASSWORD_DB}
+    volumes:
+      # Сохранение данных базы данных
+      - postgres_data:/var/lib/postgresql/data
     restart: always
-    healthcheck: # Проверка готовности базы данных
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
-  # СЕРВИС БРОКЕРА СООБЩЕНИЙ (REDIS)
+  # 3. СЕРВИС КЭША И БРОКЕРА CELERY (REDIS)
   redis:
-    image: redis:7-alpine
-    container_name: django_redis
-    command: redis-server --appendonly yes
-    ports:
-      - "6379:6379"
+    image: redis:7.0-alpine
     restart: always
 
-  # СЕРВИС ПРИЛОЖЕНИЯ DJANGO (GUNICORN)
-  app:
-    build: . # Использовать Dockerfile в текущей директории
-    container_name: django_app
-    command: >
-      sh -c "python manage.py collectstatic --noinput &&
-             python manage.py migrate &&
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000"
-
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    depends_on:
-      db:
-        condition: service_healthy # Ждать, пока БД будет готова
-      redis:
-        condition: service_started
-    restart: always
-
-  # СЕРВИС CELERY WORKER
+  # 4. СЕРВИС CELERY WORKER
   celery_worker:
-    build: . # Использовать тот же Dockerfile, что и для app
-    container_name: django_celery_worker
-    command: celery -A config worker -l info
-    volumes:
-      - .:/app
+    # Используем тот же образ, что и 'web'
+    build: .
     env_file:
       - .env
+    # Команда для запуска воркера
+    command: celery -A config worker -l info
     depends_on:
-      - app
       - redis
+      - db
     restart: always
 
+  # 5. СЕРВИС ВЕБ-СЕРВЕРА NGINX
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      # Открываем порты 80 (HTTP) и 443 (HTTPS) наружу
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    volumes:
+      # Конфигурация Nginx
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      # Подключение томов для статики и медиа
+      - static_data:/vol/web/static
+      - media_data:/vol/web/media
+    restart: always
+
+# 6. ТОМА ДЛЯ СОХРАНЕНИЯ ДАННЫХ
 volumes:
   postgres_data:
+  static_data:
+  media_data:
