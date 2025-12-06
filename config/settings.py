@@ -30,11 +30,13 @@ SECRET_ADMIN_PATH = os.getenv("ADMIN_URL", "admin/")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
-    'localhost:8000',
-    '127.0.0.1',
-]
+ALLOWED_HOSTS = ['cheapautoparts.ru', 
+    'www.cheapautoparts.ru', 
+    '147.45.143.109', 
+    'localhost',  # <-- Добавьте это
+    '127.0.0.1',  # <-- Добавьте это для локальных запросов
+
+	]
 
 
 # Application definition
@@ -104,7 +106,8 @@ DATABASES = {
         'NAME': os.getenv('NAME_DB'),
         'USER': os.getenv('USER_DB'),
         'PASSWORD': os.getenv('PASSWORD_DB'),
-        'HOST': 'db'
+	'HOST': '127.0.0.1', # <--- ДОБАВЬТЕ ЭТУ СТРОКУ ИЛИ УБЕДИТЕСЬ, ЧТО ОНА ИСПОЛЬЗУЕТСЯ
+        'PORT': '5432',        #'HOST': 'db'
     }
 }
 
@@ -132,7 +135,11 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000'] # Добавьте свой хост
+CSRF_TRUSTED_ORIGINS = ['https://127.0.0.1',
+                        'https://www.cheapautoparts.ru',  # Конкретный домен туннеля
+                        'https://cheapautoparts.ru',
+                        'http://localhost',
+			'https://147.45.143.109'] # Добавьте свой хост
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -201,15 +208,15 @@ TELEGRAM_ADMINS_FILE = BASE_DIR / 'telegram_admins.json'
 
 
 # Настройки Celery
-REDIS_HOST = os.getenv('REDIS_HOST')
-REDIS_PORT = os.getenv('REDIS_PORT')
+#REDIS_HOST = os.getenv('REDIS_HOST')
+#REDIS_PORT = os.getenv('REDIS_PORT')
 # URL брокера сообщений (если используете Redis)
-CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+#CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 #Бэкенд для хранения результатов задач (тоже Redis)
-CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
-#CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+#CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 #Бэкенд для хранения результатов задач (тоже Redis)
-#CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
 
 #Сериализация данных (JSON — самый универсальный)
 CELERY_ACCEPT_CONTENT = ['json']
@@ -218,4 +225,16 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # Часовой пояс (важно для планировщика задач)
 CELERY_TIMEZONE = 'Europe/Moscow'
+
+
+if DEBUG:
+    # Принудительное отключение всего SSL
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+    SECURE_PROXY_SSL_HEADER = None
 

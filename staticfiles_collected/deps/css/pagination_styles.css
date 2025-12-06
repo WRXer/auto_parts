@@ -1,0 +1,46 @@
+    /*
+    * Кастомные стили для пагинации:
+    * 1. Прозрачный фон по умолчанию.
+    * 2. Полупрозрачный фон при наведении (hover).
+    * 3. Полностью выделенный фон для активной страницы.
+    */
+    .pagination .page-link {
+        color: #000000;
+        border: none;
+        background-color: transparent; /* Делаем фон прозрачным по умолчанию */
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        /* Убираем стандартное box-shadow для focus */
+        box-shadow: none !important;
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Состояние наведения для НЕактивных ссылок */
+    .pagination .page-item:not(.disabled):not(.active) .page-link:hover {
+        background-color: rgba(25, 135, 84, 0.15); /* Полупрозрачный зеленый фон */
+        color: #000000;
+        border: none;
+        border-radius: 0.5rem; /* Скругленные края */
+        padding: 0.5rem 0.75rem;
+
+    }
+
+    /* Состояние активной ссылки */
+    .pagination .page-item.active .page-link,
+    .pagination .page-item.active .page-link:hover,
+    .pagination .page-item.active .page-link:focus {
+        z-index: 3;
+        color: #fff; /* Белый текст */
+        background-color: #198754; /* Полностью зеленый фон */
+        border-color: #198754;
+        border-radius: 0.5rem; /* Скругленные края */
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Состояние отключенных ссылок (например, Предыдущая/Следующая на первой/последней странице) */
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d; /* Серый текст */
+        border-color: #6c757d; /* Серый бордер */
+        background-color: transparent;
+        padding: 0.5rem 0.75rem;
+
+    }

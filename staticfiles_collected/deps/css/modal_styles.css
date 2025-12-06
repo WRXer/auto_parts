@@ -1,0 +1,23 @@
+/* Ультра-высокий Z-Index для гарантированного перекрытия. */
+.modal-backdrop {
+    /* Подложка всегда должна быть немного ниже модального окна */
+    z-index: 5000 !important;
+}
+
+/* Главный контейнер модального окна */
+#createOrderModal {
+    z-index: 5000 !important;
+}
+
+/* Когда модальное окно активно и видно - самый высокий приоритет */
+.modal.show {
+    z-index: 5001 !important;
+}
+
+/* Дополнительные улучшения стиля */
+.btn-close:focus {
+    box-shadow: none;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
