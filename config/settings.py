@@ -25,18 +25,15 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r4_&g^aie7cji=z=xh)lz)!kypxf-o$34s4=jbq*-1ejp%3-)y'
+SECRET_KEY = os.getenv('SECRET_KEY')
 SECRET_ADMIN_PATH = os.getenv("ADMIN_URL", "admin/")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'cheapautoparts.ru',
-    'www.cheapautoparts.ru',
     'drably-lenient-avocet.cloudpub.ru', # Конкретный домен туннеля
-    'localhost',
+    'localhost:8000',
     '127.0.0.1',
-    '.cloudpub.ru',  # Добавляем все поддомены CloudPub
 ]
 
 
@@ -135,7 +132,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://cheapautoparts.ru'] # Добавьте свой хост
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000'] # Добавьте свой хост
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -188,7 +185,7 @@ LOGOUT_REDIRECT_URL = 'index'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-SITE_ID = 2
+#SITE_ID = 2
 CART_SESSION_ID = 'carts'
 
 SESSION_COOKIE_SECURE = True
