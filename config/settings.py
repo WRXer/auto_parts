@@ -106,7 +106,7 @@ DATABASES = {
         'NAME': os.getenv('NAME_DB'),
         'USER': os.getenv('USER_DB'),
         'PASSWORD': os.getenv('PASSWORD_DB'),
-	'HOST': '127.0.0.1', # <--- ДОБАВЬТЕ ЭТУ СТРОКУ ИЛИ УБЕДИТЕСЬ, ЧТО ОНА ИСПОЛЬЗУЕТСЯ
+	    'HOST': '127.0.0.1', # <--- ДОБАВЬТЕ ЭТУ СТРОКУ ИЛИ УБЕДИТЕСЬ, ЧТО ОНА ИСПОЛЬЗУЕТСЯ
         'PORT': '5432',        #'HOST': 'db'
     }
 }
@@ -139,7 +139,7 @@ CSRF_TRUSTED_ORIGINS = ['https://127.0.0.1',
                         'https://www.cheapautoparts.ru',  # Конкретный домен туннеля
                         'https://cheapautoparts.ru',
                         'http://localhost',
-			'https://147.45.143.109'] # Добавьте свой хост
+			            'https://147.45.143.109'] # Добавьте свой хост
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -192,7 +192,6 @@ LOGOUT_REDIRECT_URL = 'index'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-#SITE_ID = 2
 CART_SESSION_ID = 'carts'
 
 SESSION_COOKIE_SECURE = True
