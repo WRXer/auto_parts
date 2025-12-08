@@ -42,7 +42,7 @@ def create_order(request):
                     f"📞 Телефон: {order.phone or 'Не указан'}\n"
                     f"📧 Email: {order.email or 'Не указан'}\n\n"
                     
-                    f"🔗 <a href='https://drably-lenient-avocet.cloudpub.ru/profile/'>Посмотреть заказ </a>"
+                    f"🔗 <a href='https://cheapautoparts.ru/profile/'>Посмотреть заказ </a>"
                 )
                 send_telegram_notification(message)    #Вызов функции рассылки
 
