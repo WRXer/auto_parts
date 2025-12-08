@@ -5,7 +5,7 @@
 {% block content %}
 <main class="container py-4 rounded-4" style="background-color: rgba(211, 211, 211, 0.8);">
     <div class="row justify-content-center">
-        <div class="col-md-8 p-4 bg-white rounded shadow">
+        <div class="col-md-7 p-4 bg-white rounded shadow">
 
             <h2 class="text-center text-dark">Регистрация</h2>
 
@@ -30,20 +30,22 @@
 
             <form method="POST" id="registration-form">
                 {% csrf_token %}
-
                 <div class="row justify-content-center mt-4">
-                    <div class="col-12 col-sm-10 col-md-10"> {% for field in form.visible_fields %}
-                            <div class="mb-3 row align-items-center">
+                    <div class="col-12 col-sm-10 col-md-10">
+                        {% for field in form.visible_fields %}
+                            <div class="mb-3 row align-items-center justify-content-center">
 
-                                <label for="{{ field.id_for_label }}" class="col-4 col-form-label text-end text-dark fw-bold">
+                                <label for="{{ field.id_for_label }}" class="col-12 col-sm-8 col-lg-4 col-form-label text-start offset-4 offset-sm-0 text-dark fw-bold">
                                     {{ field.label }}
                                 </label>
 
                                 <div class="col-8">
+
                                     {{ field }}
                                     {% if field.errors %}
                                         <div class="text-danger small mt-1 text-start">{{ field.errors }}</div>
                                     {% endif %}
+
                                 </div>
                             </div>
                         {% endfor %}
@@ -63,8 +65,8 @@
                 {% endif %}
 
                 <div class="mb-3 d-flex justify-content-center mt-4">
-                    <button type="submit" id="register-btn" class="btn btn-success" style="width: 30%;">
-                        Завершить регистрацию
+                    <button type="submit" id="register-btn" class="btn btn-success w-80 w-lg-30" >
+                        Завершить&nbsp;регистрацию
                     </button>
                  </div>
             </form>
