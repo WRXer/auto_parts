@@ -101,91 +101,93 @@ def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, C
         part_unique_id = str(row.get('Артикул', str(uuid.uuid4()))).strip()
 
         try:
-            make_name = str(row.get('Марка', '')).upper().strip()
-            if not make_name: continue
-            make_obj, _ = CarMake.objects.get_or_create(name=make_name)
+            with transaction.atomic():
+                make_name = str(row.get('Марка', '')).upper().strip()
+                if not make_name: continue
+                make_obj, _ = CarMake.objects.get_or_create(name=make_name)
 
-            model_name = str(row.get(NEW_MODEL_COLUMN_NAME, '')).upper().strip()
-            if not model_name: continue
-            model_obj, _ = CarModel.objects.get_or_create(make=make_obj, name=model_name)
+                model_name = str(row.get(NEW_MODEL_COLUMN_NAME, '')).upper().strip()
+                if not model_name: continue
+                model_obj, _ = CarModel.objects.get_or_create(make=make_obj, name=model_name)
 
-            generation_name = str(row.get(NEW_GENERATION_COLUMN_NAME, '')).strip()
-            if not generation_name or generation_name.lower() == 'nan': generation_name = "1"
+                generation_name = str(row.get(NEW_GENERATION_COLUMN_NAME, '')).strip()
+                if not generation_name or generation_name.lower() == 'nan': generation_name = "1"
 
-            gen_obj, _ = CarGeneration.objects.get_or_create(model=model_obj, name=generation_name)
-            donor_generation_for_part = gen_obj
+                gen_obj, _ = CarGeneration.objects.get_or_create(model=model_obj, name=generation_name)
+                donor_generation_for_part = gen_obj
 
-            donor_raw = str(row.get('Донор', '')).strip()    #Поиск DonorVehicle
-            if donor_raw and donor_raw.lower() != 'nan':
-                donor_vin_to_lookup = donor_raw.upper().strip()
+                donor_raw = str(row.get('Донор', '')).strip()    #Поиск DonorVehicle
+                if donor_raw and donor_raw.lower() != 'nan':
+                    donor_vin_to_lookup = donor_raw.upper().strip()
+                    try:
+                        donor_vehicle_obj = DonorVehicle.objects.get(donor_vin=donor_vin_to_lookup)
+                    except ObjectDoesNotExist:
+                        stdout.write(
+                            f"⚠️ Предупреждение: Донор ID '{donor_vin_to_lookup}' (строка {excel_row_num}) не найден.")
+
+                cat_name = row.get('Категория', '').strip()
+                cat_name_normalized = (cat_name if cat_name else 'Прочие запчасти').strip()
+
                 try:
-                    donor_vehicle_obj = DonorVehicle.objects.get(donor_vin=donor_vin_to_lookup)
+                    category_obj = Category.objects.get(name__iexact=cat_name_normalized)
                 except ObjectDoesNotExist:
-                    stdout.write(
-                        f"⚠️ Предупреждение: Донор ID '{donor_vin_to_lookup}' (строка {excel_row_num}) не найден.")
+                    base_cat_slug = CATEGORY_SLUG_MAP.get(cat_name_normalized.upper(), None)
+                    if not base_cat_slug: base_cat_slug = slugify(cat_name_normalized) or str(uuid.uuid4())[:8]
+                    cat_slug = base_cat_slug
+                    cat_counter = 1
+                    while Category.objects.filter(slug=cat_slug).exists():
+                        unique_suffix = f"-{cat_counter}" if cat_counter > 0 else ""
+                        cat_slug = f"{base_cat_slug}{unique_suffix}"
+                        cat_counter += 1
+                    category_obj = Category.objects.create(name=cat_name_normalized, slug=cat_slug)
 
-            cat_name = row.get('Категория', '').strip()
-            cat_name_normalized = (cat_name if cat_name else 'Прочие запчасти').strip()
+                subcat_name = str(row.get('Наименование', '')).strip() or f'Подкатегория_{uuid.uuid4().hex[:6]}'
+                base_slug = slugify(subcat_name) or str(uuid.uuid4())[:8]
+                slug = base_slug
+                counter = 1
+                while PartSubCategory.objects.filter(slug=slug).exists():
+                    slug = f"{base_slug}-{counter}"
+                    counter += 1
+                subcat_obj, _ = PartSubCategory.objects.get_or_create(title=subcat_name,
+                                                                      defaults={'category': category_obj, 'slug': slug})
+                part_number = str(row.get('Номер производителя', '')).strip()
 
-            try:
-                category_obj = Category.objects.get(name__iexact=cat_name_normalized)
-            except ObjectDoesNotExist:
-                base_cat_slug = CATEGORY_SLUG_MAP.get(cat_name_normalized.upper(), None)
-                if not base_cat_slug: base_cat_slug = slugify(cat_name_normalized) or str(uuid.uuid4())[:8]
-                cat_slug = base_cat_slug
-                cat_counter = 1
-                while Category.objects.filter(slug=cat_slug).exists():
-                    unique_suffix = f"-{cat_counter}" if cat_counter > 0 else ""
-                    cat_slug = f"{base_cat_slug}{unique_suffix}"
-                    cat_counter += 1
-                category_obj = Category.objects.create(name=cat_name_normalized, slug=cat_slug)
+                part_obj, created = Part.objects.update_or_create(
+                    part_id=part_unique_id,
+                    defaults={
+                        'title': str(row.get('Наименование', '')).strip(),
+                        'description': str(row.get('Комментарий', '')).strip(),
+                        'part_number': part_number,
+                        'category': category_obj,
+                        'subcategory': subcat_obj,
+                        'price': row.get('Цена', 0),
+                        'condition': str(row.get('Состояние', 'used')).strip(),
+                        'donor_generation': donor_generation_for_part,
+                        'donor_vehicle': donor_vehicle_obj,
+                    }
+                )
+                part_obj.car_generations.set([gen_obj])
 
-            subcat_name = str(row.get('Наименование', '')).strip() or f'Подкатегория_{uuid.uuid4().hex[:6]}'
-            base_slug = slugify(subcat_name) or str(uuid.uuid4())[:8]
-            slug = base_slug
-            counter = 1
-            while PartSubCategory.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            subcat_obj, _ = PartSubCategory.objects.get_or_create(title=subcat_name,
-                                                                  defaults={'category': category_obj, 'slug': slug})
-            part_number = str(row.get('Номер производителя', '')).strip()
+                photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
+                current_images_queryset = PartImage.objects.filter(part=part_obj)
+                current_image_urls = set(current_images_queryset.values_list('image_url', flat=True))
 
-            part_obj, created = Part.objects.update_or_create(
-                part_id=part_unique_id,
-                defaults={
-                    'title': str(row.get('Наименование', '')).strip(),
-                    'description': str(row.get('Комментарий', '')).strip(),
-                    'part_number': part_number,
-                    'category': category_obj,
-                    'subcategory': subcat_obj,
-                    'price': row.get('Цена', 0),
-                    'condition': str(row.get('Состояние', 'used')).strip(),
-                    'donor_generation': donor_generation_for_part,
-                    'donor_vehicle': donor_vehicle_obj,
-                }
-            )
-            part_obj.car_generations.set([gen_obj])
+                urls_to_create = photo_urls - current_image_urls    #Определяем URL для создания (в Excel, но нет в DB)
+                urls_to_delete = current_image_urls - photo_urls    #Определяем объекты для удаления (в DB, но нет в Excel)
 
-            photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
-            current_images_queryset = PartImage.objects.filter(part=part_obj)
-            current_image_urls = set(current_images_queryset.values_list('image_url', flat=True))
+                new_images_to_create = []
+                for url in urls_to_create:
+                    new_images_to_create.append(PartImage(part=part_obj, image_url=url, is_main=False))
+                PartImage.objects.bulk_create(new_images_to_create)
 
-            urls_to_create = photo_urls - current_image_urls    #Определяем URL для создания (в Excel, но нет в DB)
-            urls_to_delete = current_image_urls - photo_urls    #Определяем объекты для удаления (в DB, но нет в Excel)
-
-            new_images_to_create = []
-            for url in urls_to_create:
-                new_images_to_create.append(PartImage(part=part_obj, image_url=url, is_main=False))
-            PartImage.objects.bulk_create(new_images_to_create)
-
-            current_images_queryset.filter(
-                image_url__in=urls_to_delete).delete()    #Выполняем удаление лишних изображений
-
-            if created:
-                parts_created += 1
-            else:
-                parts_updated += 1
+                current_images_queryset.filter(
+                    image_url__in=urls_to_delete).delete()    #Выполняем удаление лишних изображений
+                if urls_to_delete:
+                    stdout.write(f"❌ НА УДАЛЕНИЕ")
+                if created:
+                    parts_created += 1
+                else:
+                    parts_updated += 1
 
         except Exception as e:
             stdout.write(
