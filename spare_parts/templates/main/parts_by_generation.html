@@ -65,14 +65,14 @@
                                                 Артикул: {% if part.part_number and part.part_number|lower != 'nan' %}
                                                     {{ part.part_number }}
                                                 {% else %}
-                                                    Отсутствует
+                                                    Не указан
                                                 {% endif %}
                                             </p>
 
                                             {% if part.donor_generation %}
                                                 <p class="card-text small text-dark">
                                                     {{ part.donor_generation.model.make.name }}
-                                                    {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                                    {{ part.donor_generation.model.name }} {{ part.donor_generation.name }} GEN
                                                 </p>
                                             {% else %}
                                                 <p class="card-text small text-danger">Применимость: Не указана (требуется обновление данных)</p>
@@ -91,15 +91,15 @@
                                     </div>
                                 </div>
                             </div>
-                    {% empty %}
-                        <div class="col-12">
-                            <div class="alert alert-warning" role="alert">
-                                В данный момент запчастей в этой категории нет.
+                        {% empty %}
+                            <div class="col-12">
+                                <div class="alert alert-warning" role="alert">
+                                    В данный момент запчастей в этой категории нет.
+                                </div>
                             </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
 
-                    {% if is_paginated %}
+                        {% if is_paginated %}
                             <nav aria-label="Page navigation" class="mt-4">
                                 {% with total_pages=page_obj.paginator.num_pages current_page=page_obj.number %}
                                     {% with filter_params="" %}
@@ -165,9 +165,7 @@
                                             {% if page_obj.has_next %}
                                                 <li class="page-item">
                                                     <a class="page-link"
-                                                       href="?page={{ page_obj.next_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
-                                                       aria-label="Следующая">
-                                                        &rsaquo;
+                                                       href="?page={{ page_obj.next_page_number }}{% if request.GET.make %}&make={{ request.GET.make }}{% endif %}{% if request.GET.model %}&model={{ request.GET.model }}{% endif %}{% if request.GET.generation %}&generation={{ request.GET.generation }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}" aria-label="Следующая">&rsaquo;
                                                     </a>
                                                 </li>
                                             {% else %}
@@ -180,6 +178,7 @@
                                 {% endwith %}
                             </nav>
                         {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

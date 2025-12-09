@@ -15,7 +15,7 @@
             <div class="col-12 col-md-4">
                     <div class="card h-100 shadow-sm transition-hover text-center">
                         <div class="card-body">
-                            <h5 class="card-title ">{{ generation.name }}</h5>
+                            <h5 class="card-title ">{{ generation.name }} GEN</h5>
                             <a href="{% url 'spare_parts:parts_by_generation' make_pk=current_make.pk model_pk=current_model.pk generation_pk=generation.pk %}" class="btn btn-outline-success">Посмотреть запчасти</a>
                         </div>
                     </div>

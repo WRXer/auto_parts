@@ -12,7 +12,7 @@
     <div class="container py-1">
         <h1 class="mb-4 text-center" >
             {% if header_info.generation %}
-                Запчасти для {{ header_info.make }} {{ header_info.model }} ({{ header_info.generation }})
+                Запчасти для {{ header_info.make }} {{ header_info.model }} {{ header_info.generation }} GEN
             {% elif header_info.model %}
                 Запчасти для {{ header_info.make }} {{ header_info.model }}
             {% elif header_info.make %}

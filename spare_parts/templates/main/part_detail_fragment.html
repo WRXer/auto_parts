@@ -106,7 +106,7 @@
                             {% if part.part_number and part.part_number|lower != 'nan' %}
                                 {{ part.part_number }}
                             {% else %}
-                                Отсутствует
+                                Не указан
                             {% endif %}
                         </dd>
 
@@ -114,7 +114,7 @@
                             <dt class="col-sm-4 text-muted">Применимость:</dt>
                             <dd class="col-sm-8">
                                 {{ part.donor_generation.model.make.name }}
-                                {{ part.donor_generation.model.name }} ({{ part.donor_generation.name }})
+                                {{ part.donor_generation.model.name }} {{ part.donor_generation.name }} GEN
                             </dd>
                         {% else %}
                             <dt class="col-sm-4 text-danger">Применимость:</dt>
