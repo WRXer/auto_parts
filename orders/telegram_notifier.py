@@ -42,5 +42,7 @@ def send_telegram_notification(message):
             response = requests.post(base_url, data=params, timeout=5)
             response.raise_for_status()
             print(f"Notification sent successfully to {admin.name} (ID: {chat_id})")
+            return response.json()
         except requests.RequestException as e:
             print(f"Failed to send Telegram notification to {admin.name}: {e}")
+            return None
