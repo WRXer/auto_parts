@@ -57,10 +57,22 @@ def import_donors_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, 
                     }
                 )
 
-                photo_urls = [url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()]
-                for url in photo_urls:
-                    DonorVehicleImage.objects.get_or_create(donor_vehicle=donor_vehicle_obj, image_url=url,
-                                                            defaults={'is_main': False})
+                photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
+
+                current_images_queryset = DonorVehicleImage.objects.filter(donor_vehicle=donor_vehicle_obj)
+                current_image_urls = set(current_images_queryset.values_list('image_url', flat=True))
+
+                urls_to_create = photo_urls - current_image_urls    #Определяем URL для создания (в Excel, но нет в DB)
+                urls_to_delete = current_image_urls - photo_urls    #Определяем объекты для удаления (в DB, но нет в Excel)
+
+                new_images_to_create = []
+                for url in urls_to_create:
+                    new_images_to_create.append(
+                        DonorVehicleImage(donor_vehicle=donor_vehicle_obj, image_url=url, is_main=False))
+                DonorVehicleImage.objects.bulk_create(new_images_to_create)
+
+                current_images_queryset.filter(
+                    image_url__in=urls_to_delete).delete()    #Выполняем удаление лишних изображений
 
                 if created:
                     donors_created += 1
@@ -155,9 +167,20 @@ def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, C
             )
             part_obj.car_generations.set([gen_obj])
 
-            photo_urls = [url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()]
-            for url in photo_urls:
-                PartImage.objects.get_or_create(part=part_obj, image_url=url, defaults={'is_main': False})
+            photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
+            current_images_queryset = PartImage.objects.filter(part=part_obj)
+            current_image_urls = set(current_images_queryset.values_list('image_url', flat=True))
+
+            urls_to_create = photo_urls - current_image_urls    #Определяем URL для создания (в Excel, но нет в DB)
+            urls_to_delete = current_image_urls - photo_urls    #Определяем объекты для удаления (в DB, но нет в Excel)
+
+            new_images_to_create = []
+            for url in urls_to_create:
+                new_images_to_create.append(PartImage(part=part_obj, image_url=url, is_main=False))
+            PartImage.objects.bulk_create(new_images_to_create)
+
+            current_images_queryset.filter(
+                image_url__in=urls_to_delete).delete()    #Выполняем удаление лишних изображений
 
             if created:
                 parts_created += 1
