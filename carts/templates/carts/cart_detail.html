@@ -56,10 +56,10 @@
                                                         {% if part.part_number and part.part_number|lower != 'nan' %}
                                                             {{ part.part_number }}
                                                         {% else %}
-                                                            Отсутствует
+                                                            Не указан
                                                         {% endif %}
                                                     </span> |
-                                                    <span>Авто: {{ part.donor_generation|default:"-" }}</span>
+                                                    <span>Авто: {{ part.donor_generation.model.make.name }} {{ part.donor_generation.model.name }} {{ part.donor_generation.name|default:"-" }} GEN</span>
                                                 </div>
                                             </div>
                                             <div class="text-end ms-3">

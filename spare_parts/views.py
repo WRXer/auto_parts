@@ -174,7 +174,11 @@ class PartDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # 🔑 Добавляем форму корзины в контекст
+        part = self.object
+        cart = Cart(self.request)
+        is_part_in_cart = str(part.id) in cart.cart
+
+        context['is_part_in_cart'] = is_part_in_cart
         context['cart_add_form'] = CartAddPartForm()
 
         return context

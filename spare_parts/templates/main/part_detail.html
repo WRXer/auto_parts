@@ -14,13 +14,13 @@
                             <div class="carousel-inner">
                                 {% for image in all_images %}
                                     <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                        <img src="{{ image.image.url }}"
-                                            class="d-block w-100"
-                                            alt="{{ donor.title }} - Фото {{ forloop.counter }}"
-                                            style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                        <img src="{{ image.get_image_source }}"
+                                            class="d-block w-100 js-open-fullscreen"
+                                            alt="{{ part.title }} - Фото {{ forloop.counter }}"
+                                            style="max-height: 270px; min-height: 270px; object-fit: cover; cursor: pointer;"
+                                            data-slide-index="{{ forloop.counter0 }}"
                                             data-bs-toggle="modal"
-                                            data-bs-target="#imageModal"
-                                            data-bs-slide-index="{{ forloop.counter0 }}">
+                                            data-bs-target="#imageModal">
                                     </div>
                                 {% endfor %}
                             </div>
@@ -39,14 +39,14 @@
                             {% for image in all_images %}
                                 <div class="col-3 col-md-2 col-lg-2">
                                     <button type="button"
-                                            data-bs-target="#donorImageCarousel"
-                                            data-bs-slide-to="{{ forloop.counter0 }}"
-                                            class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
-                                            style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
-                                            onmouseover="this.style.opacity='1'"
-                                            onmouseout="this.style.opacity='0.7'"
-                                            aria-label="Перейти к слайду {{ forloop.counter }}">
-                                        <img src="{{ image.image.url }}"
+                                        data-bs-target="#donorImageCarousel"
+                                        data-bs-slide-to="{{ forloop.counter0 }}"
+                                        class="p-0 border rounded-3 w-100 h-100 overflow-hidden text-center"
+                                        style="cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none;"
+                                        onmouseover="this.style.opacity='1'"
+                                        onmouseout="this.style.opacity='0.7'"
+                                        aria-label="Перейти к слайду {{ forloop.counter }}">
+                                        <img src="{{ image.get_image_source }}"
                                              class="img-fluid"
                                              alt="Миниатюра {{ forloop.counter }}"
                                              style="height: 60px; object-fit: cover; width: 100%;">
@@ -63,9 +63,9 @@
                                             <div class="carousel-inner">
                                                 {% for image in all_images %}
                                                     <div class="carousel-item {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-                                                        <img src="{{ image.image.url }}"
-                                                             class="d-block w-100 rounded-3"
-                                                             alt="{{ donor.title }} - Фото {{ forloop.counter }}"
+                                                        <img src="{{ image.get_image_source }}"
+                                                             class="d-block w-100" style="border-radius: 15px !important; max-height: 90vh; object-fit: contain; object-position: top;"
+                                                             alt="{{ part.title }} - Фото {{ forloop.counter }}"
                                                              style="max-height: 90vh; object-fit: contain; object-position: top;">
                                                     </div>
                                                 {% endfor %}
@@ -97,31 +97,72 @@
             <div class="col-12 col-lg-7">
                 <div class="card shadow-lg p-4 h-100">
                     <h1 class="display-8 fw-bold">{{ part.title }}</h1>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><strong>Артикул:</strong> {{ part.part_number|default:"Не указан" }}</li>
-                        <li class="mb-2"><strong>Описание:</strong> {{ part.description|linebreaksbr }}</li>
-                        <li class="mb-2"><strong>Марка:</strong> {{ part.car_model.brand.name|default:"Не указана" }}</li>
-                        <li class="mb-2"><strong>Модель:</strong> {{ part.car_model.name|default:"Не указана" }}</li>
-                        {% if part.car_modification %}
-                            <li><strong>Модификация:</strong> {{ part.car_modification.name }}</li>
+                    <dl class="row mb-3 small">
+                        <dt class="col-sm-4 text-muted">Артикул:</dt>
+                        <dd class="col-sm-8 fw-bold">
+                            {% if part.part_number and part.part_number|lower != 'nan' %}
+                                {{ part.part_number }}
+                            {% else %}
+                                Не указан
+                            {% endif %}
+                        </dd>
+
+                        {% if part.donor_generation %}
+                            <dt class="col-sm-4 text-muted">Применимость:</dt>
+                            <dd class="col-sm-8">
+                                {{ part.donor_generation.model.make.name }}
+                                {{ part.donor_generation.model.name }} {{ part.donor_generation.name }} GEN
+                            </dd>
+                        {% else %}
+                            <dt class="col-sm-4 text-danger">Применимость:</dt>
+                            <dd class="col-sm-8 text-danger">Данные не указаны</dd>
                         {% endif %}
-                        <li><strong>Состояние:</strong> {{ part.get_condition_display }}</li>
-                    </ul>
-                    <div class="row align-items-center mb-4">
-                        <div class="col-md-6 pt-3 pt-md-0">
-                                <span class="fs-5 text-dark fw-bold">Цена:</span>
-                                <span class="fs-3 text-dark fw-bold">{{ part.price }} ₽</span>
-                        </div>
-                        <div class="col-md-6 pt-3 pt-md-0">
-                            <form action="{% url 'carts:cart_add' part.pk %}" method="post" class="d-flex align-items-center">
+
+                        <dt class="col-sm-4 text-muted">Описание:</dt>
+                        <dd class="col-sm-8">{{ part.description|default:"Нет описания." }}</dd>
+                        <dt class="col-sm-4 text-muted">Состояние:</dt>
+                        <dd class="col-sm-8">{{ part.get_condition_display }}</dd>
+                    </dl>
+                    <hr>
+
+                    <strong class="fs-2 text-dark d-block mb-3">{{ part.price|floatformat:0 }} ₽</strong>
+
+                    <div id="part-purchase-area">
+                        {% if not is_part_in_cart %}
+
+                            <form action="{% url 'carts:cart_add' part.pk %}"
+                                method="post"
+                                id="add-to-cart-form"
+                                data-cart-url="{% url 'carts:cart_detail' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="quantity" value="1">
                                 {{ cart_add_form.override }}
-                                <button type="submit" class="btn btn-outline-success btn-lg ms-2">
-                                    Добавить в корзину
-                                </button>
+                                <div class="row align-items-center mb-4 g-0">
+                                    <div class="col-12 col-md-12 text-center text-md-start mb-md-0">
+                                        <div class="d-flex w-100 justify-content-center">
+                                            <button type="submit" class="btn btn-outline-success btn-lg ms-md-auto ms-2">
+                                                Добавить в корзину
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </form>
-                        </div>
+
+                        {% else %}
+                            <div class="row align-items-center mb-4 g-0">
+                                <div class="col-12 col-md-5 text-center text-md-start mb-2 mb-md-0">
+                                <strong class="text-secondary text-center fs-6">
+                                    <i class="fas fa-check-circle"></i> Товар уже в корзине!
+                                </strong>
+                                </div>
+
+                                <div class="col-12 col-md-7 text-md-end">
+                                <a href="{% url 'carts:cart_detail' %}" class="btn btn-success btn-lg">
+                                    Перейти к оформлению
+                                </a>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -130,6 +171,5 @@
 </main>
 
 
-
-<script src="{% static 'deps/js/image_carousel.js' %}"></script>
+<script src="{% static 'deps/js/part_detail.js' %}"></script>
 {% endblock content %}
