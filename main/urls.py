@@ -22,4 +22,5 @@ urlpatterns = [
     path('contacts/', views.contacts, name='contacts'),
     path('delivery/', views.delivery, name='delivery'),
     path('payment/', views.payment, name='payment'),
+    path('submit-request/', views.submit_part_request, name='submit_part_request'),
     ]

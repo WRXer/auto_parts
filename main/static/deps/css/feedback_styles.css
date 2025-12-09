@@ -1,0 +1,138 @@
+/* --- АНИМАЦИЯ ТЕКСТА (ПУЛЬСАЦИЯ) --- */
+@keyframes textPulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.animated-pulse {
+    animation: textPulse 2s infinite ease-in-out;
+    display: inline-block;
+}
+
+
+/* --- КОНТЕЙНЕР АККОРДЕОНА (ПК-версия) --- */
+.fixed-bottom-right-accordion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+
+    width: 300px; /* Ширина ПК */
+
+    background-color: #198754;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+}
+
+/* СТИЛИ, КОГДА ФОРМА ОТКРЫТА (ПК) */
+.fixed-bottom-right-accordion:has(.collapse.show) {
+    transform: translateY(0);
+}
+
+/* Стили кнопки по умолчанию (ПК) */
+.fixed-bottom-right-accordion button.toggle-button {
+    padding: 10px 15px;
+    border-radius: 10px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    transition: all 0.3s ease-out;
+}
+
+/* Кнопка остается на месте, когда форма открыта (ПК) */
+.fixed-bottom-right-accordion:has(.collapse.show) button.toggle-button {
+    height: auto;
+    padding: 10px 15px;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    border-radius: 10px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* ТЕКСТ НА ПК: ВИДИМ ВСЕГДА */
+.fixed-bottom-right-accordion button.toggle-button .animated-pulse {
+    display: block !important;
+}
+
+/* --- МОБИЛЬНАЯ ВЕРСИЯ (С ПЛАВНЫМ РАЗВОРАЧИВАНИЕМ) --- */
+@media (max-width: 900px) {
+    /* 1. Настройка главного контейнера (КРУГЛАЯ ЛУПА) */
+    .fixed-bottom-right-accordion {
+        /* Начальные компактные стили для кнопки-лупы */
+        max-width: 60px;
+        width: 60px;
+        max-height: 60px;
+        right: 10px;
+        bottom: 10px;
+        border-radius: 50%;
+        position: fixed;
+
+        /* Плавный переход для всех свойств (для плавного закрытия/открытия) */
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 2. СТИЛИ КНОПКИ (Круглая) */
+    .fixed-bottom-right-accordion button.toggle-button {
+        position: static;
+        width: 100%;
+        height: 60px; /* Фиксированная высота кнопки */
+        padding: 0;
+        border-radius: 50% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        transition: all 0.3s ease-out;
+    }
+
+    /* 3. СКРЫВАЕМ ТЕКСТ ПО УМОЛЧАНИЮ НА МОБИЛЬНЫХ (ЛУПА) */
+    .fixed-bottom-right-accordion button.toggle-button .animated-pulse {
+        display: none !important;
+    }
+
+    /* 4. ПОКАЗЫВАЕМ ТЕКСТ, КОГДА ФОРМА РАЗВЕРНУТА */
+    .fixed-bottom-right-accordion:has(.collapse.show) button.toggle-button .animated-pulse {
+        display: block !important;
+        margin-right: 8px;
+    }
+
+
+    /* 5. КОНТЕЙНЕР ФОРМЫ */
+    .fixed-bottom-right-accordion .form-container {
+        height: auto;
+        padding: 0;
+        opacity: 1;
+        transition: opacity 0.3s ease-out 0.1s;
+    }
+
+    /* 6. СТИЛИ, КОГДА ФОРМА ОТКРЫТА (ПЛАВНЫЙ ПЕРЕХОД) */
+    .fixed-bottom-right-accordion:has(.collapse.show) {
+        /* Конечное состояние: Расширенная форма */
+        max-width: 60%;
+        width: 60%;
+        max-height: 500px;
+        height: auto;
+        right: 5%;
+        bottom: 10px;
+        border-radius: 10px;
+        transform: translateY(0);
+    }
+
+    /* 7. СТИЛИ КНОПКИ, КОГДА ФОРМА ОТКРЫТА (меняем радиусы) */
+    .fixed-bottom-right-accordion:has(.collapse.show) button.toggle-button {
+         border-radius: 10px !important;
+         border-bottom-left-radius: 0 !important;
+         border-bottom-right-radius: 0 !important;
+    }
+
+    /* 8. СКРЫВАНИЕ ФОРМЫ при закрытии */
+    .fixed-bottom-right-accordion:not(:has(.collapse.show)) .form-container {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease-in;
+    }
+}
