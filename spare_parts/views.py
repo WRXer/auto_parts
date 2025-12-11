@@ -73,6 +73,39 @@ class PartListView(ListView):
         queryset = queryset.select_related('donor_vehicle', 'donor_generation__model__make','category').prefetch_related('images')
         return queryset.order_by('title')
 
+    def get_breadcrumb_json_ld(self):
+        """
+        Генерирует JSON-LD для BreadcrumbList для основной страницы каталога.
+        """
+        elements = []
+        base_url = self.request.build_absolute_uri('/')[:-1]
+
+        elements.append({
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Главная",
+            "item": base_url
+        })
+
+        resolved_url = resolve(self.request.path_info)
+        if resolved_url.url_name == 'search_by_number':
+            name = "Результаты поиска"
+        else:
+            name = "Каталог запчастей"
+
+        elements.append({
+            "@type": "ListItem",
+            "position": 2,
+            "name": name
+        })
+
+        json_ld = {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": elements
+        }
+        return json.dumps(json_ld, ensure_ascii=False)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get('part_number', '')
@@ -85,6 +118,7 @@ class PartListView(ListView):
                 context['header_info'] = {'make': donor.generation.model.make.name,'model': donor.generation.model.name,'generation': f"{donor.generation.name} (Поступление: {donor.title})"}
                 context['car_makes'] = CarMake.objects.all().order_by('name')
                 context['categories'] = Category.objects.all().order_by('name')
+                context['breadcrumb_json'] = self.get_breadcrumb_json_ld()  # Добавляем сюда для полноты
                 return context
             except DonorVehicle.DoesNotExist:
                 pass
@@ -127,6 +161,7 @@ class PartListView(ListView):
         for key in ['make', 'model', 'generation']:
             query_params_without_auto.pop(key, None)
         context['query_params_without_auto'] = query_params_without_auto
+        context['breadcrumb_json'] = self.get_breadcrumb_json_ld()  # Добавляем сюда для полноты
         return context
 
 
