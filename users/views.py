@@ -96,7 +96,7 @@ class ProfileView(View):
         ).distinct().order_by('-created_timestamp')
         all_orders = None
         all_users = None
-        if user.is_superuser:
+        if user.is_staff:
             all_orders = Order.objects.all().order_by('-created_timestamp').select_related('user').prefetch_related(
                 'items')
             all_users = User.objects.all().order_by('id')
