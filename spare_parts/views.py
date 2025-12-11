@@ -1,3 +1,5 @@
+import json
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Count, Q
 from django.http import JsonResponse, Http404, HttpResponse
@@ -171,6 +173,53 @@ class PartDetailView(DetailView):
     template_name = 'main/part_detail.html'
     context_object_name = 'part'
 
+    def get_breadcrumb_json_ld(self):
+        """
+        Генерирует JSON-LD для BreadcrumbList на основе Category, SubCategory и Part.
+        """
+        part = self.object
+        elements = []
+        base_url = self.request.build_absolute_uri('/')[:-1]
+
+
+        elements.append({
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Главная",
+            "item": base_url
+        })
+
+        category_url = f"{base_url}/catalog/category/{part.category.slug}/"
+        elements.append({
+            "@type": "ListItem",
+            "position": 2,
+            "name": part.category.name,
+            "item": category_url
+        })
+
+        if part.subcategory:
+            subcategory_url = f"{category_url}{part.subcategory.slug}/"
+            elements.append({
+                "@type": "ListItem",
+                "position": 3,
+                "name": part.subcategory.title,
+                "item": subcategory_url
+            })
+
+        current_position = len(elements) + 1
+        elements.append({
+            "@type": "ListItem",
+            "position": current_position,
+            "name": part.title
+        })
+
+        json_ld = {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": elements
+        }
+        return json.dumps(json_ld, ensure_ascii=False)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -180,6 +229,7 @@ class PartDetailView(DetailView):
 
         context['is_part_in_cart'] = is_part_in_cart
         context['cart_add_form'] = CartAddPartForm()
+        context['breadcrumb_json'] = self.get_breadcrumb_json_ld()
 
         return context
 
@@ -221,6 +271,34 @@ class CategoryDetailView(ListView):
     template_name = 'main/category_detail.html'
     context_object_name = 'parts'
     paginate_by = 10
+
+    def get_breadcrumb_json_ld(self):
+        """
+        Генерирует JSON-LD для BreadcrumbList на странице Категории.
+        """
+        category = self.get_category()
+        base_url = self.request.build_absolute_uri('/')[:-1]
+
+        elements = [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Главная",
+                "item": base_url
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": category.name,
+            }
+        ]
+
+        json_ld = {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": elements
+        }
+        return json.dumps(json_ld, ensure_ascii=False)
 
     def get_category_lookup_data(self):
         """
@@ -277,6 +355,7 @@ class CategoryDetailView(ListView):
         context['car_makes'] = available_makes
         context['car_models'] = []
         context['car_generations'] = []
+        context['breadcrumb_json'] = self.get_breadcrumb_json_ld()
 
         if selected_make_pk:
             try:
