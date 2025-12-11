@@ -1,5 +1,25 @@
 {% extends 'main/base.html' %}
 {% load static %}
+
+
+{# 1. SEO: УНИКАЛЬНЫЙ TITLE #}
+{% block title %}
+    {{ part.title }} для {{ part.donor_generation.model.make.name }} {{ part.donor_generation.model.name }} — Купить в CheapAutoParts64
+{% endblock title %}
+
+{# 2. SEO: META DESCRIPTION #}
+{% block meta_tags %}
+    <meta name="description" content="Купить запчасть {{ part.title }} (Артикул: {{ part.part_number|default:'Не указан' }}) для {{ part.donor_generation.model.make.name }} {{ part.donor_generation.model.name }}. Оригинальные б/у и новые автозапчасти. Цена: {{ part.price|floatformat:0 }} ₽. Гарантия. Доставка.">
+{% endblock meta_tags %}
+
+{# 3. SEO: КАНОНИЧЕСКИЙ URL #}
+{% block canonical_url %}
+    {# Устанавливаем канонический URL, удаляя все GET-параметры. #}
+    <link rel="canonical" href="{{ request.build_absolute_uri|cut:'?'|urlencode:'/?'|slice:'0:-1' }}" />
+{% endblock canonical_url %}
+
+
+
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'deps/css/image_styles.css' %}">

@@ -15,13 +15,23 @@
 
     <link rel="shortcut icon" href="{% static 'deps/icons/head/favicon.ico' %}" />
 
-
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'deps/icons/head/apple-touch-icon.png' %}">
     <meta name="apple-mobile-web-app-title" content="Cheap Auto Parts" />
 
 
     <link rel="manifest" href="{% static 'deps/icons/head/site.webmanifest' %}">
-    <title>{% block title %}Маркет Запчастей CheapAutoParts64{% endblock %}</title>
+
+    {# БЛОКИ ДЛЯ ПЕРЕОПРЕДЕЛЕНИЯ SEO-ТЕГОВ #}
+    {% block meta_tags %}{% endblock meta_tags %}
+    {% block canonical_url %}{% endblock canonical_url %}
+
+    {% if breadcrumb_json %}
+        <script type="application/ld+json">
+            {{ breadcrumb_json|safe }}
+        </script>
+    {% endif %}
+
+    <title>{% block title %}Маркет Запчастей CheapAutoParts64(Разбор автомобилей. Б/у, новые запчасти для авто){% endblock %}</title>
 
     <script type="text/javascript">
         (function(m,e,t,r,i,k,a){

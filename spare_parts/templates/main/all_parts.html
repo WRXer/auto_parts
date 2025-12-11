@@ -1,7 +1,56 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Все запчасти – Маркет Запчастей CheapAutoParts64{% endblock %}
+# 1. SEO: УНИКАЛЬНЫЙ TITLE #}
+{% block title %}
+    {% if is_paginated and page_obj.number > 1 %}
+        Все запчасти – Страница {{ page_obj.number }} | Маркет Запчастей CheapAutoParts64
+    {% else %}
+        Все запчасти – Каталог б/у и новых запчастей в CheapAutoParts64
+    {% endif %}
+{% endblock title %}
+
+{# 2. SEO: META DESCRIPTION #}
+{% block meta_tags %}
+    {% if is_paginated and page_obj.number > 1 %}
+        <meta name="robots" content="noindex, follow">
+        <meta name="description" content="Страница {{ page_obj.number }} каталога {{ category.name }}. Всегда в наличии б/у и новые автозапчасти с гарантией.">
+    {% else %}
+        <meta name="robots" content="index, follow">
+        <meta name="description" content="Полный каталог б/у и новых запчастей в категории {{ category.name }}. Быстрый поиск и фильтрация по марке, модели и поколению автомобиля. Всегда в наличии.">
+    {% endif %}
+
+{% endblock meta_tags %}
+
+{# 3. SEO: КАНОНИЧЕСКИЙ URL (ОЧЕНЬ ВАЖНО ДЛЯ ФИЛЬТРОВ И ПАГИНАЦИИ) #}
+{% block canonical_url %}
+    {% comment %}
+        Canonical URL должен указывать на базовую страницу категории,
+        игнорируя фильтры и пагинацию.
+    {% endcomment %}
+    {% with base_url=request.scheme|add:"//"|add:request.get_host|add:request.path %}
+        <link rel="canonical" href="{{ base_url }}" />
+    {% endwith %}
+
+    {% comment %}
+        Добавление тегов rel="prev" и rel="next" для пагинации.
+    {% endcomment %}
+    {% if is_paginated %}
+        {% with filter_params="&"|add:request.GET.urlencode|cut:"page=" %}
+            {% if page_obj.has_previous %}
+                {% with prev_url=base_url|add:"?page="|add:page_obj.previous_page_number|add:filter_params %}
+                    <link rel="prev" href="{{ prev_url|urlencode }}" />
+                {% endwith %}
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                {% with next_url=base_url|add:"?page="|add:page_obj.next_page_number|add:filter_params %}
+                    <link rel="next" href="{{ next_url|urlencode }}" />
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+{% endblock canonical_url %}
 {% block content %}
 
 
