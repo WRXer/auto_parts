@@ -127,6 +127,7 @@ def import_parts():
 
     parts_created = 0
     parts_updated = 0
+    processed_part_ids = []
 
     for idx, row in df.iterrows():
         excel_row_num = idx + 2    #Предполагая, что строка 1 - это заголовки
@@ -213,6 +214,8 @@ def import_parts():
             )
             part_obj.car_generations.set([gen_obj])
 
+            processed_part_ids.append(part_unique_id)
+
             photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
             current_images_queryset = PartImage.objects.filter(part=part_obj)
             current_image_urls = set(current_images_queryset.values_list('image_url', flat=True))
@@ -242,11 +245,13 @@ def import_parts():
         except Exception as e:
             print(f"❌ Критическая ошибка при обработке строки {excel_row_num} (ID: {part_unique_id}): {e}")
             pass
+    parts_to_deactivate = Part.objects.exclude(part_id__in=processed_part_ids).filter(is_active=True)
+    deactivated_count = parts_to_deactivate.update(is_active=False)
 
     print("Импорт завершён!")
     print(f"Создано новых запчастей: {parts_created}")
     print(f"Обновлено существующих запчастей: {parts_updated}")
-
+    print(f"Деактивировано запчастей (нет в файле): {deactivated_count}")
 
 
 if __name__ == "__main__":
