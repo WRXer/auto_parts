@@ -95,6 +95,7 @@ def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, C
         return
     parts_created = 0
     parts_updated = 0
+    processed_part_ids = []    #Список айди зч, имеющихся в таблице
     for idx, row in df.iterrows():
         excel_row_num = idx + 2
         donor_vehicle_obj = None
@@ -167,6 +168,7 @@ def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, C
                     }
                 )
                 part_obj.car_generations.set([gen_obj])
+                processed_part_ids.append(part_unique_id)
 
                 photo_urls = set([url.strip() for url in str(row.get('Фото', '')).split(',') if url.strip()])
                 current_images_queryset = PartImage.objects.filter(part=part_obj)
@@ -193,7 +195,10 @@ def import_parts_to_db(stdout, CarMake, CarModel, CarGeneration, DonorVehicle, C
             stdout.write(
                 f"❌ Критическая ошибка при обработке строки {excel_row_num} (ID: {part_unique_id}): {e}")
             pass
+    parts_to_deactivate = Part.objects.exclude(part_id__in=processed_part_ids).filter(is_active=True)
+    deactivated_count = parts_to_deactivate.update(is_active=False)
 
     stdout.write("Импорт завершён!")
     stdout.write(f"Создано новых запчастей: {parts_created}")
     stdout.write(f"Обновлено существующих запчастей: {parts_updated}")
+    stdout.write(f"Деактивировано запчастей (нет в файле): {deactivated_count}")
