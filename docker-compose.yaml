@@ -73,7 +73,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "80:80"
+      - "8081:80"
       - "443:443"
     depends_on:
       - web
