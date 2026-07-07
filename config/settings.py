@@ -15,6 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from django.conf.global_settings import AUTH_USER_MODEL
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +36,8 @@ ALLOWED_HOSTS = ['cheapautoparts.ru',
     '147.45.143.109', 
     'localhost',  # <-- Добавьте это
     '127.0.0.1',  # <-- Добавьте это для локальных запросов
-
+    '0.0.0.0',
+    '*',
 	]
 
 
@@ -106,8 +108,9 @@ DATABASES = {
         'NAME': os.getenv('NAME_DB'),
         'USER': os.getenv('USER_DB'),
         'PASSWORD': os.getenv('PASSWORD_DB'),
-	    'HOST': '127.0.0.1', # <--- ДОБАВЬТЕ ЭТУ СТРОКУ ИЛИ УБЕДИТЕСЬ, ЧТО ОНА ИСПОЛЬЗУЕТСЯ
-        'PORT': '5432',        #'HOST': 'db'
+	    #'HOST': '127.0.0.1', # <--- ДОБАВЬТЕ ЭТУ СТРОКУ ИЛИ УБЕДИТЕСЬ, ЧТО ОНА ИСПОЛЬЗУЕТСЯ
+        'PORT': '5432',
+        'HOST': 'db'
     }
 }
 
@@ -201,7 +204,7 @@ CART_SESSION_ID = 'carts'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True       # Перенаправлять весь HTTP-трафик на HTTPS
+SECURE_SSL_REDIRECT = False       # Перенаправлять весь HTTP-трафик на HTTPS
 SECURE_HSTS_SECONDS = 31536000   # Активировать HSTS на 1 год
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -217,9 +220,19 @@ TELEGRAM_ADMINS_FILE = BASE_DIR / 'telegram_admins.json'
 #CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 #Бэкенд для хранения результатов задач (тоже Redis)
 #CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+#CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 #Бэкенд для хранения результатов задач (тоже Redis)
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+#CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+#для контейнера ниже
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/1'
+#CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_SCHEDULE = {
+    'daily-catalog-update': {
+        'task': 'spare_parts.tasks.update_catalog_task', # Укажите полный путь к вашей таске
+        'schedule': crontab(hour='*/1'),          # Время запуска
+    },
+}
 
 #Сериализация данных (JSON — самый универсальный)
 CELERY_ACCEPT_CONTENT = ['json']

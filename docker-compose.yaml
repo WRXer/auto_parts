@@ -16,8 +16,9 @@ services:
       - redis
     # Монтирование тома для медиафайлов
     volumes:
-      - static_data:/vol/web/static
+      - static_data:/vol/web/staticfiles_collected
       - media_data:/vol/web/media
+      - .:/vol/web
     expose:
       # Nginx будет обращаться к этому порту
       - 8000
@@ -45,6 +46,8 @@ services:
   celery_worker:
     # Используем тот же образ, что и 'web'
     build: .
+    volumes:
+      - .:/vol/web
     env_file:
       - .env
     # Команда для запуска воркера
@@ -54,20 +57,30 @@ services:
       - db
     restart: always
 
+  celery-beat:
+    build: .
+    volumes:
+      - .:/vol/web
+    env_file:
+      - .env
+    command: celery -A config beat -l info --scheduler celery.beat.Scheduler
+    depends_on:
+      - redis
+      - db
+    restart: always
+
   # 5. СЕРВИС ВЕБ-СЕРВЕРА NGINX
   nginx:
     image: nginx:stable-alpine
     ports:
-      # Открываем порты 80 (HTTP) и 443 (HTTPS) наружу
       - "80:80"
       - "443:443"
     depends_on:
       - web
     volumes:
-      # Конфигурация Nginx
-      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      # Подключение томов для статики и медиа
-      - static_data:/vol/web/static
+      # Монтируем всю папку с конфигурациями
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static_data:/vol/web/staticfiles_collected  # :ro (read-only) для безопасности
       - media_data:/vol/web/media
     restart: always
 
